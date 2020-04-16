@@ -1,0 +1,4 @@
+// #Tuesday, 18-Feb-20 15:58:12 UTC P2P exchange 
+#ifndef HARDFORK_CWD3_TIME
+#define HARDFORK_CWD3_TIME (fc::time_point_sec( 1582041681 ))
+#endif

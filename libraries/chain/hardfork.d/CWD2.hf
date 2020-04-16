@@ -1,0 +1,4 @@
+// #Tuesday, 23 October 2019 г., 19:00:00 COUNT PV, COUNT GCWD ISSUED
+#ifndef HARDFORK_CWD2_TIME
+#define HARDFORK_CWD2_TIME (fc::time_point_sec( 1571857200 ))
+#endif
