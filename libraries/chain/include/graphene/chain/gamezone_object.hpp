@@ -27,7 +27,7 @@ namespace graphene { namespace chain {
         asset bet;
         uint8_t nonce = 1;
         time_point_sec expiration;
-        uint8_t status = 0; //0 = active, 1 = filled, 2 = flipped, 3 = canceled
+        uint8_t status = 0; //0 = active, 1 = filled, 2 = flipped
    };
 
     struct by_id;
@@ -69,7 +69,7 @@ namespace graphene { namespace chain {
          asset                       ticket_price;
          time_point_sec              expiration;
          uint16_t                    latency_sec;
-         uint8_t                     status = 0; //0 = new, 1 = sold out, 2 = completed, 3 = owner paid
+         uint8_t                     status = 0; //0 = new, 1 = sold out, 2 = completed, 3 = owner paid, 4 = canceled
          string                      img_url;
          string                      description;
          optional<account_id_type>   winner;

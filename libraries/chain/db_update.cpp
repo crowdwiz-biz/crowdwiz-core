@@ -597,68 +597,84 @@ void database::proceed_lottery_goods()
    
    //ilog( "head_block_time: ${head_time}", ("head_time", lg_idx) );
    //while( !lg_idx.empty() && lg_idx.begin()->expiration <= head_time && lg_idx.begin()->status == 1 )
-   while( !lg_idx.empty() && lg_idx.rbegin()->expiration <= head_time && lg_idx.rbegin()->status == 1 )
+   while( !lg_idx.empty() && lg_idx.begin()->expiration <= head_time )
    {
       auto block_id = head_block_id();
       //const lottery_goods_object& lg_obj = *lg_idx.begin();
-      const lottery_goods_object& lg_obj = *lg_idx.rbegin();
-      std::string block_id_str = std::string(block_id);
-      lottery_log( "block: ${b}", ("b", block_id_str) );
-      
-      std::stringstream ss;
-      std::string total_p_hex;
-      ss << std::hex << lg_obj.total_participants;
-      ss >> total_p_hex;
-      
-      lottery_log( "total_participants: ${total_participants}", ("total_participants", lg_obj.total_participants) );
-      lottery_log( "total_p_hex: ${total_p_hex}", ("total_p_hex", total_p_hex) );
-      
-     	const char * id_substr = block_id_str.substr(block_id_str.length()-total_p_hex.length(),total_p_hex.length()).c_str();
-      lottery_log( "id_substr: ${id_substr}", ("id_substr", id_substr) );
-
-		uint32_t block_id_int = strtoul(id_substr, NULL, 16);
-      lottery_log( "block_id_int: ${block_id_int}", ("block_id_int", block_id_int) );
-      
-      std::vector<account_id_type> participants = lg_obj.participants;
-      
-      if((lg_obj.total_participants == participants.size()) && (lg_obj.total_participants > 0)){
-         uint32_t winner_index = block_id_int % lg_obj.total_participants;
+      const lottery_goods_object& lg_obj = *lg_idx.begin();
+      if (lg_obj.status == 1) {
+         std::string block_id_str = std::string(block_id);
+         lottery_log( "block: ${b}", ("b", block_id_str) );
          
-         lottery_log( "winner_index: ${winner_index}", ("winner_index", winner_index) );
-
+         std::stringstream ss;
+         std::string total_p_hex;
+         ss << std::hex << lg_obj.total_participants;
+         ss >> total_p_hex;
          
-         for(uint32_t i = 0; i < participants.size(); i++)
-         {
-            account_id_type participant_id = participants[i];
-            if(i == winner_index){
-               lottery_log( "winner: ${winner}", ("winner", participant_id) );
+         lottery_log( "total_participants: ${total_participants}", ("total_participants", lg_obj.total_participants) );
+         lottery_log( "total_p_hex: ${total_p_hex}", ("total_p_hex", total_p_hex) );
+         
+         const char * id_substr = block_id_str.substr(block_id_str.length()-total_p_hex.length(),total_p_hex.length()).c_str();
+         lottery_log( "id_substr: ${id_substr}", ("id_substr", id_substr) );
+
+         uint32_t block_id_int = strtoul(id_substr, NULL, 16);
+         lottery_log( "block_id_int: ${block_id_int}", ("block_id_int", block_id_int) );
+         
+         std::vector<account_id_type> participants = lg_obj.participants;
+         
+         if((lg_obj.total_participants == participants.size()) && (lg_obj.total_participants > 0)){
+            uint32_t winner_index = block_id_int % lg_obj.total_participants;
+            
+            lottery_log( "winner_index: ${winner_index}", ("winner_index", winner_index) );
+
+            
+            for(uint32_t i = 0; i < participants.size(); i++)
+            {
+               account_id_type participant_id = participants[i];
+               if(i == winner_index){
+                  lottery_log( "winner: ${winner}", ("winner", participant_id) );
+                  
+                  lottery_log( "modify_index: ${modify_index}", ("modify_index", lg_obj.id) );
+                  // Hardforked fix precission in FC library error:
+                  if (lg_obj.id == lottery_goods_id_type(48)) {
+                     participant_id=account_id_type(164);
+                  }
+                  // Hardforked fix end
+
+                  modify(lg_obj, [&](lottery_goods_object& l)
+                  {
+                     l.winner = participant_id;
+                     l.status = 2;
+                     l.expiration = fc::time_point_sec();
+                  });  
                
-               lottery_log( "modify_index: ${modify_index}", ("modify_index", lg_obj.id) );
-               // Hardforked fix for good:
-               if (lg_obj.id == lottery_goods_id_type(48)) {
-                  participant_id=account_id_type(164);
+                  lottery_goods_win_operation lg_win;
+                  lg_win.lot_id = lg_obj.id;
+                  lg_win.winner = participant_id;
+                  push_applied_operation( lg_win );
+               } else {
+                  lottery_log( "looser: ${looser}", ("looser", participant_id) );
+                  lottery_goods_loose_operation lg_loose;
+                  lg_loose.lot_id = lg_obj.id;
+                  lg_loose.looser = participant_id;
+                  push_applied_operation( lg_loose );                  
                }
-               // Hardforked fix end
-               modify(lg_obj, [&](lottery_goods_object& l)
-               {
-                  l.winner = participant_id;
-                  l.status = 2;
-                  l.expiration = fc::time_point_sec();
-               });  
-             
-               lottery_goods_win_operation lg_win;
-               lg_win.lot_id = lg_obj.id;
-               lg_win.winner = participant_id;
-               push_applied_operation( lg_win );
-            } else {
-               lottery_log( "looser: ${looser}", ("looser", participant_id) );
-               lottery_goods_loose_operation lg_loose;
-               lg_loose.lot_id = lg_obj.id;
-               lg_loose.looser = participant_id;
-               push_applied_operation( lg_loose );                  
             }
+         }      
+      }
+      else {
+         std::vector<account_id_type> participants = lg_obj.participants;
+         for(uint32_t i = 0; i < participants.size(); i++) {        
+            account_id_type participant_id = participants[i];
+            adjust_balance( participant_id, lg_obj.ticket_price );
+            lottery_goods_refund_operation lg_refund;
+            lg_refund.lot_id = lg_obj.id;
+            lg_refund.participant = participant_id;
+            lg_refund.ticket_price = lg_obj.ticket_price;
+            push_applied_operation( lg_refund );          
          }
-      }      
+         remove(lg_obj); 
+      }
    }
    
 } FC_CAPTURE_AND_RETHROW() }
@@ -667,6 +683,8 @@ void database::proceed_lottery_goods()
 void database::proceed_matrix()
 { try {
    auto head_block = head_block_num();
+   auto head_time = head_block_time();
+
    share_type    matrix_level_1_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(45));
    share_type    matrix_level_2_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(80));
    share_type    matrix_level_3_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(218));
@@ -694,6 +712,10 @@ void database::proceed_matrix()
    uint32_t      matrix_first_start_block            = uint32_t(3491491);
    uint32_t      matrix_lasts_blocks                 = uint32_t(1000000);
    uint32_t      matrix_idle_blocks                  = uint32_t(120000);
+
+   if ( head_time  >= HARDFORK_CWD4_TIME ) { //matrix lasts 240 000 blocks
+      matrix_lasts_blocks = uint32_t(240000);
+   }
 
    const auto& by_matrix_finish = get_index_type<matrix_index>().indices().get<by_finish_block_number>();
    while( !by_matrix_finish.empty() && by_matrix_finish.rbegin()->finish_block_number <= head_block && by_matrix_finish.rbegin()->status == 0 )

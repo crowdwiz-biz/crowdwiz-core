@@ -84,6 +84,7 @@ namespace graphene { namespace chain {
 			time_point_sec               time_for_reply;
 			optional<memo_data>          payment_details;
 			optional<memo_data>          file_hash;
+			optional<account_id_type>     arbitrage_initiator;
 
 	};
 	struct by_id;
@@ -208,4 +209,5 @@ FC_REFLECT_DERIVED( graphene::chain::p2p_order_object, (graphene::db::object),
 	(time_for_reply)
 	(payment_details)
 	(file_hash)
+	(arbitrage_initiator)
 ) 

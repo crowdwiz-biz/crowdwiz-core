@@ -64,6 +64,12 @@ namespace graphene { namespace chain {
     FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
     }
 
+    void lottery_goods_refund_operation::validate()const
+    {
+    FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+    FC_ASSERT( ticket_price.amount>0 );
+    }
+
     void flipcoin_bet_operation::validate()const
     {
     FC_ASSERT( fee.amount >= 0 );

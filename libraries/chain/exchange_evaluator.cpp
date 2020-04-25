@@ -400,7 +400,7 @@ void_result open_p2p_dispute_evaluator::do_evaluate( const open_p2p_dispute_oper
 { try {
 	const database& d = db();
 	const auto& p2p_order_obj = d.get(op.p2p_order);
-	const auto head_time = d.head_block_time();
+	// const auto head_time = d.head_block_time();
 
 	FC_ASSERT(p2p_order_obj.status == 3);
 	FC_ASSERT(p2p_order_obj.p2p_gateway == op.account || p2p_order_obj.p2p_client == op.account);
@@ -418,6 +418,7 @@ void_result open_p2p_dispute_evaluator::do_apply( const open_p2p_dispute_operati
 	d.modify(d.get(op.p2p_order), [&]( p2p_order_object &obj )
 	{
 		obj.status = 4;
+		obj.arbitrage_initiator = op.account;
 	});
 	return void_result();
 } FC_CAPTURE_AND_RETHROW( (op) ) }
@@ -428,14 +429,11 @@ void_result reply_p2p_dispute_evaluator::do_evaluate( const reply_p2p_dispute_op
 	const database& d = db();
 	const auto& p2p_order_obj = d.get(op.p2p_order);
 	FC_ASSERT( p2p_order_obj.status == 4 );
-
-	if (p2p_order_obj.order_type) {
-		FC_ASSERT(p2p_order_obj.p2p_client == op.account);
+	FC_ASSERT( p2p_order_obj.p2p_gateway == op.account || p2p_order_obj.p2p_client == op.account);
+	const auto head_time = d.head_block_time();
+	if (head_time >= HARDFORK_CWD4_TIME ) {
+		FC_ASSERT( p2p_order_obj.arbitrage_initiator != op.account);
 	}
-	else {
-		FC_ASSERT(p2p_order_obj.p2p_gateway == op.account);
-	}
-
     account_id_type admin_whitelist = account_id_type(3334);
     auto& admin = d.get<account_object>(admin_whitelist);
     FC_ASSERT( admin.whitelisted_accounts.find(op.arbitr) != admin.whitelisted_accounts.end(), "Not admin account!" );
@@ -449,6 +447,7 @@ void_result reply_p2p_dispute_evaluator::do_apply( const reply_p2p_dispute_opera
 	d.modify(d.get(op.p2p_order), [&]( p2p_order_object &obj )
 	{
 		obj.status = 5;
+
 	});
 	return void_result();
 } FC_CAPTURE_AND_RETHROW( (op) ) }

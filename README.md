@@ -1,12 +1,7 @@
 CrowdWiz Core
 ==============
 
-[Build Status](https://travis-ci.org/crowdwiz/crowdwiz-core/branches):
-
-`master` | `develop` | `hardfork` | `testnet` | `crowdwiz-fc` 
- --- | --- | --- | --- | ---
- [![](https://travis-ci.org/crowdwiz/crowdwiz-core.svg?branch=master)](https://travis-ci.org/crowdwiz/crowdwiz-core) | [![](https://travis-ci.org/crowdwiz/crowdwiz-core.svg?branch=develop)](https://travis-ci.org/crowdwiz/crowdwiz-core) | [![](https://travis-ci.org/crowdwiz/crowdwiz-core.svg?branch=hardfork)](https://travis-ci.org/crowdwiz/crowdwiz-core) | [![](https://travis-ci.org/crowdwiz/crowdwiz-core.svg?branch=testnet)](https://travis-ci.org/crowdwiz/crowdwiz-core) | [![](https://travis-ci.org/crowdwiz/crowdwiz-fc.svg?branch=master)](https://travis-ci.org/crowdwiz/crowdwiz-fc) 
-
+`master` | `dev`
 
 * [Getting Started](#getting-started)
 * [Support](#support)
@@ -22,7 +17,6 @@ Visit [CrowdWiz.org](https://crowdwiz.org/) to learn about CrowdWiz and join the
 
 Information for developers can be found in the [Bitshares Developer Portal](https://dev.crowdwiz.works/). Users interested in how crowdwiz works can go to the [CrowdWiz Documentation](https://how.crowdwiz.works/) site.
 
-For security issues and bug bounty program please visit [Hack the DEX](https://hackthedex.io).
 
 Getting Started
 ---------------

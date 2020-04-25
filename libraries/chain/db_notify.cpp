@@ -312,7 +312,14 @@ struct get_impacted_account_visitor
    {
       _impacted.insert( op.fee_payer() );
       _impacted.insert( op.looser );
-   }   
+   } 
+
+   void operator()( const lottery_goods_refund_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+      _impacted.insert( op.participant );
+   } 
+
    void operator()( const send_message_operation& op )
    {
       _impacted.insert( op.to );

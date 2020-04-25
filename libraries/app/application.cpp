@@ -164,6 +164,7 @@ void application_impl::reset_p2p_node(const fc::path& data_dir)
    else
    {
       vector<string> seeds = {
+         "build2.onbc.xyz:1776",
          "node1.crowdwiz.biz:1776",
          "node2.crowdwiz.biz:1776",
          "node3.crowdwiz.biz:1776",

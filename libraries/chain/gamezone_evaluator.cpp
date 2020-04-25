@@ -116,18 +116,28 @@ void_result lottery_goods_create_lot_evaluator::do_evaluate( const lottery_goods
    FC_ASSERT( (op.total_participants>0)&&(op.total_participants<=5000));
    FC_ASSERT( (op.latency_sec>0)&&(op.latency_sec<=100));
    FC_ASSERT( op.ticket_price.asset_id == asset_id_type(), "Price must be in core asset");
-
-    account_id_type admin_whitelist = account_id_type(27);
-    auto& admin = d.get<account_object>(admin_whitelist);
-    auto& owner = d.get<account_object>(op.owner);
-    FC_ASSERT( admin.whitelisted_accounts.find(owner.id) != admin.whitelisted_accounts.end(), "Not admin account!" );
+   auto head_time = db().head_block_time();
+   if ( head_time >= HARDFORK_CWD4_TIME ) {
+      auto& owner = d.get<account_object>(op.owner);
+      FC_ASSERT( owner.referral_status_type == 4, "You must have Infinity contract");
+   }
+   else { //for all Infinity
+      account_id_type admin_whitelist = account_id_type(27);
+      auto& admin = d.get<account_object>(admin_whitelist);
+      auto& owner = d.get<account_object>(op.owner);
+      FC_ASSERT( admin.whitelisted_accounts.find(owner.id) != admin.whitelisted_accounts.end(), "Not admin account!" );
+   }
    return void_result();
 
 }  FC_CAPTURE_AND_RETHROW( (op) ) }
 
 object_id_type lottery_goods_create_lot_evaluator::do_apply( const lottery_goods_create_lot_operation& op )
 { try {
-   
+   auto head_time = db().head_block_time();
+   time_point_sec expiration = HARDFORK_CWD4_TIME;
+   if ( head_time >= HARDFORK_CWD4_TIME ) {
+      expiration = head_time + fc::seconds(2592000);
+   }
    const auto& new_lottery_goods_object = db().create<lottery_goods_object>([&](lottery_goods_object& obj){
        obj.owner = op.owner;
        obj.total_participants = op.total_participants;
@@ -136,6 +146,7 @@ object_id_type lottery_goods_create_lot_evaluator::do_apply( const lottery_goods
        obj.img_url = op.img_url;
        obj.description = op.description;
        obj.status = 0;
+       obj.expiration = expiration;
    });
    
    return new_lottery_goods_object.id;
@@ -337,9 +348,11 @@ object_id_type matrix_open_room_evaluator::do_apply( const matrix_open_room_oper
 { try {
    database& d = db();
    matrix = &op.matrix_id(d);
+   auto head_time = db().head_block_time();
+
    db().adjust_balance( op.player, -op.level_price.amount );
 
-   if ( db().head_block_time() >= HARDFORK_CWD2_TIME ) {
+   if ( head_time >= HARDFORK_CWD2_TIME ) {
       const account_object& from_account = op.player(d);
       from_account.statistics(d).update_pv(op.level_price.amount, from_account, d);
    }
@@ -360,14 +373,25 @@ object_id_type matrix_open_room_evaluator::do_apply( const matrix_open_room_oper
    if (player.referral_status_type*2 > max_level) {
       max_level=player.referral_status_type*2;
    }
-
-   if (player_stats.matrix != op.matrix_id || player_stats.matrix_rooms_opened == 0) {
-      d.modify(player_stats, [&](account_statistics_object &s) {
-         s.matrix = op.matrix_id;
-         s.matrix_active_levels = max_level;
-         s.matrix_cells_opened = 0;
-         s.matrix_rooms_opened = 0;
-      });
+   if ( head_time >= HARDFORK_CWD4_TIME ) { //Open rooms
+      if (player_stats.matrix != op.matrix_id || player_stats.matrix_rooms_opened == 0) {
+         d.modify(player_stats, [&](account_statistics_object &s) {
+            s.matrix = op.matrix_id;
+            s.matrix_active_levels = max_level;
+            s.matrix_cells_opened = 2;
+            s.matrix_rooms_opened = 0;
+         });
+      }
+   }
+   else {
+      if (player_stats.matrix != op.matrix_id || player_stats.matrix_rooms_opened == 0) {
+         d.modify(player_stats, [&](account_statistics_object &s) {
+            s.matrix = op.matrix_id;
+            s.matrix_active_levels = max_level;
+            s.matrix_cells_opened = 0;
+            s.matrix_rooms_opened = 0;
+         });
+      }      
    }
 
    if (ref_01_stats.matrix == op.matrix_id && ref_01_stats.matrix_cells_opened == 1) {
@@ -402,25 +426,37 @@ object_id_type matrix_open_room_evaluator::do_apply( const matrix_open_room_oper
 
    bool need_to_fill = false;
    matrix_rooms_id_type room_id_to_fill;
-   uint8_t room_status = 0;
-   if (ref_01_stats.matrix_cells_opened >= 2) {
-      room_status = 1;
-   }
-   auto& rooms_idx = d.get_index_type<matrix_rooms_index>().indices().get<by_matrix_level_player_status>();
-   auto ref_01_itr = rooms_idx.find( boost::make_tuple(op.matrix_id, ref_01.id, op.matrix_level, room_status) );
 
-   if ( ref_01_itr != rooms_idx.end()) {
-      room_id_to_fill = ref_01_itr->id;
-      need_to_fill = true;
+   if ( head_time >= HARDFORK_CWD4_TIME ) { //Do not link to firstliner
+         auto& other_rooms_idx = d.get_index_type<matrix_rooms_index>().indices().get<by_matrix_level_status>();
+         auto other_itr = other_rooms_idx.find( boost::make_tuple(op.matrix_id, op.matrix_level, 1) );    
+         if ( other_itr != other_rooms_idx.end()) {
+            room_id_to_fill = other_itr->id;
+            need_to_fill = true;
+         }
    }
    else {
-      auto& other_rooms_idx = d.get_index_type<matrix_rooms_index>().indices().get<by_matrix_level_status>();
-      auto other_itr = other_rooms_idx.find( boost::make_tuple(op.matrix_id, op.matrix_level, 1) );    
-      if ( other_itr != other_rooms_idx.end()) {
-         room_id_to_fill = other_itr->id;
-         need_to_fill = true;
+      uint8_t room_status = 0;
+      if (ref_01_stats.matrix_cells_opened >= 2) {
+         room_status = 1;
+      }
+      auto& rooms_idx = d.get_index_type<matrix_rooms_index>().indices().get<by_matrix_level_player_status>();
+      auto ref_01_itr = rooms_idx.find( boost::make_tuple(op.matrix_id, ref_01.id, op.matrix_level, room_status) );
+      
+      if ( ref_01_itr != rooms_idx.end()) {
+            room_id_to_fill = ref_01_itr->id;
+            need_to_fill = true;
+         }
+      else {
+         auto& other_rooms_idx = d.get_index_type<matrix_rooms_index>().indices().get<by_matrix_level_status>();
+         auto other_itr = other_rooms_idx.find( boost::make_tuple(op.matrix_id, op.matrix_level, 1) );    
+         if ( other_itr != other_rooms_idx.end()) {
+            room_id_to_fill = other_itr->id;
+            need_to_fill = true;
+         }
       }
    }
+ 
    if(need_to_fill) {
       const matrix_rooms_object& room_to_fill = d.get(room_id_to_fill);
       d.modify(room_to_fill, [&]( matrix_rooms_object& mr )

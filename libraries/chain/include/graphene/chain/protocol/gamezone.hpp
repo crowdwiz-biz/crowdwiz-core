@@ -157,6 +157,17 @@ struct lottery_goods_create_lot_operation : public base_operation
       account_id_type         fee_payer()const { return looser; }
       void                    validate()const;  
    };
+   struct lottery_goods_refund_operation : public base_operation // VIRTUAL
+   {
+      struct fee_parameters_type { share_type fee = 0; }; 
+      asset                   fee;
+      lottery_goods_id_type   lot_id;
+      account_id_type         participant;
+      asset                   ticket_price;
+     
+      account_id_type         fee_payer()const { return participant; }
+      void                    validate()const;  
+   };
 
    struct matrix_open_room_operation : public base_operation
    {
@@ -236,6 +247,9 @@ FC_REFLECT( graphene::chain::lottery_goods_win_operation, (fee)(lot_id)(winner) 
 
 FC_REFLECT( graphene::chain::lottery_goods_loose_operation::fee_parameters_type, (fee) )
 FC_REFLECT( graphene::chain::lottery_goods_loose_operation, (fee)(lot_id)(looser) )
+
+FC_REFLECT( graphene::chain::lottery_goods_refund_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::chain::lottery_goods_refund_operation, (fee)(lot_id)(participant)(ticket_price) )
 
 FC_REFLECT( graphene::chain::matrix_open_room_operation::fee_parameters_type, (fee)(matrix_fee_percent) )
 FC_REFLECT( graphene::chain::matrix_open_room_operation, (fee)(matrix_id)(player)(matrix_level)(level_price))

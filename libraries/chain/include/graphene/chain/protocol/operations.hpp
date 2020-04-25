@@ -128,7 +128,8 @@ namespace graphene { namespace chain {
             release_p2p_order_operation, // EXCHANGE
             open_p2p_dispute_operation, // EXCHANGE
             reply_p2p_dispute_operation, // EXCHANGE
-            resolve_p2p_dispute_operation // EXCHANGE
+            resolve_p2p_dispute_operation, // EXCHANGE
+            lottery_goods_refund_operation  // GAMEZONE, VIRTUAL
          > operation;
 
    /// @} // operations group

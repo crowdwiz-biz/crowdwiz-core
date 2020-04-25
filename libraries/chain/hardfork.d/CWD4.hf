@@ -1,0 +1,4 @@
+// #Tuesday, 28-Apr-20 00:00:00 UTC Lottery and Matrix fix
+#ifndef HARDFORK_CWD4_TIME
+#define HARDFORK_CWD4_TIME (fc::time_point_sec( 1588032000 ))
+#endif
