@@ -106,7 +106,7 @@ namespace graphene { namespace chain {
                member< object, object_id_type, &object::id >
             >
          >,
-         ordered_unique< tag<by_expiration>,
+         ordered_non_unique< tag<by_expiration>,
             composite_key< lottery_goods_object,
                member<lottery_goods_object, time_point_sec, &lottery_goods_object::expiration>,
                member< object, object_id_type, &object::id>

@@ -15,8 +15,6 @@ witness_node_data_dir
 programs/witness_node/witness_node_data_dir
 programs/witness_node/my-wallet.json
 
-libraries/fc
-libraries/utilities/git_revision.cpp
 
 libraries/egenesis/egenesis_brief.cpp
 libraries/egenesis/egenesis_full.cpp

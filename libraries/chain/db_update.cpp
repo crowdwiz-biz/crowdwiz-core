@@ -584,24 +584,18 @@ void database::proceed_bets()
 
 void database::proceed_lottery_goods()
 { try {
-   auto head_time = head_block_time();
-   
-   // ilog( "head_block_time: ${head_time}", ("head_time", head_time) );
+   auto head_time = head_block_time()+fc::seconds(5);
    
    auto& lg_idx = get_index_type<lottery_goods_index>().indices().get<by_expiration>();
-   // if (!lg_idx.empty())
-   // {
-   //       // ilog( "FIRST ID: ${total_p_hex}", ("total_p_hex", lg_idx.rbegin()->id) );
+   auto itr = lg_idx.upper_bound(fc::time_point_sec(1));
+   auto end = lg_idx.lower_bound( head_time );
 
-   // }
-   
-   //ilog( "head_block_time: ${head_time}", ("head_time", lg_idx) );
-   //while( !lg_idx.empty() && lg_idx.begin()->expiration <= head_time && lg_idx.begin()->status == 1 )
-   while( !lg_idx.empty() && lg_idx.begin()->expiration <= head_time )
+   while( itr != end )
    {
-      auto block_id = head_block_id();
-      //const lottery_goods_object& lg_obj = *lg_idx.begin();
-      const lottery_goods_object& lg_obj = *lg_idx.begin();
+     auto block_id = head_block_id();
+      const lottery_goods_object& lg_obj = *itr;
+      // elog( "lottery status expired  ${a} status ${s} expiration ${e} block_id ${b}", ("a", lg_obj.id)("s", lg_obj.status)("e", lg_obj.expiration)("b",block_id) );
+
       if (lg_obj.status == 1) {
          std::string block_id_str = std::string(block_id);
          lottery_log( "block: ${b}", ("b", block_id_str) );
@@ -660,9 +654,11 @@ void database::proceed_lottery_goods()
                   push_applied_operation( lg_loose );                  
                }
             }
-         }      
+         }
+      // elog( "lottery status PLAYED  ${a} status ${s} expiration ${e} winner ${w}", ("a", lg_obj.id)("s", lg_obj.status)("e", lg_obj.expiration)("w",lg_obj.winner) );
+      
       }
-      else {
+      if (lg_obj.status == 0) {
          std::vector<account_id_type> participants = lg_obj.participants;
          for(uint32_t i = 0; i < participants.size(); i++) {        
             account_id_type participant_id = participants[i];
@@ -673,9 +669,13 @@ void database::proceed_lottery_goods()
             lg_refund.ticket_price = lg_obj.ticket_price;
             push_applied_operation( lg_refund );          
          }
+         elog( "lottery status REMOVED  ${a} status ${s} expiration ${e}", ("a", lg_obj.id)("s", lg_obj.status)("e", lg_obj.expiration) );
          remove(lg_obj); 
       }
+      itr++;
    }
+
+
    
 } FC_CAPTURE_AND_RETHROW() }
 
@@ -713,9 +713,6 @@ void database::proceed_matrix()
    uint32_t      matrix_lasts_blocks                 = uint32_t(1000000);
    uint32_t      matrix_idle_blocks                  = uint32_t(120000);
 
-   if ( head_time  >= HARDFORK_CWD4_TIME ) { //matrix lasts 240 000 blocks
-      matrix_lasts_blocks = uint32_t(240000);
-   }
 
    const auto& by_matrix_finish = get_index_type<matrix_index>().indices().get<by_finish_block_number>();
    while( !by_matrix_finish.empty() && by_matrix_finish.rbegin()->finish_block_number <= head_block && by_matrix_finish.rbegin()->status == 0 )
@@ -725,9 +722,9 @@ void database::proceed_matrix()
       auto average = current_matrix.amount / matrix_lasts * 70 / 100;
       auto average_120k = current_matrix.last_120k_amount / matrix_idle_blocks;
 
-      matrix_log( "head_block: ${head_block}", ("head_block", head_block) );
-      matrix_log( "average: ${average}", ("average", average) );
-      matrix_log( "average_120k: ${average_120k}", ("average_120k", average_120k) );
+      elog( "head_block: ${head_block}", ("head_block", head_block) );
+      elog( "average: ${average}", ("average", average) );
+      elog( "average_120k: ${average_120k}", ("average_120k", average_120k) );
 
       if (average_120k >= average) {
          modify(current_matrix, [&](matrix_object& m)
@@ -772,6 +769,11 @@ void database::proceed_matrix()
          uint8_t       matrix_level_6_cells_new                = uint8_t(2);
          uint8_t       matrix_level_7_cells_new                = uint8_t(2);
          uint8_t       matrix_level_8_cells_new                = uint8_t(2);
+
+         if ( head_time  >= HARDFORK_CWD4_TIME ) { //HF4 - matrix lasts 240 000 blocks
+            matrix_lasts_blocks = uint32_t(240000);
+         }
+
          create<matrix_object>([&](matrix_object& obj){
             obj.start_block_number = head_block + matrix_idle_blocks;
             obj.finish_block_number = head_block + matrix_idle_blocks + matrix_lasts_blocks;

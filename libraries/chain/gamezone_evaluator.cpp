@@ -134,7 +134,7 @@ void_result lottery_goods_create_lot_evaluator::do_evaluate( const lottery_goods
 object_id_type lottery_goods_create_lot_evaluator::do_apply( const lottery_goods_create_lot_operation& op )
 { try {
    auto head_time = db().head_block_time();
-   time_point_sec expiration = HARDFORK_CWD4_TIME;
+   time_point_sec expiration = HARDFORK_CWD4_TIME + fc::seconds(2592000);
    if ( head_time >= HARDFORK_CWD4_TIME ) {
       expiration = head_time + fc::seconds(2592000);
    }
@@ -373,7 +373,7 @@ object_id_type matrix_open_room_evaluator::do_apply( const matrix_open_room_oper
    if (player.referral_status_type*2 > max_level) {
       max_level=player.referral_status_type*2;
    }
-   if ( head_time >= HARDFORK_CWD4_TIME ) { //Open rooms
+   if ( head_time >= HARDFORK_CWD4_TIME  && op.matrix_id > matrix_id_type(2)) { //Open rooms
       if (player_stats.matrix != op.matrix_id || player_stats.matrix_rooms_opened == 0) {
          d.modify(player_stats, [&](account_statistics_object &s) {
             s.matrix = op.matrix_id;
@@ -427,7 +427,7 @@ object_id_type matrix_open_room_evaluator::do_apply( const matrix_open_room_oper
    bool need_to_fill = false;
    matrix_rooms_id_type room_id_to_fill;
 
-   if ( head_time >= HARDFORK_CWD4_TIME ) { //Do not link to firstliner
+   if ( head_time >= HARDFORK_CWD4_TIME && op.matrix_id > matrix_id_type(2) ) { //Do not link to firstliner
          auto& other_rooms_idx = d.get_index_type<matrix_rooms_index>().indices().get<by_matrix_level_status>();
          auto other_itr = other_rooms_idx.find( boost::make_tuple(op.matrix_id, op.matrix_level, 1) );    
          if ( other_itr != other_rooms_idx.end()) {
