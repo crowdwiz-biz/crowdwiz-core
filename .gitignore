@@ -62,6 +62,17 @@ witness_node_data_dir
 programs/witness_node/witness_node_data_dir
 programs/witness_node/my-wallet.json
 
+libraries/fc/vendor/secp256k1-zkp/src/project_secp256k1-*
+libraries/fc/vendor/secp256k1-zkp/src/*.in
+libraries/fc/vendor/secp256k1-zkp/src/*.in~
+
+libraries/fc/vendor/editline/src/Makefile.in
+libraries/fc/vendor/editline/src/project_editline-*
+libraries/fc/vendor/editline/project_editline-build/Makefile 
+
+libraries/fc/CMakeFiles/**
+
+libraries/utilities/git_revision.cpp
 libraries/egenesis/egenesis_brief.cpp
 libraries/egenesis/egenesis_full.cpp
 libraries/egenesis/embed_genesis
