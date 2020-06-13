@@ -498,13 +498,12 @@ typedef multi_index_container<
                        composite_key<
                            account_statistics_object,
                            const_mem_fun<account_statistics_object, bool, &account_statistics_object::need_maintenance>,
-                           member<account_statistics_object, string, &account_statistics_object::name>>,
+                           member<account_statistics_object, string, &account_statistics_object::name>>>,
         ordered_unique<tag<by_network_income>,
                        composite_key<
                            account_statistics_object,
                            const_mem_fun<account_statistics_object, bool, &account_statistics_object::has_network_income>,
-                           member<account_statistics_object, string, &account_statistics_object::name>>                         
-                           >>>
+                           member<account_statistics_object, string, &account_statistics_object::name>>>>>
     account_stats_multi_index_type;
 
 /**

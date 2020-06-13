@@ -100,3 +100,10 @@ operations.js
 TODO
 my-wallet.json
 testcases
+libraries/fc/git_revision.cpp
+libraries/fc/git_revision.cpp
+libraries/fc/vendor/editline/config.h.in
+libraries/fc/vendor/editline/Makefile.in
+libraries/fc/vendor/editline/autom4te.cache/requests
+libraries/fc/vendor/secp256k1-zkp/autom4te.cache/requests
+libraries/fc/git_revision.cpp

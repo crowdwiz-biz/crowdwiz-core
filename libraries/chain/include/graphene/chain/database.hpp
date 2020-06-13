@@ -511,6 +511,7 @@ namespace graphene { namespace chain {
 
          template<class Type>
          void perform_account_maintenance( Type tally_helper );
+         void perform_credit_maintenance();
          ///@}
          ///@}
 

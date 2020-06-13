@@ -120,7 +120,6 @@ void database::perform_credit_maintenance()
    while( stats_itr != stats_idx.end() )
    {
       const account_statistics_object& acc_stat = *stats_itr;
-      const account_object& acc_obj = acc_stat.owner( *this );
       ++stats_itr;
 
       modify( acc_stat, []( account_statistics_object& aso )
