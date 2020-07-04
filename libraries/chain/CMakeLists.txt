@@ -61,6 +61,7 @@ add_library( graphene_chain
              protocol/gamezone.cpp
              protocol/send_message.cpp
              protocol/exchange.cpp
+             protocol/financial.cpp
              
              genesis_state.cpp
              get_config.cpp
@@ -86,6 +87,7 @@ add_library( graphene_chain
              gamezone_evaluator.cpp
              send_message_evaluator.cpp
              exchange_evaluator.cpp
+             financial_evaluator.cpp
 
              account_object.cpp
              asset_object.cpp

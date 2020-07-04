@@ -582,6 +582,36 @@ void database::proceed_bets()
 } FC_CAPTURE_AND_RETHROW() }
 
 
+void database::proceed_pledge()
+{ try {
+   auto head_time = head_block_time();
+   
+   auto& po_idx = get_index_type<pledge_offer_index>().indices().get<by_expiration>();
+   auto itr = po_idx.upper_bound(fc::time_point_sec(1));
+   auto end = po_idx.lower_bound( head_time );
+
+   while( itr != end )
+   {
+      const lottery_goods_object& po_obj = *itr;
+      pledge_offer_auto_repay_operation po_repay;
+
+      po_repay.debitor = po_obj.debitor;
+      po_repay.creditor = po_obj.creditor;
+      po_repay.pledge_amount = po_obj.pledge_amount;
+      po_repay.credit_amount = po_obj.credit_amount;
+      po_repay.repay_amount = po_obj.repay_amount;
+      po_repay.pledge_offer = po_obj.id;
+
+      push_applied_operation( po_repay );    
+
+      adjust_balance( po_obj.creditor, po_obj.pledge_amount );
+
+      remove(po_obj);
+      itr++; 
+      }
+} FC_CAPTURE_AND_RETHROW() }
+
+
 void database::proceed_lottery_goods()
 { try {
    auto head_time = head_block_time()+fc::seconds(5);

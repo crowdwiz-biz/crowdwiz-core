@@ -139,13 +139,13 @@ void database::deposit_cashback(const account_object& acct, share_type amount, b
 
    modify( acct.statistics( *this ), [amount]( account_statistics_object& aso )
    {
-      aso.current_month_income = amount;
+      aso.current_month_income += amount;
    } );
 
    account_statistics_object stats = acct.statistics( *this );
 
    if (stats.total_credit > 0 ) {
-      share_type credit = stats.allowed_to_repay-stats.allowed_to_repay;
+      share_type credit = stats.total_credit-stats.allowed_to_repay;
       if (credit > amount) {
          modify( acct.statistics( *this ), [amount]( account_statistics_object& aso )
          {

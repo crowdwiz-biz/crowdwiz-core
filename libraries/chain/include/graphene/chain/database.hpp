@@ -487,6 +487,7 @@ namespace graphene { namespace chain {
          void proceed_matrix();
          void auto_cancel_p2p_orders();
          void auto_reset_status();
+         void proceed_pledge();
          void update_expired_feeds();
          void update_core_exchange_rates();
          void update_maintenance_flag( bool new_maintenance_flag );

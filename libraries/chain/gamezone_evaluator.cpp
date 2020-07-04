@@ -70,7 +70,7 @@ void_result flipcoin_call_evaluator::do_evaluate(const flipcoin_call_operation &
 {
     try
     {
-        database& d = db();
+      database& d = db();
 		flipcoin = &op.flipcoin(d);
 
 		const account_object& caller    	= op.caller(d);

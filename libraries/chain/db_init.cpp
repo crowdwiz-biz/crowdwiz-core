@@ -48,6 +48,7 @@
 #include <graphene/chain/worker_object.hpp>
 #include <graphene/chain/gamezone_object.hpp>
 #include <graphene/chain/exchange_object.hpp> //EXCHANGE
+#include <graphene/chain/financial_object.hpp> //FINANCIAL
 
 #include <graphene/chain/account_evaluator.hpp>
 #include <graphene/chain/asset_evaluator.hpp>
@@ -66,6 +67,7 @@
 #include <graphene/chain/gamezone_evaluator.hpp> //GAMEZONE
 #include <graphene/chain/send_message_evaluator.hpp>
 #include <graphene/chain/exchange_evaluator.hpp> //EXCHANGE
+#include <graphene/chain/financial_evaluator.hpp> //FINANCIAL
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -151,6 +153,11 @@ const uint8_t p2p_adv_object::type_id; //EXCHANGE
 const uint8_t p2p_order_object::space_id; //EXCHANGE
 const uint8_t p2p_order_object::type_id; //EXCHANGE
 
+const uint8_t credit_offer_object::space_id; //FINANCIAL
+const uint8_t credit_offer_object::type_id; //FINANCIAL
+const uint8_t pledge_offer_object::space_id; //FINANCIAL
+const uint8_t pledge_offer_object::type_id; //FINANCIAL
+
 void database::initialize_evaluators()
 {
    _operation_evaluators.resize(255);
@@ -219,6 +226,16 @@ void database::initialize_evaluators()
    register_evaluator<open_p2p_dispute_evaluator>();//EXCHANGE
    register_evaluator<reply_p2p_dispute_evaluator>();//EXCHANGE
    register_evaluator<resolve_p2p_dispute_evaluator>();//EXCHANGE
+   register_evaluator<credit_system_get_evaluator>();//FINANCIAL
+   register_evaluator<credit_repay_evaluator>();//FINANCIAL
+   register_evaluator<credit_offer_create_evaluator>();//FINANCIAL
+   register_evaluator<credit_offer_cancel_evaluator>();//FINANCIAL
+   register_evaluator<credit_offer_fill_evaluator>();//FINANCIAL
+   register_evaluator<pledge_offer_give_create_evaluator>();//FINANCIAL
+   register_evaluator<pledge_offer_take_create_evaluator>();//FINANCIAL
+   register_evaluator<pledge_offer_cancel_evaluator>();//FINANCIAL
+   register_evaluator<pledge_offer_fill_evaluator>();//FINANCIAL
+   register_evaluator<pledge_offer_repay_evaluator>();//FINANCIAL
 }
 
 void database::initialize_indexes()
@@ -254,6 +271,9 @@ void database::initialize_indexes()
    // add_index< primary_index<matrix_players_index> >(); //GAMEZONE
    add_index< primary_index<p2p_adv_index> >(); //EXCHANGE
    add_index< primary_index<p2p_order_index> >(); //EXCHANGE
+
+   add_index< primary_index<credit_offer_index> >(); //FINANCIAL
+   add_index< primary_index<pledge_offer_index> >(); //FINANCIAL
 
    //Implementation object indexes
    add_index< primary_index<transaction_index                             > >();

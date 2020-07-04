@@ -17,6 +17,7 @@
 #include <graphene/chain/transaction_object.hpp>
 #include <graphene/chain/impacted.hpp>
 #include <graphene/chain/exchange_object.hpp>
+#include <graphene/chain/financial_object.hpp>
 
 using namespace fc;
 using namespace graphene::chain;
@@ -513,6 +514,18 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
            const auto& aobj = dynamic_cast<const matrix_rooms_object*>(obj);
            FC_ASSERT( aobj != nullptr );
            accounts.insert( aobj->matrix_player );
+           break;
+        } 
+        case credit_offer_object_type:{
+           const auto& aobj = dynamic_cast<const credit_offer_object*>(obj);
+           FC_ASSERT( aobj != nullptr );
+           accounts.insert( aobj->creditor );
+           break;
+        } 
+        case pledge_offer_object_type:{
+           const auto& aobj = dynamic_cast<const pledge_offer_object*>(obj);
+           FC_ASSERT( aobj != nullptr );
+           accounts.insert( aobj->creator );           
            break;
         } 
         case matrix_object_type:{
