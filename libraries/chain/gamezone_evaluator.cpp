@@ -37,6 +37,10 @@ void_result flipcoin_bet_evaluator::do_evaluate(const flipcoin_bet_operation &op
 		const asset_object&   asset_type    = op.bet.asset_id(d);
 
       FC_ASSERT( op.bet.asset_id == asset_id_type(), "Price must be in core asset");
+      
+      if ( d.head_block_time()  >= HARDFORK_CWD5_TIME ) {
+         FC_ASSERT( op.bet.amount >= 1000,  "Bet amount must be more or equal than 0.01 CWD");
+      }
 
      	bool insufficient_balance = d.get_balance( bettor, asset_type ).amount >= op.bet.amount;
      	FC_ASSERT( insufficient_balance,

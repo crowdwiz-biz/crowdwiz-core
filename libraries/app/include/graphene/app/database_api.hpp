@@ -42,6 +42,7 @@
 #include <graphene/chain/witness_object.hpp>
 #include <graphene/chain/gamezone_object.hpp>
 #include <graphene/chain/exchange_object.hpp>
+#include <graphene/chain/financial_object.hpp>
 
 #include <graphene/market_history/market_history_plugin.hpp>
 
@@ -780,7 +781,14 @@ class database_api
       vector<p2p_ord> get_gateway_p2p_orders(const std::string account_id_or_name, uint8_t status) const;
       size_t get_gateway_total_orders(const std::string account_id_or_name) const;
 
-
+      /////////////
+      // FINANCE //
+      /////////////
+      vector<credit_offer_object> credit_get_offers() const;
+      vector<credit_offer_object> credit_get_offers_by_account(const std::string account_id_or_name) const;
+      vector<account_statistics_object> credit_get_debitors(const std::string account_id_or_name) const;
+      vector<pledge_offer_object> pledge_get_offers() const;
+      vector<pledge_offer_object> pledge_get_offers_by_account(const std::string account_id_or_name) const;
 
    private:
       std::shared_ptr< database_api_impl > my;
@@ -923,5 +931,12 @@ FC_API(graphene::app::database_api,
    (get_p2p_orders)
    (get_gateway_p2p_orders)
    (get_gateway_total_orders)
+
+   // Finanace
+   (credit_get_offers)
+   (credit_get_offers_by_account)
+   (credit_get_debitors)
+   (pledge_get_offers)
+   (pledge_get_offers_by_account)
 
 )

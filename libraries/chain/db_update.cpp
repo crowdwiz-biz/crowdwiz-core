@@ -756,7 +756,7 @@ void database::proceed_matrix()
       elog( "average: ${average}", ("average", average) );
       elog( "average_120k: ${average_120k}", ("average_120k", average_120k) );
 
-      if (average_120k >= average) {
+      if (average_120k >= average && head_time < HARDFORK_CWD5_TIME) {
          modify(current_matrix, [&](matrix_object& m)
          {
             m.finish_block_number = current_matrix.finish_block_number+matrix_idle_blocks;
@@ -803,6 +803,12 @@ void database::proceed_matrix()
          if ( head_time  >= HARDFORK_CWD4_TIME ) { //HF4 - matrix lasts 240 000 blocks
             matrix_lasts_blocks = uint32_t(240000);
          }
+
+         if ( head_time  >= HARDFORK_CWD5_TIME ) { //HF5 - matrix lasts 177 blocks
+            matrix_lasts_blocks = uint32_t(177);
+            matrix_idle_blocks = uint32_t(16671);
+         }
+
 
          create<matrix_object>([&](matrix_object& obj){
             obj.start_block_number = head_block + matrix_idle_blocks;

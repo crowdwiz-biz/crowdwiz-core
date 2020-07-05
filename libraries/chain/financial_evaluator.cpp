@@ -20,10 +20,13 @@ void_result credit_system_get_evaluator::do_evaluate( const credit_system_get_op
     try
     {
 		database& d = db();
+
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
+
 		const account_object& debitor = op.debitor(d);
 		const auto& debitor_stats = debitor.statistics(d);
 		share_type max_credit = debitor_stats.first_month_income+debitor_stats.second_month_income+debitor_stats.third_month_income;
-
+		
 		FC_ASSERT(debitor_stats.total_credit == 0, "You already have credit");
 		FC_ASSERT( op.credit_amount.asset_id == asset_id_type(), "Credit must be in core asset");
 		FC_ASSERT(op.credit_amount.amount <= max_credit, "Credit must be lower or equal 3 month income");
@@ -64,6 +67,8 @@ void_result credit_repay_evaluator::do_evaluate( const credit_repay_operation &o
     try
     {
 		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
+
 		const account_object& debitor = op.debitor(d);
 		const auto& debitor_stats = debitor.statistics(d);
 
@@ -98,6 +103,8 @@ void_result credit_offer_create_evaluator::do_evaluate( const credit_offer_creat
 {
     try
     {
+		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		FC_ASSERT( op.credit_amount.asset_id == asset_id_type(), "Credit must be in core asset");
 
         return void_result();
@@ -124,6 +131,7 @@ void_result credit_offer_cancel_evaluator::do_evaluate( const credit_offer_cance
     try
     {
 		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		const credit_offer_object& credit_offer = op.credit_offer(d);
 		FC_ASSERT(credit_offer, "No such credit offer");
 		FC_ASSERT(credit_offer.creditor == op.creditor, "You not owner of this credit offer");
@@ -149,6 +157,7 @@ void_result credit_offer_fill_evaluator::do_evaluate( const credit_offer_fill_op
     try
     {
 		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		const account_object& debitor = op.debitor(d);
 		const auto& debitor_stats = debitor.statistics(d);
 		share_type debitor_income = debitor_stats.first_month_income+debitor_stats.second_month_income+debitor_stats.third_month_income;
@@ -198,6 +207,8 @@ void_result pledge_offer_give_create_evaluator::do_evaluate( const pledge_offer_
 {
     try
     {
+		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		FC_ASSERT(op.creator == op.creditor, "Creator must be creditor");
         return void_result();
     }
@@ -224,6 +235,8 @@ void_result pledge_offer_take_create_evaluator::do_evaluate( const pledge_offer_
 {
     try
     {
+		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		FC_ASSERT(op.creator == op.debitor, "Creator must be creditor");
         return void_result();
     }
@@ -251,6 +264,7 @@ void_result pledge_offer_cancel_evaluator::do_evaluate( const pledge_offer_cance
     try
     {
 		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		const pledge_offer_object& pledge_offer = op.pledge_offer(d);
 		FC_ASSERT(pledge_offer, "No such pledge offer");
 		FC_ASSERT(pledge_offer.creator == op.creator, "You not owner of this pledge offer");
@@ -275,6 +289,7 @@ void_result pledge_offer_fill_evaluator::do_evaluate( const pledge_offer_fill_op
     try
     {
 		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		const pledge_offer_object& pledge_offer = op.pledge_offer(d);
 		const account_object& creditor = op.creditor(d);
 		const account_object& debitor = op.debitor(d);
@@ -352,8 +367,8 @@ void_result pledge_offer_repay_evaluator::do_evaluate( const pledge_offer_repay_
 {
     try
     {
-
 		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		const pledge_offer_object& pledge_offer = op.pledge_offer(d);
 		const account_object& creditor = pledge_offer.creditor(d);
 		const account_object& debitor = pledge_offer.debitor(d);

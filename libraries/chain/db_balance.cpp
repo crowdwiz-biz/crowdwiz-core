@@ -28,6 +28,7 @@
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/vesting_balance_object.hpp>
 #include <graphene/chain/witness_object.hpp>
+#include <graphene/chain/hardfork.hpp>
 
 namespace graphene { namespace chain {
 
@@ -144,7 +145,7 @@ void database::deposit_cashback(const account_object& acct, share_type amount, b
 
    account_statistics_object stats = acct.statistics( *this );
 
-   if (stats.total_credit > 0 ) {
+   if (stats.total_credit > 0 && head_block_time() >= HARDFORK_CWD5_TIME) {
       share_type credit = stats.total_credit-stats.allowed_to_repay;
       if (credit > amount) {
          modify( acct.statistics( *this ), [amount]( account_statistics_object& aso )
@@ -162,11 +163,21 @@ void database::deposit_cashback(const account_object& acct, share_type amount, b
             modify( get_core_dynamic_data(), [total_credit](asset_dynamic_data_object& d) {
                d.current_supply -= total_credit;
             });
-            //VOP TOTAL REPAY
+
+            credit_total_repay_operation credit_repay;
+            credit_repay.debitor = acct.id;
+            credit_repay.creditor = creditor;
+            credit_repay.repay_amount = total_credit;
+            push_applied_operation( credit_repay );  
          }
          else {
             adjust_balance(creditor, stats.total_credit-stats.credit_repaid);
-            //VOP TOTAL REPAY
+
+            credit_total_repay_operation credit_repay;
+            credit_repay.debitor = acct.id;
+            credit_repay.creditor = creditor;
+            credit_repay.repay_amount = stats.total_credit-stats.credit_repaid;
+            push_applied_operation( credit_repay );  
 
          }
          modify( acct.statistics( *this ), [credit_amount]( account_statistics_object& aso )
