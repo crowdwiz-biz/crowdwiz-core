@@ -198,6 +198,8 @@ void_result credit_offer_fill_evaluator::do_apply( const credit_offer_fill_opera
 		d.adjust_balance( credit_offer.creditor, -op.credit_amount);
 		d.adjust_balance( op.debitor, op.credit_amount);
 
+		d.remove(credit_offer);
+
         return void_result();
     }
     FC_CAPTURE_AND_RETHROW((op))

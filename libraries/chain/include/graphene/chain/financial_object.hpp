@@ -33,6 +33,7 @@ namespace graphene { namespace chain {
 	};
 
     struct by_id;
+	struct by_creditor;
     using credit_offer_multi_index_type = multi_index_container<
 		credit_offer_object,
 		indexed_by<
@@ -40,7 +41,15 @@ namespace graphene { namespace chain {
 				tag<by_id>,
 				member<object, object_id_type, &object::id>
 			>
-		>
+		>,
+		ordered_non_unique< 
+			tag<by_creditor>,
+			composite_key<
+				credit_offer_object,
+				member<credit_offer_object, account_id_type, &credit_offer_object::creditor>,
+				member< object, object_id_type, &object::id>
+			>
+		>,
 	>;
 
    using credit_offer_index = generic_index<credit_offer_object, credit_offer_multi_index_type>;

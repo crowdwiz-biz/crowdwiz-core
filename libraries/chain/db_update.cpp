@@ -812,7 +812,12 @@ void database::proceed_matrix()
 
          create<matrix_object>([&](matrix_object& obj){
             obj.start_block_number = head_block + matrix_idle_blocks;
-            obj.finish_block_number = head_block + matrix_idle_blocks + matrix_lasts_blocks;
+            if (current_matrix.id == matrix_id_type(3)) {
+               obj.finish_block_number = uint32_t(8007900);
+            }
+            else {
+               obj.finish_block_number = head_block + matrix_idle_blocks + matrix_lasts_blocks;
+            }
             obj.status = 0;
             obj.amount = 0;
             obj.total_amount = 0;
