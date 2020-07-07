@@ -40,16 +40,16 @@ namespace graphene { namespace chain {
 			ordered_unique< 
 				tag<by_id>,
 				member<object, object_id_type, &object::id>
+			>,
+			ordered_non_unique< 
+				tag<by_creditor>,
+				composite_key<
+					credit_offer_object,
+					member<credit_offer_object, account_id_type, &credit_offer_object::creditor>,
+					member< object, object_id_type, &object::id>
+				>
 			>
-		>,
-		ordered_non_unique< 
-			tag<by_creditor>,
-			composite_key<
-				credit_offer_object,
-				member<credit_offer_object, account_id_type, &credit_offer_object::creditor>,
-				member< object, object_id_type, &object::id>
-			>
-		>,
+		>
 	>;
 
    using credit_offer_index = generic_index<credit_offer_object, credit_offer_multi_index_type>;
@@ -66,8 +66,8 @@ namespace graphene { namespace chain {
 
 			account_id_type creator;
 
-			optional <account_id_type> debitor;
-			optional <account_id_type> creditor;
+			account_id_type debitor;
+			account_id_type creditor;
 
 			asset pledge_amount;
 			asset credit_amount;

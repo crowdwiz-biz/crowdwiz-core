@@ -32,6 +32,7 @@
 #include <graphene/chain/gamezone_object.hpp>
 #include <graphene/chain/exchange_object.hpp>
 #include <graphene/chain/proposal_object.hpp>
+#include <graphene/chain/financial_object.hpp>
 #include <graphene/chain/transaction_object.hpp>
 #include <graphene/chain/withdraw_permission_object.hpp>
 #include <graphene/chain/witness_object.hpp>
@@ -592,7 +593,7 @@ void database::proceed_pledge()
 
    while( itr != end )
    {
-      const lottery_goods_object& po_obj = *itr;
+      const pledge_offer_object& po_obj = *itr;
       pledge_offer_auto_repay_operation po_repay;
 
       po_repay.debitor = po_obj.debitor;

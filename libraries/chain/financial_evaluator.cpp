@@ -43,7 +43,7 @@ void_result credit_system_get_evaluator::do_apply( const credit_system_get_opera
 		const account_object& debitor = op.debitor(d);
 		const auto& debitor_stats = debitor.statistics(d);
 
-		d.modify( get_core_dynamic_data(), [&](asset_dynamic_data_object& dd) {
+		d.modify( d.get_core_dynamic_data(), [&](asset_dynamic_data_object& dd) {
 			dd.current_supply += op.credit_amount.amount;
 		});
 
@@ -72,7 +72,7 @@ void_result credit_repay_evaluator::do_evaluate( const credit_repay_operation &o
 		const account_object& debitor = op.debitor(d);
 		const auto& debitor_stats = debitor.statistics(d);
 
-		FC_ASSERT(op.credit_amount.asset_id == asset_id_type(), "Credit repay must be in core asset");
+		FC_ASSERT(op.repay_amount.asset_id == asset_id_type(), "Credit repay must be in core asset");
 		FC_ASSERT(debitor_stats.allowed_to_repay - debitor_stats.credit_repaid >= op.repay_amount.amount, "Not enough allowed to repay");
 		FC_ASSERT(debitor_stats.creditor != account_id_type(0), "Not allowed for system account");
 
@@ -133,7 +133,7 @@ void_result credit_offer_cancel_evaluator::do_evaluate( const credit_offer_cance
 		database& d = db();
 		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		const credit_offer_object& credit_offer = op.credit_offer(d);
-		FC_ASSERT(credit_offer, "No such credit offer");
+		// FC_ASSERT(credit_offer, "No such credit offer");
 		FC_ASSERT(credit_offer.creditor == op.creditor, "You not owner of this credit offer");
         return void_result();
     }
@@ -170,7 +170,7 @@ void_result credit_offer_fill_evaluator::do_evaluate( const credit_offer_fill_op
 					"Insufficient creditor Balance: ${balance}, unable to get credit '${total_credit}' from account '${a}'", 
 					("a",creditor.name)("total_credit",d.to_pretty_string(op.credit_amount))("balance",d.to_pretty_string(d.get_balance(creditor, asset_type))) );
 
-		FC_ASSERT(credit_offer, "No such credit offer");
+		// FC_ASSERT(credit_offer, "No such credit offer");
 		FC_ASSERT(debitor_stats.total_credit == 0, "You already have credit");
 		FC_ASSERT(op.credit_amount.asset_id == asset_id_type(), "Credit must be in core asset");
 		FC_ASSERT(credit_offer.min_income <= debitor_income, "Not enough 3 month income");
@@ -190,7 +190,7 @@ void_result credit_offer_fill_evaluator::do_apply( const credit_offer_fill_opera
 		const credit_offer_object& credit_offer = op.credit_offer(d);
 
          d.modify(debitor_stats, [&](account_statistics_object &s) {
-            s.total_credit = credit_offer.repay_amount;
+            s.total_credit = credit_offer.repay_amount.amount;
             s.allowed_to_repay = 0;
             s.credit_repaid = 0;
             s.creditor = credit_offer.creditor;
@@ -211,7 +211,6 @@ void_result pledge_offer_give_create_evaluator::do_evaluate( const pledge_offer_
     {
 		database& d = db();
 		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
-		FC_ASSERT(op.creator == op.creditor, "Creator must be creditor");
         return void_result();
     }
     FC_CAPTURE_AND_RETHROW((op))
@@ -239,7 +238,6 @@ void_result pledge_offer_take_create_evaluator::do_evaluate( const pledge_offer_
     {
 		database& d = db();
 		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
-		FC_ASSERT(op.creator == op.debitor, "Creator must be creditor");
         return void_result();
     }
     FC_CAPTURE_AND_RETHROW((op))
@@ -268,7 +266,7 @@ void_result pledge_offer_cancel_evaluator::do_evaluate( const pledge_offer_cance
 		database& d = db();
 		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		const pledge_offer_object& pledge_offer = op.pledge_offer(d);
-		FC_ASSERT(pledge_offer, "No such pledge offer");
+		// FC_ASSERT(pledge_offer, "No such pledge offer");
 		FC_ASSERT(pledge_offer.creator == op.creator, "You not owner of this pledge offer");
         return void_result();
     }
@@ -302,15 +300,15 @@ void_result pledge_offer_fill_evaluator::do_evaluate( const pledge_offer_fill_op
 		bool insufficient_balance_creditor = d.get_balance( creditor, credit_asset_type ).amount >= op.credit_amount.amount;
 		bool insufficient_balance_debitor = d.get_balance( debitor, pledge_asset_type ).amount >= op.pledge_amount.amount;
 
-		FC_ASSERT(pledge_offer, "No such pledge offer");
+		// FC_ASSERT(pledge_offer, "No such pledge offer");
 		FC_ASSERT(pledge_offer.status == 0, "This pledge offer already filled");
 
 		FC_ASSERT(pledge_offer.pledge_amount == op.pledge_amount, "Pledge amount must match");
 		FC_ASSERT(pledge_offer.credit_amount == op.credit_amount, "Credit amount must match");
 		FC_ASSERT(pledge_offer.repay_amount == op.repay_amount, "Repay amount must match");
 		FC_ASSERT(pledge_offer.pledge_days == op.pledge_days, "Pledge days amount must match");
-
-		if (pledge_offer.debitor) {
+	
+		if (pledge_offer.debitor != account_id_type(0)) {
 			FC_ASSERT(pledge_offer.debitor == op.debitor, "Wrong debitor");
 			FC_ASSERT(op.account == op.creditor, "Account must be creditor");
 		}
@@ -338,12 +336,12 @@ void_result pledge_offer_fill_evaluator::do_apply( const pledge_offer_fill_opera
 		database& d = db();
 		const pledge_offer_object& pledge_offer = op.pledge_offer(d);
 
-		if (pledge_offer.debitor) {
+		if (pledge_offer.debitor != account_id_type(0)) {
 			d.modify(d.get(op.pledge_offer), [&]( pledge_offer_object& po_obj )
 			{
 				po_obj.creditor = op.creditor;
 				po_obj.status = 1;
-				po_obj.expiration = d.head_block_time() + fc::days(lg_obj.pledge_days);
+				po_obj.expiration = d.head_block_time() + fc::days(po_obj.pledge_days);
 			});
 		}
 		else {
@@ -351,7 +349,7 @@ void_result pledge_offer_fill_evaluator::do_apply( const pledge_offer_fill_opera
 			{
 				po_obj.debitor = op.debitor;
 				po_obj.status = 1;
-				po_obj.expiration = d.head_block_time() + fc::days(lg_obj.pledge_days);
+				po_obj.expiration = d.head_block_time() + fc::days(po_obj.pledge_days);
 			});
 		}
 
@@ -372,13 +370,10 @@ void_result pledge_offer_repay_evaluator::do_evaluate( const pledge_offer_repay_
 		database& d = db();
 		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 		const pledge_offer_object& pledge_offer = op.pledge_offer(d);
-		const account_object& creditor = pledge_offer.creditor(d);
 		const account_object& debitor = pledge_offer.debitor(d);
-
-		const asset_object& credit_asset_type = op.credit_amount.asset_id(d);
 		const asset_object& repay_asset_type = op.repay_amount.asset_id(d);
 
-		FC_ASSERT(pledge_offer, "No such pledge offer");
+		// FC_ASSERT(pledge_offer, "No such pledge offer");
 		FC_ASSERT(pledge_offer.status == 1, "This pledge offer not filled yet");
 
 		FC_ASSERT(pledge_offer.pledge_amount == op.pledge_amount, "Pledge amount must match");

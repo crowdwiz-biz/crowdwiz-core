@@ -59,7 +59,7 @@ void_result edit_p2p_adv_evaluator::do_evaluate( const edit_p2p_adv_operation& o
 { try {
 	const database& d = db();
 	const auto& p2p_adv_object = d.get(op.p2p_adv);
-	FC_ASSERT(p2p_adv_object, "No such adv");
+	// FC_ASSERT(p2p_adv_object, "No such adv");
 	FC_ASSERT(p2p_adv_object.p2p_gateway == op.p2p_gateway);
 	return void_result();
 } FC_CAPTURE_AND_RETHROW( (op) ) }
@@ -93,7 +93,7 @@ void_result clear_p2p_adv_black_list_evaluator::do_evaluate( const clear_p2p_adv
 { try {
 	const database& d = db();
 	const auto& p2p_adv_object = d.get(op.p2p_adv);
-	FC_ASSERT(p2p_adv_object, "No such adv");
+	// FC_ASSERT(p2p_adv_object, "No such adv");
 
 	FC_ASSERT(p2p_adv_object.p2p_gateway == op.p2p_gateway);
 
@@ -114,7 +114,7 @@ void_result remove_from_p2p_adv_black_list_evaluator::do_evaluate( const remove_
 { try {
 	const database& d = db();
 	const auto& p2p_adv_object = d.get(op.p2p_adv);
-	FC_ASSERT(p2p_adv_object, "No such adv");
+	// FC_ASSERT(p2p_adv_object, "No such adv");
 	FC_ASSERT(p2p_adv_object.p2p_gateway == op.p2p_gateway);
 
 	return void_result();
@@ -186,7 +186,7 @@ void_result create_p2p_order_evaluator::do_evaluate( const create_p2p_order_oper
 	}
 
 	const auto& p2p_adv_object = d.get(op.p2p_adv);
-	FC_ASSERT(p2p_adv_object, "No such adv");
+	// FC_ASSERT(p2p_adv_object, "No such adv");
 	FC_ASSERT(p2p_adv_object.status == 1);
 	FC_ASSERT(p2p_adv_object.p2p_gateway == op.p2p_gateway);
 	FC_ASSERT(p2p_adv_object.price == op.price);
@@ -254,7 +254,7 @@ void_result cancel_p2p_order_evaluator::do_evaluate( const cancel_p2p_order_oper
 { try {
 	const database& d = db();
 	const auto& p2p_order_obj = d.get(op.p2p_order);
-	FC_ASSERT(p2p_order_obj, "No such p2p order");
+	// FC_ASSERT(p2p_order_obj, "No such p2p order");
 	FC_ASSERT(p2p_order_obj.p2p_gateway == op.p2p_gateway);
 	if (p2p_order_obj.order_type) {
 		FC_ASSERT(p2p_order_obj.status == 1);
@@ -295,7 +295,7 @@ void_result call_p2p_order_evaluator::do_evaluate( const call_p2p_order_operatio
 { try {
 	const database& d = db();
 	const auto& p2p_order_obj = d.get(op.p2p_order);
-	FC_ASSERT(p2p_order_obj, "No such p2p order");
+	// FC_ASSERT(p2p_order_obj, "No such p2p order");
 	FC_ASSERT(p2p_order_obj.order_type);
 	FC_ASSERT(p2p_order_obj.status == 1);
 	FC_ASSERT(p2p_order_obj.p2p_gateway == op.p2p_gateway);
@@ -333,7 +333,7 @@ void_result payment_p2p_order_evaluator::do_evaluate( const payment_p2p_order_op
 	const database& d = db();
 
 	const auto& p2p_order_obj = d.get(op.p2p_order);
-	FC_ASSERT(p2p_order_obj, "No such p2p order");
+	// FC_ASSERT(p2p_order_obj, "No such p2p order");
 
 	FC_ASSERT(p2p_order_obj.status == 2);
 
@@ -365,7 +365,7 @@ void_result release_p2p_order_evaluator::do_evaluate( const release_p2p_order_op
 { try {
 	const database& d = db();
 	const auto& p2p_order_obj = d.get(op.p2p_order);
-	FC_ASSERT(p2p_order_obj, "No such p2p order");
+	// FC_ASSERT(p2p_order_obj, "No such p2p order");
 	FC_ASSERT(p2p_order_obj.status >= 2);
 
 	if (p2p_order_obj.order_type) {
@@ -410,7 +410,7 @@ void_result open_p2p_dispute_evaluator::do_evaluate( const open_p2p_dispute_oper
 { try {
 	const database& d = db();
 	const auto& p2p_order_obj = d.get(op.p2p_order);
-	FC_ASSERT(p2p_order_obj, "No such p2p order");
+	// FC_ASSERT(p2p_order_obj, "No such p2p order");
 	// const auto head_time = d.head_block_time();
 
 	FC_ASSERT(p2p_order_obj.status == 3);
@@ -439,7 +439,7 @@ void_result reply_p2p_dispute_evaluator::do_evaluate( const reply_p2p_dispute_op
 { try {
 	const database& d = db();
 	const auto& p2p_order_obj = d.get(op.p2p_order);
-	FC_ASSERT(p2p_order_obj, "No such p2p order");
+	// FC_ASSERT(p2p_order_obj, "No such p2p order");
 	FC_ASSERT( p2p_order_obj.status == 4 );
 	FC_ASSERT( p2p_order_obj.p2p_gateway == op.account || p2p_order_obj.p2p_client == op.account);
 	const auto head_time = d.head_block_time();
@@ -469,7 +469,7 @@ void_result resolve_p2p_dispute_evaluator::do_evaluate( const resolve_p2p_disput
 { try {
 	const database& d = db();
 	const auto& p2p_order_obj = d.get(op.p2p_order);
-	FC_ASSERT(p2p_order_obj, "No such p2p order");
+	// FC_ASSERT(p2p_order_obj, "No such p2p order");
 	FC_ASSERT(p2p_order_obj.status == 4 || p2p_order_obj.status == 5);
 
 	FC_ASSERT((p2p_order_obj.p2p_gateway == op.winner)
