@@ -183,6 +183,15 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       vector<p2p_ord> get_gateway_p2p_orders(const std::string account_id_or_name, uint8_t status) const;
       size_t get_gateway_total_orders(const std::string account_id_or_name) const;
 
+      /////////////
+      // FINANCE //
+      /////////////
+      vector<credit_offer_object> credit_get_offers() const;
+      vector<credit_offer_object> credit_get_offers_by_account(const std::string account_id_or_name) const;
+      vector<account_statistics_object> credit_get_debitors(const std::string account_id_or_name) const;
+      vector<pledge_offer_object> pledge_get_offers() const;
+      vector<pledge_offer_object> pledge_get_offers_by_account(const std::string account_id_or_name) const;
+
 
       //private:
       static string price_to_string( const price& _price, const asset_object& _base, const asset_object& _quote );
@@ -2557,8 +2566,6 @@ vector<matrix_rooms_object> database_api_impl::get_rooms_by_player(const std::st
    return result;
 }
 
-      // matrix_object get_active_matrix() const;
-      // vector<matrix_rooms_object> get_rooms_by_player(const std::string player) const;
 
 //////////////////////////////////////////////////////////////////////
 //                                                                  //
@@ -2797,6 +2804,112 @@ size_t database_api_impl::get_gateway_total_orders(const std::string account_id_
 
 }
 
+//////////////////////////////////////////////////////////////////////
+//                                                                  //
+//  FINANCE                                                         //
+//                                                                  //
+//////////////////////////////////////////////////////////////////////
+
+vector<credit_offer_object> database_api::credit_get_offers() const
+{
+   return my->credit_get_offers();
+}
+
+vector<credit_offer_object> database_api_impl::credit_get_offers() const
+{
+   vector<credit_offer_object> result;
+
+   const auto& by_idx = _db.get_index_type<credit_offer_index>().indices().get<by_id>();
+   auto itr = by_idx.rbegin();
+   auto itr_end = by_idx.rend();
+
+   while(itr != itr_end )
+   {
+      result.push_back(*itr);
+      ++itr;
+   }
+   return result;
+}
+
+vector<credit_offer_object> database_api::credit_get_offers_by_account(const std::string account_id_or_name) const
+{
+   return my->credit_get_offers_by_account(account_id_or_name);
+}
+
+vector<credit_offer_object> database_api_impl::credit_get_offers_by_account(const std::string account_id_or_name) const
+{
+   vector<credit_offer_object> result;
+	const account_object* account = get_account_from_string(account_id_or_name);
+	const account_id_type account_id = account->id;
+	const auto& idx_by_creditor = _db.get_index_type<credit_offer_index>().indices().get<by_creditor>();
+	auto itr_by_creditor = idx_by_creditor.equal_range(account_id);
+
+	std::for_each(itr_by_creditor.first, itr_by_creditor.second, [&](const credit_offer_object& co_obj) {
+		result.emplace_back(co_obj);
+	});
+   return result;
+}
+
+vector<account_statistics_object> database_api::credit_get_debitors(const std::string account_id_or_name) const
+{
+   return my->credit_get_debitors(account_id_or_name);
+}
+
+vector<account_statistics_object> database_api_impl::credit_get_debitors(const std::string account_id_or_name) const
+{
+   vector<account_statistics_object> result;
+	const account_object* account = get_account_from_string(account_id_or_name);
+	const account_id_type account_id = account->id;
+   if (account_id != account_id_type(0)) {
+      const auto& idx_by_creditor = _db.get_index_type<account_stats_index>().indices().get<by_creditor>();
+      auto itr_by_creditor = idx_by_creditor.equal_range(account_id);
+
+      std::for_each(itr_by_creditor.first, itr_by_creditor.second, [&](const account_statistics_object& as_obj) {
+         result.emplace_back(as_obj);
+      });
+   }
+   return result;
+}
+
+vector<pledge_offer_object> database_api::pledge_get_offers() const
+{
+   return my->pledge_get_offers();
+}
+
+vector<pledge_offer_object> database_api_impl::pledge_get_offers() const
+{
+   vector<pledge_offer_object> result;
+	const auto& idx_by_status = _db.get_index_type<pledge_offer_index>().indices().get<by_status>();
+	auto itr_by_status = idx_by_status.equal_range(0);
+
+	std::for_each(itr_by_status.first, itr_by_status.second, [&](const pledge_offer_object& po_obj) {
+		result.emplace_back(po_obj);
+	});
+   return result;
+}
+
+vector<pledge_offer_object> database_api::pledge_get_offers_by_account(const std::string account_id_or_name) const
+{
+   return my->pledge_get_offers_by_account(account_id_or_name);
+}
+
+vector<pledge_offer_object> database_api_impl::pledge_get_offers_by_account(const std::string account_id_or_name) const
+{
+   vector<pledge_offer_object> result;
+	const account_object* account = get_account_from_string(account_id_or_name);
+	const account_id_type account_id = account->id;
+   const auto& by_idx = _db.get_index_type<pledge_offer_index>().indices().get<by_id>();
+   auto itr = by_idx.rbegin();
+   auto itr_end = by_idx.rend();
+   while(itr != itr_end )
+   {
+      if (itr->debitor == account_id || itr->creditor == account_id) {
+         result.push_back(*itr);      
+      }
+      ++itr;
+   }
+   return result;
+}
 
 //////////////////////////////////////////////////////////////////////
 //                                                                  //

@@ -28,6 +28,7 @@
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/vesting_balance_object.hpp>
 #include <graphene/chain/witness_object.hpp>
+#include <graphene/chain/hardfork.hpp>
 
 namespace graphene { namespace chain {
 
@@ -136,6 +137,57 @@ void database::deposit_cashback(const account_object& acct, share_type amount, b
 
    if( amount == 0 )
       return;
+
+   modify( acct.statistics( *this ), [amount]( account_statistics_object& aso )
+   {
+      aso.current_month_income += amount;
+   } );
+
+   account_statistics_object stats = acct.statistics( *this );
+
+   if (stats.total_credit > 0 && head_block_time() >= HARDFORK_CWD5_TIME) {
+      share_type credit = stats.total_credit-stats.allowed_to_repay;
+      if (credit > amount) {
+         modify( acct.statistics( *this ), [amount]( account_statistics_object& aso )
+         {
+            aso.allowed_to_repay += amount;
+         } );
+         return;
+      }
+      else {
+         amount -= credit;
+         account_id_type creditor = stats.creditor;
+         if (creditor == account_id_type(0)) {
+            share_type total_credit = stats.total_credit;
+            modify( get_core_dynamic_data(), [total_credit](asset_dynamic_data_object& d) {
+               d.current_supply -= total_credit;
+            });
+
+            credit_total_repay_operation credit_repay;
+            credit_repay.debitor = acct.id;
+            credit_repay.creditor = creditor;
+            credit_repay.repay_amount = total_credit;
+            push_applied_operation( credit_repay );  
+         }
+         else {
+            adjust_balance(creditor, stats.total_credit-stats.credit_repaid);
+
+            credit_total_repay_operation credit_repay;
+            credit_repay.debitor = acct.id;
+            credit_repay.creditor = creditor;
+            credit_repay.repay_amount = stats.total_credit-stats.credit_repaid;
+            push_applied_operation( credit_repay );  
+
+         }
+         modify( acct.statistics( *this ), []( account_statistics_object& aso )
+         {
+            aso.allowed_to_repay = 0;
+            aso.total_credit = 0;
+            aso.credit_repaid = 0;
+            aso.creditor = account_id_type(0);
+         } );
+      }
+   }
 
    if( acct.get_id() == GRAPHENE_COMMITTEE_ACCOUNT || acct.get_id() == GRAPHENE_WITNESS_ACCOUNT ||
        acct.get_id() == GRAPHENE_RELAXED_COMMITTEE_ACCOUNT || acct.get_id() == GRAPHENE_NULL_ACCOUNT ||

@@ -38,6 +38,10 @@ void_result flipcoin_bet_evaluator::do_evaluate(const flipcoin_bet_operation &op
 
       FC_ASSERT( op.bet.asset_id == asset_id_type(), "Price must be in core asset");
 
+      if ( d.head_block_time()  >= HARDFORK_CWD5_TIME ) {
+         FC_ASSERT( op.bet.amount >= 1000,  "Bet amount must be more or equal than 0.01 CWD");
+      }
+
      	bool insufficient_balance = d.get_balance( bettor, asset_type ).amount >= op.bet.amount;
      	FC_ASSERT( insufficient_balance,
                  "Insufficient Balance: ${balance}, unable to bet '${total_bet}' from account '${a}'", 
@@ -70,7 +74,7 @@ void_result flipcoin_call_evaluator::do_evaluate(const flipcoin_call_operation &
 {
     try
     {
-        database& d = db();
+      database& d = db();
 		flipcoin = &op.flipcoin(d);
 
 		const account_object& caller    	= op.caller(d);
@@ -159,7 +163,8 @@ void_result lottery_goods_buy_ticket_evaluator::do_evaluate( const lottery_goods
    const database& d = db();
    const asset_object& asset_type = op.ticket_price.asset_id(d);
    const account_object& from_account = op.participant(d);
-   lot_obj = &op.lot_id(d); 
+   lot_obj = &op.lot_id(d);  
+
    FC_ASSERT( op.ticket_price.asset_id == asset_id_type(), "Price must be in core asset");
    
    bool insufficient_balance = d.get_balance( from_account, asset_type ).amount >= op.ticket_price.amount;

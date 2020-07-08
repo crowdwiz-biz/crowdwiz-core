@@ -587,6 +587,7 @@ void database::_apply_block( const signed_block& next_block )
    proceed_matrix();
    auto_cancel_p2p_orders();
    auto_reset_status();
+   proceed_pledge();
    update_expired_feeds();       // this will update expired feeds and some core exchange rates
    update_core_exchange_rates(); // this will update remaining core exchange rates
    update_withdraw_permissions();

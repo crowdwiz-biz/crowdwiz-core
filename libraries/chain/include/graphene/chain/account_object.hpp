@@ -81,6 +81,10 @@ class account_statistics_object : public graphene::db::abstract_object<account_s
       return is_voting && (total_core_in_orders > 0 || core_in_balance > 0 || has_cashback_vb);
    }
 
+   inline bool has_network_income() const
+   {
+      return (first_month_income > 0 || second_month_income > 0 || third_month_income > 0 || current_month_income > 0);
+   }
    /**
           * Tracks the total fees paid by this account for the purpose of calculating bulk discounts.
           */
@@ -102,8 +106,8 @@ class account_statistics_object : public graphene::db::abstract_object<account_s
    share_type pending_vested_fees;
 
    /**
-          * CROWDWIZ referral subsystem parameters
-          */
+    * CROWDWIZ referral subsystem parameters
+    */
 
    /// CWD Current Personal volume for 90 days
    share_type personal_volume_in_period= 0;
@@ -114,18 +118,36 @@ class account_statistics_object : public graphene::db::abstract_object<account_s
    /// CWD Last time network volume operation occur
    time_point_sec last_nv_update_date;
    /**
-          * CROWDWIZ GAMEZONE subsystem parameters
-          */
+    * CROWDWIZ GAMEZONE subsystem parameters
+    */
     matrix_id_type       matrix;
     uint8_t              matrix_active_levels = 1;
     uint8_t              matrix_cells_opened = 0;
     uint16_t             matrix_rooms_opened = 0;
+   /**
+    * CROWDWIZ P2P exchange subsystem parameters
+    */    
     uint32_t             p2p_complete_deals = 0;
     uint32_t             p2p_canceled_deals = 0;
     uint32_t             p2p_arbitrage_loose = 0;
     share_type           p2p_deals_volume = 0;
     time_point_sec       p2p_banned = fc::time_point_sec( 0 );
     bool                 p2p_gateway_active = true;
+
+   /**
+    * CROWDWIZ P2P credit subsystem parameters
+    */    
+   // referral system statistics
+   share_type first_month_income = 0;
+   share_type second_month_income = 0;
+   share_type third_month_income = 0;
+   share_type current_month_income = 0;
+
+   // referral system statistics
+   share_type total_credit = 0;
+   share_type allowed_to_repay = 0;
+   share_type credit_repaid = 0;
+   account_id_type creditor = account_id_type(0);
 
    /// Whether this account has pending fees, no matter vested or not
    inline bool has_pending_fees() const { return pending_fees > 0 || pending_vested_fees > 0; }
@@ -460,7 +482,9 @@ typedef multi_index_container<
 typedef generic_index<account_object, account_multi_index_type> account_index;
 
 struct by_owner;
+struct by_creditor;
 struct by_maintenance_seq;
+struct by_network_income;
 
 /**
     * @ingroup object_index
@@ -471,10 +495,17 @@ typedef multi_index_container<
         ordered_unique<tag<by_id>, member<object, object_id_type, &object::id>>,
         ordered_unique<tag<by_owner>,
                        member<account_statistics_object, account_id_type, &account_statistics_object::owner>>,
+        ordered_non_unique<tag<by_creditor>,
+                       member<account_statistics_object, account_id_type, &account_statistics_object::creditor>>,
         ordered_unique<tag<by_maintenance_seq>,
                        composite_key<
                            account_statistics_object,
                            const_mem_fun<account_statistics_object, bool, &account_statistics_object::need_maintenance>,
+                           member<account_statistics_object, string, &account_statistics_object::name>>>,
+        ordered_unique<tag<by_network_income>,
+                       composite_key<
+                           account_statistics_object,
+                           const_mem_fun<account_statistics_object, bool, &account_statistics_object::has_network_income>,
                            member<account_statistics_object, string, &account_statistics_object::name>>>>>
     account_stats_multi_index_type;
 
@@ -497,4 +528,5 @@ FC_REFLECT_DERIVED(graphene::chain::account_balance_object,
 FC_REFLECT_DERIVED(graphene::chain::account_statistics_object,
                    (graphene::chain::object),
                    (owner)(name)(most_recent_op)(total_ops)(removed_ops)(total_core_in_orders)(core_in_balance)(has_cashback_vb)(is_voting)(last_vote_time)(lifetime_fees_paid)(pending_fees)(pending_vested_fees)(personal_volume_in_period)(network_volume_in_period)(last_pv_update_date)(last_nv_update_date)(matrix)(matrix_active_levels)(matrix_cells_opened)(matrix_rooms_opened)
-                   (p2p_complete_deals)(p2p_canceled_deals)(p2p_arbitrage_loose)(p2p_deals_volume)(p2p_banned)(p2p_gateway_active))
+                   (p2p_complete_deals)(p2p_canceled_deals)(p2p_arbitrage_loose)(p2p_deals_volume)(p2p_banned)(p2p_gateway_active)
+                   (first_month_income)(second_month_income)(third_month_income)(current_month_income)(total_credit)(allowed_to_repay)(credit_repaid)(creditor))

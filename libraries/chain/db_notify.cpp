@@ -17,6 +17,7 @@
 #include <graphene/chain/transaction_object.hpp>
 #include <graphene/chain/impacted.hpp>
 #include <graphene/chain/exchange_object.hpp>
+#include <graphene/chain/financial_object.hpp>
 
 using namespace fc;
 using namespace graphene::chain;
@@ -408,6 +409,62 @@ struct get_impacted_account_visitor
       _impacted.insert( op.looser );
       _impacted.insert( op.fee_payer() );
    }
+   // FINANCIAL
+   void operator()( const credit_system_get_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const credit_total_repay_operation& op )
+   {
+      _impacted.insert( op.creditor );
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const credit_repay_operation& op )
+   {
+      _impacted.insert( op.debitor );  
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const credit_offer_create_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const credit_offer_cancel_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const credit_offer_fill_operation& op )
+   {
+      _impacted.insert( op.creditor );
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const pledge_offer_give_create_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const pledge_offer_take_create_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const pledge_offer_cancel_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const pledge_offer_fill_operation& op )
+   {
+      _impacted.insert( op.debitor );
+      _impacted.insert( op.creditor );
+   }
+   void operator()( const pledge_offer_repay_operation& op )
+   {
+      _impacted.insert( op.creditor );
+      _impacted.insert( op.fee_payer() );
+   }
+   void operator()( const pledge_offer_auto_repay_operation& op )
+   {
+      _impacted.insert( op.creditor );
+      _impacted.insert( op.fee_payer() );
+   }
+
 };
 
 void graphene::chain::operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )
@@ -513,6 +570,18 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
            const auto& aobj = dynamic_cast<const matrix_rooms_object*>(obj);
            FC_ASSERT( aobj != nullptr );
            accounts.insert( aobj->matrix_player );
+           break;
+        } 
+        case credit_offer_object_type:{
+           const auto& aobj = dynamic_cast<const credit_offer_object*>(obj);
+           FC_ASSERT( aobj != nullptr );
+           accounts.insert( aobj->creditor );
+           break;
+        } 
+        case pledge_offer_object_type:{
+           const auto& aobj = dynamic_cast<const pledge_offer_object*>(obj);
+           FC_ASSERT( aobj != nullptr );
+           accounts.insert( aobj->creator );           
            break;
         } 
         case matrix_object_type:{

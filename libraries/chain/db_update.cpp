@@ -32,6 +32,7 @@
 #include <graphene/chain/gamezone_object.hpp>
 #include <graphene/chain/exchange_object.hpp>
 #include <graphene/chain/proposal_object.hpp>
+#include <graphene/chain/financial_object.hpp>
 #include <graphene/chain/transaction_object.hpp>
 #include <graphene/chain/withdraw_permission_object.hpp>
 #include <graphene/chain/witness_object.hpp>
@@ -582,6 +583,36 @@ void database::proceed_bets()
 } FC_CAPTURE_AND_RETHROW() }
 
 
+void database::proceed_pledge()
+{ try {
+   auto head_time = head_block_time();
+   
+   auto& po_idx = get_index_type<pledge_offer_index>().indices().get<by_expiration>();
+   auto itr = po_idx.upper_bound(fc::time_point_sec(1));
+   auto end = po_idx.lower_bound( head_time );
+
+   while( itr != end )
+   {
+      const pledge_offer_object& po_obj = *itr;
+      pledge_offer_auto_repay_operation po_repay;
+
+      po_repay.debitor = po_obj.debitor;
+      po_repay.creditor = po_obj.creditor;
+      po_repay.pledge_amount = po_obj.pledge_amount;
+      po_repay.credit_amount = po_obj.credit_amount;
+      po_repay.repay_amount = po_obj.repay_amount;
+      po_repay.pledge_offer = po_obj.id;
+
+      push_applied_operation( po_repay );    
+
+      adjust_balance( po_obj.creditor, po_obj.pledge_amount );
+
+      remove(po_obj);
+      itr++; 
+      }
+} FC_CAPTURE_AND_RETHROW() }
+
+
 void database::proceed_lottery_goods()
 { try {
    auto head_time = head_block_time()+fc::seconds(5);
@@ -722,11 +753,11 @@ void database::proceed_matrix()
       auto average = current_matrix.amount / matrix_lasts * 70 / 100;
       auto average_120k = current_matrix.last_120k_amount / matrix_idle_blocks;
 
-      elog( "head_block: ${head_block}", ("head_block", head_block) );
-      elog( "average: ${average}", ("average", average) );
-      elog( "average_120k: ${average_120k}", ("average_120k", average_120k) );
+      // elog( "head_block: ${head_block}", ("head_block", head_block) );
+      // elog( "average: ${average}", ("average", average) );
+      // elog( "average_120k: ${average_120k}", ("average_120k", average_120k) );
 
-      if (average_120k >= average) {
+      if (average_120k >= average && head_time < HARDFORK_CWD5_TIME) {
          modify(current_matrix, [&](matrix_object& m)
          {
             m.finish_block_number = current_matrix.finish_block_number+matrix_idle_blocks;
@@ -774,9 +805,20 @@ void database::proceed_matrix()
             matrix_lasts_blocks = uint32_t(240000);
          }
 
+         if ( head_time  >= HARDFORK_CWD5_TIME ) { //HF5 - matrix lasts 177 blocks
+            matrix_lasts_blocks = uint32_t(177);
+            matrix_idle_blocks = uint32_t(16671);
+         }
+
+
          create<matrix_object>([&](matrix_object& obj){
             obj.start_block_number = head_block + matrix_idle_blocks;
-            obj.finish_block_number = head_block + matrix_idle_blocks + matrix_lasts_blocks;
+            if (current_matrix.id == matrix_id_type(3)) {
+               obj.finish_block_number = uint32_t(8092140);
+            }
+            else {
+               obj.finish_block_number = head_block + matrix_idle_blocks + matrix_lasts_blocks;
+            }
             obj.status = 0;
             obj.amount = 0;
             obj.total_amount = 0;

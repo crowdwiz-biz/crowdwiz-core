@@ -41,6 +41,7 @@
 #include <graphene/chain/protocol/gamezone.hpp>
 #include <graphene/chain/protocol/send_message.hpp>
 #include <graphene/chain/protocol/exchange.hpp>
+#include <graphene/chain/protocol/financial.hpp>
 
 namespace graphene { namespace chain {
 
@@ -129,7 +130,19 @@ namespace graphene { namespace chain {
             open_p2p_dispute_operation, // EXCHANGE
             reply_p2p_dispute_operation, // EXCHANGE
             resolve_p2p_dispute_operation, // EXCHANGE
-            lottery_goods_refund_operation  // GAMEZONE, VIRTUAL
+            lottery_goods_refund_operation,  // GAMEZONE, VIRTUAL
+            credit_system_get_operation, //FINANCIAL
+            credit_total_repay_operation, //FINANCIAL, VIRTUAL
+            credit_repay_operation, //FINANCIAL
+            credit_offer_create_operation, //FINANCIAL
+            credit_offer_cancel_operation, //FINANCIAL
+            credit_offer_fill_operation, //FINANCIAL
+            pledge_offer_give_create_operation, //FINANCIAL
+            pledge_offer_take_create_operation, //FINANCIAL
+            pledge_offer_cancel_operation, //FINANCIAL
+            pledge_offer_fill_operation, //FINANCIAL
+            pledge_offer_repay_operation, //FINANCIAL
+            pledge_offer_auto_repay_operation //FINANCIAL, VIRTUAL
          > operation;
 
    /// @} // operations group

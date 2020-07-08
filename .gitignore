@@ -69,9 +69,10 @@ libraries/fc/vendor/secp256k1-zkp/src/*.in~
 libraries/fc/vendor/editline/src/Makefile.in
 libraries/fc/vendor/editline/src/project_editline-*
 libraries/fc/vendor/editline/project_editline-build/Makefile 
+libraries/fc/vendor/editline/autom4te.cache/requests
 
 libraries/fc/CMakeFiles/**
-
+libraries/fc/git_revision.cpp
 libraries/utilities/git_revision.cpp
 libraries/egenesis/egenesis_brief.cpp
 libraries/egenesis/egenesis_full.cpp
@@ -99,3 +100,13 @@ operations.js
 TODO
 my-wallet.json
 testcases
+libraries/fc/git_revision.cpp
+libraries/fc/git_revision.cpp
+libraries/fc/vendor/editline/config.h.in
+libraries/fc/vendor/editline/Makefile.in
+libraries/fc/vendor/editline/autom4te.cache/requests
+libraries/fc/vendor/secp256k1-zkp/autom4te.cache/requests
+libraries/fc/git_revision.cpp
+libraries/fc/git_revision.cpp
+libraries/fc/vendor/editline/autom4te.cache/requests
+libraries/fc/vendor/secp256k1-zkp/autom4te.cache/requests

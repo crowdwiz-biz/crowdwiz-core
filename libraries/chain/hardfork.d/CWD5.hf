@@ -1,0 +1,4 @@
+// #Tuesday, 14 July 2020, 9:00:00 Finance, Credit, Pledge and new Matrix
+#ifndef HARDFORK_CWD5_TIME
+#define HARDFORK_CWD5_TIME (fc::time_point_sec( 1594717200 ))
+#endif

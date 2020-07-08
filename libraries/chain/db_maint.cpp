@@ -112,6 +112,27 @@ void database::perform_account_maintenance(Type tally_helper)
 
 }
 
+void database::perform_credit_maintenance()
+{
+   const auto& stats_idx = get_index_type< account_stats_index >().indices().get< by_network_income >();
+   auto stats_itr = stats_idx.lower_bound( true );
+
+   while( stats_itr != stats_idx.end() )
+   {
+      const account_statistics_object& acc_stat = *stats_itr;
+      ++stats_itr;
+
+      modify( acc_stat, []( account_statistics_object& aso )
+      {
+         aso.first_month_income=aso.second_month_income;
+         aso.second_month_income=aso.third_month_income;
+         aso.third_month_income=aso.current_month_income;
+         aso.current_month_income=0;
+      } );
+   }
+
+}
+
 /// @brief A visitor for @ref worker_type which calls pay_worker on the worker within
 struct worker_pay_visitor
 {
@@ -1254,6 +1275,20 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
 
    auto next_maintenance_time = dgpo.next_maintenance_time;
    auto maintenance_interval = gpo.parameters.maintenance_interval;
+   auto next_credit_stats_time = dgpo.next_credit_stats_time;
+   uint32_t credit_stats_interval = 2592000;
+   if( next_credit_stats_time <= next_block.timestamp )
+   {
+      if( next_block.block_num() == 1 )
+         next_credit_stats_time = time_point_sec() +
+               (((next_block.timestamp.sec_since_epoch() / credit_stats_interval) + 1) * credit_stats_interval);
+      else
+      {
+         auto y = (head_block_time() - next_credit_stats_time).to_seconds() / credit_stats_interval;
+         next_credit_stats_time += (y+1) * credit_stats_interval;
+      }
+    perform_credit_maintenance();
+   }
 
    if( next_maintenance_time <= next_block.timestamp )
    {
@@ -1299,9 +1334,10 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          && !to_update_and_match_call_orders )
       process_hf_935( *this );
 
-   modify(dgpo, [next_maintenance_time](dynamic_global_property_object& d) {
+   modify(dgpo, [next_maintenance_time, next_credit_stats_time](dynamic_global_property_object& d) {
       d.next_maintenance_time = next_maintenance_time;
       d.accounts_registered_this_interval = 0;
+      d.next_credit_stats_time = next_credit_stats_time;
    });
 
    // We need to do it after updated next_maintenance_time, to apply new rules here
