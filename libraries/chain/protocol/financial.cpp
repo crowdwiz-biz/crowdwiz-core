@@ -31,7 +31,6 @@ void credit_offer_create_operation::validate()const
 		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
 		FC_ASSERT( credit_amount.amount > 0, "Credit amount should not be negative" );
 		FC_ASSERT( repay_amount.amount > 0, "Repay amount should not be negative" );
-
 	}
 
 void credit_offer_cancel_operation::validate()const

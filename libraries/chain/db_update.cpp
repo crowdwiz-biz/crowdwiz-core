@@ -753,9 +753,9 @@ void database::proceed_matrix()
       auto average = current_matrix.amount / matrix_lasts * 70 / 100;
       auto average_120k = current_matrix.last_120k_amount / matrix_idle_blocks;
 
-      elog( "head_block: ${head_block}", ("head_block", head_block) );
-      elog( "average: ${average}", ("average", average) );
-      elog( "average_120k: ${average_120k}", ("average_120k", average_120k) );
+      // elog( "head_block: ${head_block}", ("head_block", head_block) );
+      // elog( "average: ${average}", ("average", average) );
+      // elog( "average_120k: ${average_120k}", ("average_120k", average_120k) );
 
       if (average_120k >= average && head_time < HARDFORK_CWD5_TIME) {
          modify(current_matrix, [&](matrix_object& m)
@@ -814,7 +814,7 @@ void database::proceed_matrix()
          create<matrix_object>([&](matrix_object& obj){
             obj.start_block_number = head_block + matrix_idle_blocks;
             if (current_matrix.id == matrix_id_type(3)) {
-               obj.finish_block_number = uint32_t(8007900);
+               obj.finish_block_number = uint32_t(8092140);
             }
             else {
                obj.finish_block_number = head_block + matrix_idle_blocks + matrix_lasts_blocks;

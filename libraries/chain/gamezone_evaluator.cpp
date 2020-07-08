@@ -76,7 +76,6 @@ void_result flipcoin_call_evaluator::do_evaluate(const flipcoin_call_operation &
     {
       database& d = db();
 		flipcoin = &op.flipcoin(d);
-      FC_ASSERT(flipcoin, "No such flipcoin object");
 
 		const account_object& caller    	= op.caller(d);
 		const asset_object&   asset_type    = op.bet.asset_id(d);
@@ -164,9 +163,7 @@ void_result lottery_goods_buy_ticket_evaluator::do_evaluate( const lottery_goods
    const database& d = db();
    const asset_object& asset_type = op.ticket_price.asset_id(d);
    const account_object& from_account = op.participant(d);
-   lot_obj = &op.lot_id(d); 
-   
-   FC_ASSERT(lot_obj, "No such lot object");
+   lot_obj = &op.lot_id(d);  
 
    FC_ASSERT( op.ticket_price.asset_id == asset_id_type(), "Price must be in core asset");
    
@@ -216,7 +213,6 @@ void_result lottery_goods_send_contacts_evaluator::do_evaluate( const lottery_go
 { try {
    database& d = db();
    lot_obj = &op.lot_id(d);
-   FC_ASSERT(lot_obj, "No such lot object");
    
    FC_ASSERT( lot_obj->winner==op.winner );
    FC_ASSERT( lot_obj->owner==op.owner );
@@ -249,7 +245,6 @@ void_result lottery_goods_confirm_delivery_evaluator::do_evaluate( const lottery
 { try {
    database& d = db();
    lot_obj = &op.lot_id(d);
-   FC_ASSERT(lot_obj, "No such lot object");
    
    FC_ASSERT( lot_obj->status==2 );
    FC_ASSERT( lot_obj->winner==op.winner );

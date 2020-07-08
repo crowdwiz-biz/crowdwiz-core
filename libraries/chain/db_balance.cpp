@@ -155,8 +155,7 @@ void database::deposit_cashback(const account_object& acct, share_type amount, b
          return;
       }
       else {
-         share_type credit_amount = amount - credit;
-         amount -= credit_amount;
+         amount -= credit;
          account_id_type creditor = stats.creditor;
          if (creditor == account_id_type(0)) {
             share_type total_credit = stats.total_credit;
@@ -180,7 +179,7 @@ void database::deposit_cashback(const account_object& acct, share_type amount, b
             push_applied_operation( credit_repay );  
 
          }
-         modify( acct.statistics( *this ), [credit_amount]( account_statistics_object& aso )
+         modify( acct.statistics( *this ), []( account_statistics_object& aso )
          {
             aso.allowed_to_repay = 0;
             aso.total_credit = 0;

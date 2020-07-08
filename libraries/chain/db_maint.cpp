@@ -1334,9 +1334,10 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          && !to_update_and_match_call_orders )
       process_hf_935( *this );
 
-   modify(dgpo, [next_maintenance_time](dynamic_global_property_object& d) {
+   modify(dgpo, [next_maintenance_time, next_credit_stats_time](dynamic_global_property_object& d) {
       d.next_maintenance_time = next_maintenance_time;
       d.accounts_registered_this_interval = 0;
+      d.next_credit_stats_time = next_credit_stats_time;
    });
 
    // We need to do it after updated next_maintenance_time, to apply new rules here
