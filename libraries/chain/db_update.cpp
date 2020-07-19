@@ -571,10 +571,12 @@ void database::proceed_bets()
          {
             s.pay_fee( referral_prize.amount, false );
          });
-
-         modify(winner_account, [&](account_object& a) {
-            a.statistics(*this).process_fees(a, *this);
-         });
+         //--------
+         // if (head_time < HARDFORK_CWD6_TIME) {
+            modify(winner_account, [&](account_object& a) {
+               a.statistics(*this).process_fees(a, *this);
+            });
+         // }
          // -----------------------
 
          remove(flipcoin);
@@ -606,10 +608,19 @@ void database::proceed_pledge()
       push_applied_operation( po_repay );    
 
       adjust_balance( po_obj.creditor, po_obj.pledge_amount );
-
-      remove(po_obj);
+      elog( "PLEDGE status MARKED FOR REMOVE REMOVED  ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
+      modify(po_obj, [&](pledge_offer_object& p)
+      {
+         p.status = 8;
+         p.expiration = fc::time_point_sec();
+      });
       itr++; 
-      }
+   }
+    auto& po_idx_remove = get_index_type<lottery_goods_index>().indices().get<by_status>();
+    while( !po_idx_remove.empty() && po_idx_remove.rbegin()->status == 8 ) {
+      elog( "PLEDGE status REMOVED  ${a} status ${s} expiration ${e}", ("a", po_idx_remove.rbegin()->id)("s", po_idx_remove.rbegin()->status)("e", po_idx_remove.rbegin()->expiration) );
+      remove(*po_idx_remove.rbegin());
+    }
 } FC_CAPTURE_AND_RETHROW() }
 
 
@@ -700,14 +711,21 @@ void database::proceed_lottery_goods()
             lg_refund.ticket_price = lg_obj.ticket_price;
             push_applied_operation( lg_refund );          
          }
-         elog( "lottery status REMOVED  ${a} status ${s} expiration ${e}", ("a", lg_obj.id)("s", lg_obj.status)("e", lg_obj.expiration) );
-         remove(lg_obj); 
+         elog( "lottery status MARKED FOR REMOVE REMOVED  ${a} status ${s} expiration ${e}", ("a", lg_obj.id)("s", lg_obj.status)("e", lg_obj.expiration) );
+         modify(lg_obj, [&](lottery_goods_object& l)
+         {
+            l.status = 8;
+            l.expiration = fc::time_point_sec();
+         });
       }
       itr++;
    }
 
-
-   
+    auto& lg_idx_remove = get_index_type<lottery_goods_index>().indices().get<by_status>();
+    while( !lg_idx_remove.empty() && lg_idx_remove.rbegin()->status == 8 ) {
+      elog( "lottery status REMOVED  ${a} status ${s} expiration ${e}", ("a", lg_idx_remove.rbegin()->id)("s", lg_idx_remove.rbegin()->status)("e", lg_idx_remove.rbegin()->expiration) );
+      remove(*lg_idx_remove.rbegin());
+    }   
 } FC_CAPTURE_AND_RETHROW() }
 
 
