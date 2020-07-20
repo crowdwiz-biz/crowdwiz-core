@@ -596,27 +596,30 @@ void database::proceed_pledge()
    while( itr != end )
    {
       const pledge_offer_object& po_obj = *itr;
-      pledge_offer_auto_repay_operation po_repay;
+      elog( "PLEDGE in cycle ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
+      if (po_obj.status == 1 && po_obj.expiration <= head_time) {
+         pledge_offer_auto_repay_operation po_repay;
 
-      po_repay.debitor = po_obj.debitor;
-      po_repay.creditor = po_obj.creditor;
-      po_repay.pledge_amount = po_obj.pledge_amount;
-      po_repay.credit_amount = po_obj.credit_amount;
-      po_repay.repay_amount = po_obj.repay_amount;
-      po_repay.pledge_offer = po_obj.id;
+         po_repay.debitor = po_obj.debitor;
+         po_repay.creditor = po_obj.creditor;
+         po_repay.pledge_amount = po_obj.pledge_amount;
+         po_repay.credit_amount = po_obj.credit_amount;
+         po_repay.repay_amount = po_obj.repay_amount;
+         po_repay.pledge_offer = po_obj.id;
 
-      push_applied_operation( po_repay );    
+         push_applied_operation( po_repay );    
 
-      adjust_balance( po_obj.creditor, po_obj.pledge_amount );
-      elog( "PLEDGE status MARKED FOR REMOVE REMOVED  ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
-      modify(po_obj, [&](pledge_offer_object& p)
-      {
-         p.status = 8;
-         p.expiration = fc::time_point_sec();
-      });
+         adjust_balance( po_obj.creditor, po_obj.pledge_amount );
+         elog( "PLEDGE status MARKED FOR REMOVE REMOVED  ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
+         modify(po_obj, [&](pledge_offer_object& p)
+         {
+            p.status = 8;
+            p.expiration = fc::time_point_sec();
+         });
+      }
       itr++; 
    }
-    auto& po_idx_remove = get_index_type<lottery_goods_index>().indices().get<by_status>();
+    auto& po_idx_remove = get_index_type<pledge_offer_index>().indices().get<by_status>();
     while( !po_idx_remove.empty() && po_idx_remove.rbegin()->status == 8 ) {
       elog( "PLEDGE status REMOVED  ${a} status ${s} expiration ${e}", ("a", po_idx_remove.rbegin()->id)("s", po_idx_remove.rbegin()->status)("e", po_idx_remove.rbegin()->expiration) );
       remove(*po_idx_remove.rbegin());
