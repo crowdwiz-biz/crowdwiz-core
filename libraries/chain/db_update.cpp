@@ -592,7 +592,10 @@ void database::proceed_pledge()
    auto& po_idx = get_index_type<pledge_offer_index>().indices().get<by_expiration>();
    auto itr = po_idx.upper_bound(fc::time_point_sec(1));
    auto end = po_idx.lower_bound( head_time );
-
+   if (itr != end) {
+      elog( "PLEDGE ITR ${a} status ${s} expiration ${e}", ("a", itr->id)("s", itr->status)("e", itr->expiration) );
+      elog( "PLEDGE END cycle ${a} status ${s} expiration ${e}", ("a", end->id)("s", end->status)("e", end->expiration) );
+   }
    while( itr != end )
    {
       const pledge_offer_object& po_obj = *itr;
@@ -610,7 +613,7 @@ void database::proceed_pledge()
          push_applied_operation( po_repay );    
 
          adjust_balance( po_obj.creditor, po_obj.pledge_amount );
-         elog( "PLEDGE status MARKED FOR REMOVE REMOVED  ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
+         elog( "PLEDGE status MARKED FOR REMOVE  ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
          modify(po_obj, [&](pledge_offer_object& p)
          {
             p.status = 8;
@@ -714,7 +717,7 @@ void database::proceed_lottery_goods()
             lg_refund.ticket_price = lg_obj.ticket_price;
             push_applied_operation( lg_refund );          
          }
-         elog( "lottery status MARKED FOR REMOVE REMOVED  ${a} status ${s} expiration ${e}", ("a", lg_obj.id)("s", lg_obj.status)("e", lg_obj.expiration) );
+         elog( "lottery status MARKED FOR REMOVE ${a} status ${s} expiration ${e}", ("a", lg_obj.id)("s", lg_obj.status)("e", lg_obj.expiration) );
          modify(lg_obj, [&](lottery_goods_object& l)
          {
             l.status = 8;
