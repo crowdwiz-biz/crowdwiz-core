@@ -89,20 +89,11 @@ namespace graphene { namespace chain {
 				member<object, object_id_type, &object::id>
 			>,
 			ordered_non_unique< 
-				tag<by_status>,
-				composite_key<
-					pledge_offer_object,
-					member<pledge_offer_object, uint8_t, &pledge_offer_object::status>,
-					member< object, object_id_type, &object::id>
-				>
+				tag<by_status>,member<pledge_offer_object, uint8_t, &pledge_offer_object::status>
 			>,
 			ordered_non_unique< 
 				tag<by_expiration>,
-				composite_key< 
-					pledge_offer_object,
-					member< pledge_offer_object, time_point_sec, &pledge_offer_object::expiration>,
-					member< object, object_id_type, &object::id>
-				>
+					member< pledge_offer_object, time_point_sec, &pledge_offer_object::expiration>
 			>
 		>
 	>;
