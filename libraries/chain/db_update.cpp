@@ -833,16 +833,39 @@ void database::proceed_matrix()
             matrix_lasts_blocks = uint32_t(177);
             matrix_idle_blocks = uint32_t(16671);
          }
-
+         if (current_matrix.id == matrix_id_type(13)) {
+            matrix_idle_blocks = uint32_t(15851);         
+         }
+         // ADDED MINI MATRIX
+         if (current_matrix.finish_block_number >= uint32_t(8243772)) {
+            matrix_level_1_price_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(9));
+            matrix_level_2_price_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(16));
+            matrix_level_3_price_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(29));
+            matrix_level_4_price_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(52));
+            matrix_level_5_price_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(94));
+            matrix_level_6_price_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(170));
+            matrix_level_7_price_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(309));
+            matrix_level_8_price_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(555));
+            matrix_level_1_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(18));
+            matrix_level_2_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(32));
+            matrix_level_3_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(58));
+            matrix_level_4_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(104));
+            matrix_level_5_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(188));
+            matrix_level_6_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(340));
+            matrix_level_7_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(618));
+            matrix_level_8_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(1110));        
+         }
 
          create<matrix_object>([&](matrix_object& obj){
             obj.start_block_number = head_block + matrix_idle_blocks;
+
             if (current_matrix.id == matrix_id_type(3)) {
                obj.finish_block_number = uint32_t(8092140);
             }
             else {
                obj.finish_block_number = head_block + matrix_idle_blocks + matrix_lasts_blocks;
             }
+            
             obj.status = 0;
             obj.amount = 0;
             obj.total_amount = 0;
