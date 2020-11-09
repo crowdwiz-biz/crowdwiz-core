@@ -322,7 +322,7 @@ namespace graphene { namespace chain {
             bool require_vesting );
 
          // helper to handle cashback rewards
-         void deposit_cashback(const account_object& acct, share_type amount, bool require_vesting = true);
+         void deposit_cashback(const account_object& acct, share_type amount, bool require_vesting = true, bool count_income = true);
          // helper to handle witness pay
          void deposit_witness_pay(const witness_object& wit, share_type amount);
 
@@ -488,6 +488,7 @@ namespace graphene { namespace chain {
          void auto_cancel_p2p_orders();
          void auto_reset_status();
          void proceed_pledge();
+         void proceed_approved_transfer();
          void update_expired_feeds();
          void update_core_exchange_rates();
          void update_maintenance_flag( bool new_maintenance_flag );
@@ -513,6 +514,9 @@ namespace graphene { namespace chain {
          template<class Type>
          void perform_account_maintenance( Type tally_helper );
          void perform_credit_maintenance();
+         void perform_p2p_maintenance();
+         void count_poc_votes();
+ 
          ///@}
          ///@}
 

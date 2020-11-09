@@ -62,6 +62,7 @@ add_library( graphene_chain
              protocol/send_message.cpp
              protocol/exchange.cpp
              protocol/financial.cpp
+             protocol/poc.cpp
              
              genesis_state.cpp
              get_config.cpp
@@ -88,6 +89,7 @@ add_library( graphene_chain
              send_message_evaluator.cpp
              exchange_evaluator.cpp
              financial_evaluator.cpp
+             poc_evaluator.cpp
 
              account_object.cpp
              asset_object.cpp

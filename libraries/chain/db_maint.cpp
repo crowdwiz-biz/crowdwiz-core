@@ -130,9 +130,80 @@ void database::perform_credit_maintenance()
          aso.current_month_income=0;
       } );
    }
-
 }
 
+void database::perform_p2p_maintenance()
+{
+   const auto& stats_idx = get_index_type< account_stats_index >().indices().get< by_p2p_rating >();
+   auto stats_itr = stats_idx.lower_bound( true );
+
+   while( stats_itr != stats_idx.end() )
+   {
+      const account_statistics_object& acc_stat = *stats_itr;
+      ++stats_itr;
+
+      modify( acc_stat, []( account_statistics_object& aso )
+      {
+         aso.p2p_first_month_rating=aso.p2p_current_month_rating;
+         aso.p2p_current_month_rating=0;
+      } );
+   }
+}
+
+
+void database::count_poc_votes() {
+   ilog("======================== COUNT POC VOTES ========================");
+   const auto& stats_idx = get_index_type< account_stats_index >().indices().get< by_poc3_vote >();
+   auto stats_itr = stats_idx.lower_bound( true );
+   const global_property_object& gpo = get_global_properties();
+
+   vector<account_statistics_object> accounts_to_clear;
+   vector<share_type> poc3_votes;
+   ilog("======================== COUNT POC3 VOTES UNFILTERED ========================");
+   while( stats_itr != stats_idx.end() )
+   {
+      const account_statistics_object& acc_stat = *stats_itr;
+      ++stats_itr;
+      accounts_to_clear.emplace_back(acc_stat);
+      poc3_votes.emplace_back(acc_stat.poc3_vote);
+      ilog("====== Processing PoC vote! ${n} ${v}", ("v", acc_stat.poc3_vote)("n", acc_stat.name));
+   }
+   if (poc3_votes.size()>=gpo.staking_parameters.poc_min_votes) {
+      std::sort(poc3_votes.begin(), poc3_votes.end());
+      auto poc3_length = poc3_votes.size();
+      auto poc3_filter = poc3_length*gpo.staking_parameters.poc_filter_percent/GRAPHENE_100_PERCENT;
+      vector<share_type> poc3_votes_filtered(poc3_votes.begin()+poc3_filter, poc3_votes.end()-poc3_filter);
+      share_type poc3_vote_sum = 0;
+      ilog("======================== COUNT POC3 SORTED FILTERED ========================");
+      for( auto poc3_vote : poc3_votes_filtered ) {
+         poc3_vote_sum+=poc3_vote;
+         ilog("====== PoC3 Filtered vector ${v}", ("v", poc3_vote));
+      }
+
+      fc::uint128 poc3_sum(poc3_vote_sum.value);
+      poc3_sum /= poc3_votes_filtered.size();
+      poc3_sum /= GRAPHENE_BLOCKCHAIN_PRECISION;
+      poc3_sum *= GRAPHENE_1_PERCENT;
+      uint64_t poc3_percent = poc3_sum.to_uint64();
+
+      ilog("====== PoC3 Sum ${s}, count ${c}, result ${r}", ("s", poc3_vote_sum)("c", poc3_votes_filtered.size())("r", poc3_percent));
+
+      const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
+      modify(dgpo, [poc3_percent](dynamic_global_property_object& d) {
+         d.poc3_percent = poc3_percent;
+      });
+   }
+
+   if (accounts_to_clear.size()>0) {
+      ilog("====== PoC3 Clear votes ==========");
+      for( auto clear_acc_stat : accounts_to_clear ) {
+         modify(clear_acc_stat, [](account_statistics_object& clear_stat)
+         {
+            clear_stat.poc3_vote = 0;
+         });
+      }
+   }
+}
 /// @brief A visitor for @ref worker_type which calls pay_worker on the worker within
 struct worker_pay_visitor
 {
@@ -532,7 +603,14 @@ void count_gold( database& db )
             }
             payed_fees+=reward_cut;
             const auto account = db.find(bal.owner);
-            db.deposit_cashback(*account, reward_cut, false);
+
+            if ( db.head_block_time() >= HARDFORK_CWD6_TIME ) {
+               db.deposit_cashback(*account, reward_cut, false, false);
+            }
+            else{
+               db.deposit_cashback(*account, reward_cut, false, true);
+            }
+
             // ilog( "Deposit GOLD Cashback =${acc}= amount ${reward_cut}", ("acc",account->name)("reward_cut",reward_cut));
          }
          db.modify(core, [&]( asset_dynamic_data_object& _core )
@@ -1275,21 +1353,36 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
 
    auto next_maintenance_time = dgpo.next_maintenance_time;
    auto maintenance_interval = gpo.parameters.maintenance_interval;
-   auto next_credit_stats_time = dgpo.next_credit_stats_time;
+
+   auto next_monthly_maintenance_time = dgpo.next_monthly_maintenance_time;
    uint32_t credit_stats_interval = 2592000;
-   if( next_credit_stats_time <= next_block.timestamp )
+   if( next_monthly_maintenance_time <= next_block.timestamp )
    {
       if( next_block.block_num() == 1 )
-         next_credit_stats_time = time_point_sec() +
+         next_monthly_maintenance_time = time_point_sec() +
                (((next_block.timestamp.sec_since_epoch() / credit_stats_interval) + 1) * credit_stats_interval);
       else
       {
-         auto y = (head_block_time() - next_credit_stats_time).to_seconds() / credit_stats_interval;
-         next_credit_stats_time += (y+1) * credit_stats_interval;
+         auto y = (head_block_time() - next_monthly_maintenance_time).to_seconds() / credit_stats_interval;
+         next_monthly_maintenance_time += (y+1) * credit_stats_interval;
       }
     perform_credit_maintenance();
+    perform_p2p_maintenance();
    }
 
+   auto next_poc_vote_time = dgpo.next_poc_vote_time;
+   auto end_poc_vote_time = dgpo.end_poc_vote_time;
+   auto poc_vote_is_active = dgpo.poc_vote_is_active;
+   if( next_poc_vote_time <= next_block.timestamp )
+   {
+      next_poc_vote_time = next_poc_vote_time+fc::days(gpo.staking_parameters.poc_vote_interval_days);
+      end_poc_vote_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(gpo.staking_parameters.poc_vote_duration);
+      poc_vote_is_active = true;
+   }
+   if( end_poc_vote_time <= next_block.timestamp and poc_vote_is_active == true ) {
+      count_poc_votes();
+      poc_vote_is_active = false;
+   }
    if( next_maintenance_time <= next_block.timestamp )
    {
       if( next_block.block_num() == 1 )
@@ -1334,10 +1427,13 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          && !to_update_and_match_call_orders )
       process_hf_935( *this );
 
-   modify(dgpo, [next_maintenance_time, next_credit_stats_time](dynamic_global_property_object& d) {
+   modify(dgpo, [next_maintenance_time, next_monthly_maintenance_time, next_poc_vote_time, end_poc_vote_time, poc_vote_is_active](dynamic_global_property_object& d) {
       d.next_maintenance_time = next_maintenance_time;
       d.accounts_registered_this_interval = 0;
-      d.next_credit_stats_time = next_credit_stats_time;
+      d.next_monthly_maintenance_time = next_monthly_maintenance_time;
+      d.next_poc_vote_time = next_poc_vote_time;
+      d.end_poc_vote_time = end_poc_vote_time;
+      d.poc_vote_is_active = poc_vote_is_active;
    });
 
    // We need to do it after updated next_maintenance_time, to apply new rules here

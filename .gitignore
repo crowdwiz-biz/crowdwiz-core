@@ -9,6 +9,7 @@ Makefile
 compile_commands.json
 moc_*
 *.moc
+
 !libraries/fc/**
 
 libraries/fc/*.slo
@@ -98,15 +99,16 @@ config.ini
 genesis-dev.json
 operations.js
 TODO
+TODO.md
 my-wallet.json
+*.wallet
+generated_operations.js
+
 testcases
-libraries/fc/git_revision.cpp
-libraries/fc/git_revision.cpp
 libraries/fc/vendor/editline/config.h.in
 libraries/fc/vendor/editline/Makefile.in
 libraries/fc/vendor/editline/autom4te.cache/requests
 libraries/fc/vendor/secp256k1-zkp/autom4te.cache/requests
-libraries/fc/git_revision.cpp
-libraries/fc/git_revision.cpp
 libraries/fc/vendor/editline/autom4te.cache/requests
 libraries/fc/vendor/secp256k1-zkp/autom4te.cache/requests
+libraries/fc/git_revision.cpp

@@ -1,0 +1,4 @@
+// # - not defined 
+#ifndef HARDFORK_CWD6_TIME
+#define HARDFORK_CWD6_TIME (fc::time_point_sec( 1603384797 ))
+#endif

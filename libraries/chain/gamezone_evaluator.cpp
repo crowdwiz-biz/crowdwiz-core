@@ -35,11 +35,13 @@ void_result flipcoin_bet_evaluator::do_evaluate(const flipcoin_bet_operation &op
       database& d = db();
 		const account_object& bettor    	= op.bettor(d);
 		const asset_object&   asset_type    = op.bet.asset_id(d);
-
+      const global_property_object& gpo = db().get_global_properties();
+      const auto& gz_params = gpo.gamezone_parameters;
+  
       FC_ASSERT( op.bet.asset_id == asset_id_type(), "Price must be in core asset");
 
       if ( d.head_block_time()  >= HARDFORK_CWD5_TIME ) {
-         FC_ASSERT( op.bet.amount >= 1000,  "Bet amount must be more or equal than 0.01 CWD");
+         FC_ASSERT( op.bet.amount >=  gz_params.flipcoin_min_bet_amount,  "Bet amount must be more or equal than minimal bet");
       }
 
      	bool insufficient_balance = d.get_balance( bettor, asset_type ).amount >= op.bet.amount;
@@ -98,16 +100,16 @@ void_result flipcoin_call_evaluator::do_apply(const flipcoin_call_operation &op)
     try
     {
         database& d = db();
-		db().adjust_balance( op.caller, -op.bet );
-		d.modify(
-			d.get(op.flipcoin),
-			[&]( flipcoin_object& f )
-			{
-				f.status = 1;
-				f.caller = op.caller;
-                f.expiration = d.head_block_time() + fc::seconds(10);
-			}
-		);
+         db().adjust_balance( op.caller, -op.bet );
+         d.modify(
+            d.get(op.flipcoin),
+            [&]( flipcoin_object& f )
+            {
+               f.status = 1;
+               f.caller = op.caller;
+               f.expiration = d.head_block_time() + fc::seconds(10);
+            }
+         );
         return void_result();
     }
     FC_CAPTURE_AND_RETHROW((op))
@@ -116,8 +118,9 @@ void_result flipcoin_call_evaluator::do_apply(const flipcoin_call_operation &op)
 void_result lottery_goods_create_lot_evaluator::do_evaluate( const lottery_goods_create_lot_operation& op )
 { try {
    const database& d = db();
-
-   FC_ASSERT( (op.total_participants>0)&&(op.total_participants<=5000));
+   const global_property_object& gpo = db().get_global_properties();
+   const auto& gz_params = gpo.gamezone_parameters;
+   FC_ASSERT( (op.total_participants>0)&&(op.total_participants<=gz_params.lottery_goods_total_participants));
    FC_ASSERT( (op.latency_sec>0)&&(op.latency_sec<=100));
    FC_ASSERT( op.ticket_price.asset_id == asset_id_type(), "Price must be in core asset");
    auto head_time = db().head_block_time();
@@ -138,9 +141,11 @@ void_result lottery_goods_create_lot_evaluator::do_evaluate( const lottery_goods
 object_id_type lottery_goods_create_lot_evaluator::do_apply( const lottery_goods_create_lot_operation& op )
 { try {
    auto head_time = db().head_block_time();
+   const global_property_object& gpo = db().get_global_properties();
+   const auto& gz_params = gpo.gamezone_parameters;
    time_point_sec expiration = HARDFORK_CWD4_TIME + fc::seconds(2592000);
    if ( head_time >= HARDFORK_CWD4_TIME ) {
-      expiration = head_time + fc::seconds(2592000);
+      expiration = head_time + fc::seconds(gz_params.lottery_goods_expiration);
    }
    const auto& new_lottery_goods_object = db().create<lottery_goods_object>([&](lottery_goods_object& obj){
        obj.owner = op.owner;
@@ -249,7 +254,6 @@ void_result lottery_goods_confirm_delivery_evaluator::do_evaluate( const lottery
    FC_ASSERT( lot_obj->status==2 );
    FC_ASSERT( lot_obj->winner==op.winner );
    FC_ASSERT( lot_obj->owner==op.owner );
-
    
    return void_result();
 }  FC_CAPTURE_AND_RETHROW( (op) ) }
@@ -272,7 +276,12 @@ void_result lottery_goods_confirm_delivery_evaluator::do_apply( const lottery_go
          lg_obj.status = 3;
       }
    );   
-   
+   const account_object& owner_account = op.owner(d);
+   const auto& owner_stats = owner_account.statistics(d);
+   d.modify(owner_stats, [&](account_statistics_object &s) {
+      s.lottery_goods_rating++;
+   });
+
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (op) ) }
 
