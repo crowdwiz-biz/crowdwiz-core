@@ -484,11 +484,10 @@ void_result approved_transfer_create_evaluator::do_evaluate( const approved_tran
 		database& d = db();
 		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD6_TIME, "HF6 not yet activated");
 		FC_ASSERT(op.expiration > d.head_block_time(), "Expiration must be in future");		
-		const account_object& from_account = op.from(d);
-		// FC_ASSERT( from_account.referral_status_type >= 2, "You must have at least Business contract");
+		FC_ASSERT(op.amount.asset_id == asset_id_type(), "Payment must be in CWD");
 
+		const account_object& from_account = op.from(d);
 		const asset_object& asset_type = op.amount.asset_id(d);
-		const asset_object& core_asset = d.get_core_asset();
 		bool insufficient_balance = d.get_balance( from_account, asset_type ).amount >= op.amount.amount;
 
 		FC_ASSERT( insufficient_balance,
@@ -632,7 +631,7 @@ void_result mass_payment_evaluator::do_evaluate( const mass_payment_operation &o
 		database& d = db();
 		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD6_TIME, "HF6 not yet activated");
 		const account_object& from_account = op.from(d);
-		FC_ASSERT( from_account.referral_status_type >= 2, "You must have at least Business contract");
+		FC_ASSERT( from_account.referral_status_type >= 2, "You must have at least Expert contract");
 		const asset_object& asset_type = op.asset_id(d);
 
 		share_type total_transfer = 0;
@@ -655,7 +654,6 @@ void_result mass_payment_evaluator::do_apply( const mass_payment_operation &op)
     try
     {
 		database& d = db();
-		const account_object& from_account = op.from(d);
 		share_type total_transfer = 0;
 
 		for( const auto& payment : op.payments )

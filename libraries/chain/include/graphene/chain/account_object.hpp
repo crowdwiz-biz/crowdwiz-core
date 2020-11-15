@@ -91,17 +91,9 @@ class account_statistics_object : public graphene::db::abstract_object<account_s
       return (p2p_first_month_rating > 0 || p2p_current_month_rating > 0);
    }
 
-   inline bool has_poc3_vote() const
+   inline bool has_poc_vote() const
    {
-      return (poc3_vote > 0);
-   }
-   inline bool has_poc6_vote() const
-   {
-      return (poc6_vote > 0);
-   }
-   inline bool has_poc12_vote() const
-   {
-      return (poc12_vote > 0);
+      return (poc3_vote > 0 || poc6_vote > 0 || poc12_vote > 0);
    }
    /**
           * Tracks the total fees paid by this account for the purpose of calculating bulk discounts.
@@ -513,9 +505,7 @@ struct by_owner;
 struct by_creditor;
 struct by_maintenance_seq;
 struct by_network_income;
-struct by_poc3_vote;
-struct by_poc6_vote;
-struct by_poc12_vote;
+struct by_poc_vote;
 struct by_p2p_rating;
 /**
     * @ingroup object_index
@@ -538,20 +528,10 @@ typedef multi_index_container<
                            account_statistics_object,
                            const_mem_fun<account_statistics_object, bool, &account_statistics_object::has_network_income>,
                            member<account_statistics_object, string, &account_statistics_object::name>>>,
-        ordered_unique<tag<by_poc3_vote>,
+        ordered_unique<tag<by_poc_vote>,
                        composite_key<
                            account_statistics_object,
-                           const_mem_fun<account_statistics_object, bool, &account_statistics_object::has_poc3_vote>,
-                           member<account_statistics_object, string, &account_statistics_object::name>>>,
-        ordered_unique<tag<by_poc6_vote>,
-                       composite_key<
-                           account_statistics_object,
-                           const_mem_fun<account_statistics_object, bool, &account_statistics_object::has_poc6_vote>,
-                           member<account_statistics_object, string, &account_statistics_object::name>>>,
-        ordered_unique<tag<by_poc12_vote>,
-                       composite_key<
-                           account_statistics_object,
-                           const_mem_fun<account_statistics_object, bool, &account_statistics_object::has_poc12_vote>,
+                           const_mem_fun<account_statistics_object, bool, &account_statistics_object::has_poc_vote>,
                            member<account_statistics_object, string, &account_statistics_object::name>>>,
         ordered_unique<tag<by_p2p_rating>,
                        composite_key<

@@ -36,7 +36,7 @@ namespace graphene
 			ref_amount.amount=0;
 			const global_property_object& gpo = d.get_global_properties();
 			const auto& poc_params = gpo.staking_parameters;
-			account_statistics_object stats = acc_ref.statistics(d);
+			const account_statistics_object& stats = acc_ref.statistics(d);
 
 			if (acc_ref.referral_status_type == 0 && poc_params.poc_status_levels_00>=level) {
 				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
@@ -74,6 +74,7 @@ namespace graphene
 				credit_ref_amount.amount=ref_amount.amount;
 				if (stats.total_credit > 0) {
 					share_type credit = stats.total_credit-stats.allowed_to_repay;
+
 					if (credit > credit_ref_amount.amount) {
 						d.modify( stats, [credit_ref_amount]( account_statistics_object& aso )
 						{
@@ -129,6 +130,7 @@ namespace graphene
 			else {
 				ref_amount.amount = 0;
 			}
+
 			return ref_amount.amount;
 		}
 
@@ -143,7 +145,7 @@ namespace graphene
 				const dynamic_global_property_object& dgpo = db().get_dynamic_global_properties();
 				FC_ASSERT( account_stats.had_staking, "You don't had staking yet" );
 				FC_ASSERT( ((account_stats.poc3_vote + account_stats.poc6_vote + account_stats.poc12_vote) == 0), "You already voted this time" );
-				FC_ASSERT( dgpo.end_poc_vote_time>=d.head_block_time(), "PoC voting not statrted yet" );
+				FC_ASSERT( dgpo.end_poc_vote_time>=d.head_block_time(), "PoC voting not started yet" );
 				return void_result();
 			}
 			FC_CAPTURE_AND_RETHROW((op))
@@ -193,15 +195,15 @@ namespace graphene
 
 				if (op.staking_type == 3) {
 					posible_reward = staking_reward(op.stak_amount.amount,(dgpo.poc3_percent+poc_params.poc_ref_01+poc_params.poc_ref_02+poc_params.poc_ref_03+poc_params.poc_ref_04+poc_params.poc_ref_05+poc_params.poc_ref_06+poc_params.poc_ref_07+poc_params.poc_ref_08+poc_params.poc_gcwd));
-					FC_ASSERT( op.stak_amount.amount > poc_params.poc3_min_amount, "Your stak amount lower than minimal allowed amount" );
+					FC_ASSERT( op.stak_amount.amount >= poc_params.poc3_min_amount, "Your stak amount lower than minimal allowed amount" );
 				}
 				if (op.staking_type == 6) {
 					posible_reward = staking_reward(op.stak_amount.amount,(dgpo.poc6_percent+poc_params.poc_ref_01+poc_params.poc_ref_02+poc_params.poc_ref_03+poc_params.poc_ref_04+poc_params.poc_ref_05+poc_params.poc_ref_06+poc_params.poc_ref_07+poc_params.poc_ref_08+poc_params.poc_gcwd));
-					FC_ASSERT( op.stak_amount.amount > poc_params.poc6_min_amount, "Your stak amount lower than minimal allowed amount" );
+					FC_ASSERT( op.stak_amount.amount >= poc_params.poc6_min_amount, "Your stak amount lower than minimal allowed amount" );
 				}
 				if (op.staking_type == 12) {
 					posible_reward = staking_reward(op.stak_amount.amount,(dgpo.poc12_percent+poc_params.poc_ref_01+poc_params.poc_ref_02+poc_params.poc_ref_03+poc_params.poc_ref_04+poc_params.poc_ref_05+poc_params.poc_ref_06+poc_params.poc_ref_07+poc_params.poc_ref_08+poc_params.poc_gcwd));
-					FC_ASSERT( op.stak_amount.amount > poc_params.poc12_min_amount, "Your stak amount lower than minimal allowed amount" );
+					FC_ASSERT( op.stak_amount.amount >= poc_params.poc12_min_amount, "Your stak amount lower than minimal allowed amount" );
 				}
 				FC_ASSERT( (core_dyn_data->current_supply + op.stak_amount.amount + posible_reward) <= core_asset.options.max_supply, "System has reached max_supply CWD limit" );
 
@@ -217,7 +219,15 @@ namespace graphene
 				const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
 				const time_point_sec now = d.head_block_time();
 				const uint32_t seconds_in_month = 2592000;
+				d.adjust_balance( op.account, -op.stak_amount );
+				const account_object& account = op.account(d);
 
+				const auto& account_stats = account.statistics(d);
+				if (!account_stats.had_staking) {
+					d.modify(account_stats, [](account_statistics_object &s) {
+						s.had_staking = true;
+					});
+				}
 				asset stak_amount;
 				stak_amount.asset_id=asset_id_type();
 				stak_amount.amount=0;
@@ -231,7 +241,7 @@ namespace graphene
 					// STAKING 3 Month Percent
 					d.create<vesting_balance_object>([&](vesting_balance_object& b) {
 							b.owner = op.account;
-							b.balance = asset(0);
+							b.balance = stak_amount;
 							linear_vesting_policy policy;
 							policy.begin_timestamp = now;
 							policy.vesting_cliff_seconds = 0;
@@ -244,7 +254,7 @@ namespace graphene
 					stak_amount.amount = staking_reward(op.stak_amount.amount,dgpo.poc3_percent);
 					d.create<vesting_balance_object>([&](vesting_balance_object& b) {
 							b.owner = op.account;
-							b.balance = asset(0);
+							b.balance = op.stak_amount;
 							linear_vesting_policy policy;
 							policy.begin_timestamp = now + fc::seconds(seconds_in_month * 3);
 							policy.vesting_cliff_seconds = 0;
@@ -260,15 +270,14 @@ namespace graphene
 					stak_amount.amount += op.stak_amount.amount;
 					
 					// STAKING 6 Month Body+Percent
-					stak_amount.amount = staking_reward(op.stak_amount.amount,dgpo.poc3_percent);
 					d.create<vesting_balance_object>([&](vesting_balance_object& b) {
 							b.owner = op.account;
-							b.balance = asset(0);
+							b.balance = stak_amount;
 							linear_vesting_policy policy;
 							policy.begin_timestamp = now + fc::seconds(seconds_in_month * 6);
 							policy.vesting_cliff_seconds = 0;
 							policy.vesting_duration_seconds = 0;
-							policy.begin_balance = op.stak_amount.amount;
+							policy.begin_balance = stak_amount.amount;
 							b.policy = policy;
 						});
 				}
@@ -279,55 +288,53 @@ namespace graphene
 					stak_amount.amount += op.stak_amount.amount;
 					
 					// STAKING 12 Month Body+Percent
-					stak_amount.amount = staking_reward(op.stak_amount.amount,dgpo.poc3_percent);
 					d.create<vesting_balance_object>([&](vesting_balance_object& b) {
 							b.owner = op.account;
-							b.balance = asset(0);
+							b.balance = stak_amount;
 							linear_vesting_policy policy;
 							policy.begin_timestamp = now;
 							policy.vesting_cliff_seconds = 0;
 							policy.vesting_duration_seconds = seconds_in_month * 12;
-							policy.begin_balance = op.stak_amount.amount;
+							policy.begin_balance = stak_amount.amount;
 							b.policy = policy;
 						});
 				}
 
 				// PAY NETWORK REWARD
-				const account_object& account = op.account(d);
 				const account_object& acc_ref1 = account.referrer(d);
 				const global_property_object& gpo = d.get_global_properties();
 				const auto& poc_params = gpo.staking_parameters;
 
 				if (acc_ref1.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref1, stak_amount, 1, poc_params.poc_ref_01, d);
+					current_supply_increase+=pay_staking_reward(account, acc_ref1, op.stak_amount, 1, poc_params.poc_ref_01, d);
 
 				const account_object& acc_ref2 = acc_ref1.referrer(d);
 				if (acc_ref2.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref2, stak_amount, 2, poc_params.poc_ref_02, d);
+					current_supply_increase+=pay_staking_reward(account, acc_ref2, op.stak_amount, 2, poc_params.poc_ref_02, d);
 
 				const account_object& acc_ref3 = acc_ref2.referrer(d);
 				if (acc_ref3.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref3, stak_amount, 3, poc_params.poc_ref_03, d);
+					current_supply_increase+=pay_staking_reward(account, acc_ref3, op.stak_amount, 3, poc_params.poc_ref_03, d);
 
 				const account_object& acc_ref4 = acc_ref3.referrer(d);
 				if (acc_ref4.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref4, stak_amount, 4, poc_params.poc_ref_04, d);
+					current_supply_increase+=pay_staking_reward(account, acc_ref4, op.stak_amount, 4, poc_params.poc_ref_04, d);
 
 				const account_object& acc_ref5 = acc_ref4.referrer(d);
 				if (acc_ref5.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref5, stak_amount, 5, poc_params.poc_ref_05, d);
+					current_supply_increase+=pay_staking_reward(account, acc_ref5, op.stak_amount, 5, poc_params.poc_ref_05, d);
 
 				const account_object& acc_ref6 = acc_ref5.referrer(d);
 				if (acc_ref6.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref6, stak_amount, 6, poc_params.poc_ref_06, d);
+					current_supply_increase+=pay_staking_reward(account, acc_ref6, op.stak_amount, 6, poc_params.poc_ref_06, d);
 
 				const account_object& acc_ref7 = acc_ref6.referrer(d);
 				if (acc_ref7.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref7, stak_amount, 7, poc_params.poc_ref_07, d);
+					current_supply_increase+=pay_staking_reward(account, acc_ref7, op.stak_amount, 7, poc_params.poc_ref_07, d);
 
 				const account_object& acc_ref8 = acc_ref7.referrer(d);
 				if (acc_ref8.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref8, stak_amount, 8, poc_params.poc_ref_08, d);
+					current_supply_increase+=pay_staking_reward(account, acc_ref8, op.stak_amount, 8, poc_params.poc_ref_08, d);
 
 				// GCWD REWARD
 				share_type gcwd_amount;
@@ -353,6 +360,8 @@ namespace graphene
 			try
 			{
 				database& d = db();
+				FC_ASSERT(d.head_block_time() >= HARDFORK_CWD6_TIME, "HF6 not yet activated");
+
 				const account_object& from_account = op.account(d);
 
 				const asset_object& asset_type = op.amount.asset_id(d);

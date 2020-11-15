@@ -168,7 +168,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       vector<withdraw_permission_object> get_withdraw_permissions_by_recipient(const std::string account_id_or_name, withdraw_permission_id_type start, uint32_t limit)const;
       //GAMEZONE
       vector<flipcoin_object> get_active_flipcoin() const;
-      vector<lottery_goods_object> lottery_goods_get_active() const;
+      vector<scoop_lots> lottery_goods_get_active() const;
       vector<lottery_goods_object> lottery_goods_get_by_owner(const std::string owner, uint8_t status) const;
       vector<lottery_goods_object> lottery_goods_get_by_winner(const std::string winner, uint8_t status) const;
       vector<lottery_goods_object> lottery_goods_need_contacts(const std::string winner) const;
@@ -377,7 +377,7 @@ database_api::~database_api() {}
 database_api_impl::database_api_impl( graphene::chain::database& db, const application_options* app_options )
 :_db(db), _app_options(app_options)
 {
-   ilog("creating database api ${x}", ("x",int64_t(this)) );
+   // ilog("creating database api ${x}", ("x",int64_t(this)) );
    _new_connection = _db.new_objects.connect([this](const vector<object_id_type>& ids, const flat_set<account_id_type>& impacted_accounts) {
                                 on_objects_new(ids, impacted_accounts);
                                 });
@@ -396,7 +396,7 @@ database_api_impl::database_api_impl( graphene::chain::database& db, const appli
 
 database_api_impl::~database_api_impl()
 {
-   ilog("freeing database api ${x}", ("x",int64_t(this)) );
+   // ilog("freeing database api ${x}", ("x",int64_t(this)) );
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2406,20 +2406,25 @@ vector<withdraw_permission_object> database_api_impl::get_withdraw_permissions_b
 //  GAMEZONE                                                        //
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
-vector<lottery_goods_object> database_api::lottery_goods_get_active() const
+vector<scoop_lots> database_api::lottery_goods_get_active() const
 {
    return my->lottery_goods_get_active();
 }
 
-vector<lottery_goods_object> database_api_impl::lottery_goods_get_active() const
+vector<scoop_lots> database_api_impl::lottery_goods_get_active() const
 {
-   vector<lottery_goods_object> result;
+   vector<scoop_lots> result;
    const auto& by_status_idx = _db.get_index_type<lottery_goods_index>().indices().get<by_status>();
    auto itr = by_status_idx.equal_range(0);
 
    while(itr.second != itr.first) {
       --itr.second;
-      result.emplace_back(*itr.second);
+      scoop_lots scoop_lot;
+      scoop_lot.lot = *itr.second;
+      const auto& creator_stats = _db.get_account_stats_by_owner(itr.second->owner);
+      scoop_lot.rating =  creator_stats.lottery_goods_rating;
+      result.emplace_back(scoop_lot);
+
    }
 
    return result;
@@ -2646,12 +2651,7 @@ vector<p2p_adv> database_api_impl::get_p2p_adv(const std::string account_id_or_n
                p2p_adv_obj.pa = pa_obj;
                const auto& gateway_stats = _db.get_account_stats_by_owner(pa_obj.p2p_gateway);
                p2p_adv_obj.volume = gateway_stats.p2p_deals_volume;
-               if ((gateway_stats.p2p_canceled_deals + (2 * gateway_stats.p2p_arbitrage_loose)) < gateway_stats.p2p_complete_deals) {
-                  p2p_adv_obj.rating = gateway_stats.p2p_complete_deals - gateway_stats.p2p_canceled_deals - (2 * gateway_stats.p2p_arbitrage_loose);
-               }
-               else {
-                  p2p_adv_obj.rating = 0 ;
-               }
+               p2p_adv_obj.rating = gateway_stats.p2p_first_month_rating + gateway_stats.p2p_current_month_rating;
                p2p_adv_obj.pa.max_cwd = max_cwd;
                result.emplace_back(p2p_adv_obj);
             }

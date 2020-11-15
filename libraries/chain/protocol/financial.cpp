@@ -114,6 +114,8 @@ void approved_transfer_resolve_dispute_operation::validate()const {
 }
 void mass_payment_operation::validate()const {
 	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+	FC_ASSERT( payments.size() > 0, "Payments quantity must be greater than zero" );
+	FC_ASSERT( payments.size() <= 1000, "Payments quantity must be lower or equal than 1000" );
 }
 void mass_payment_pay_operation::validate()const {
 	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
@@ -121,8 +123,8 @@ void mass_payment_pay_operation::validate()const {
 
 share_type mass_payment_operation::calculate_fee(const fee_parameters_type& k) const
 {
-	uint64_t result = payments.size()*k.price_per_transfer;
-	return 0;
+	share_type result = k.fee + (payments.size() * k.price_per_transfer);
+	return result;
 }
 
 

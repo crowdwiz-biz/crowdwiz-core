@@ -27,10 +27,10 @@ namespace graphene
 			uint16_t	poc_status_denominator_02	= (100*GRAPHENE_1_PERCENT);
 			uint16_t	poc_status_denominator_03	= (100*GRAPHENE_1_PERCENT);
 			uint16_t	poc_status_denominator_04	= (100*GRAPHENE_1_PERCENT);
-			uint32_t	poc_vote_duration			= (24*60*60);
+			uint32_t	poc_vote_duration			= (24*60*60*4);
 			uint16_t	poc_vote_interval_days		= 90;
 			uint16_t	poc_min_votes				= 160;
-			uint16_t	poc_filter_percent			= (15*GRAPHENE_1_PERCENT);
+			uint16_t	poc_filter_percent			= (10*GRAPHENE_1_PERCENT);
 			share_type	poc3_min_amount				= (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(250)); 
 			share_type	poc6_min_amount				= (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(250)); 
 			share_type	poc12_min_amount			= (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(1000)); 
@@ -60,4 +60,7 @@ FC_REFLECT(graphene::chain::staking_chain_parameters,
 	(poc_vote_interval_days)
 	(poc_min_votes)
 	(poc_filter_percent)
+	(poc3_min_amount)
+	(poc6_min_amount)
+	(poc12_min_amount)
 )

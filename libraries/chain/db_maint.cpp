@@ -153,20 +153,37 @@ void database::perform_p2p_maintenance()
 
 void database::count_poc_votes() {
    ilog("======================== COUNT POC VOTES ========================");
-   const auto& stats_idx = get_index_type< account_stats_index >().indices().get< by_poc3_vote >();
+   const auto& stats_idx = get_index_type< account_stats_index >().indices().get< by_poc_vote >();
    auto stats_itr = stats_idx.lower_bound( true );
    const global_property_object& gpo = get_global_properties();
 
-   vector<account_statistics_object> accounts_to_clear;
    vector<share_type> poc3_votes;
+   vector<share_type> poc6_votes;
+   vector<share_type> poc12_votes;
+
    ilog("======================== COUNT POC3 VOTES UNFILTERED ========================");
    while( stats_itr != stats_idx.end() )
    {
       const account_statistics_object& acc_stat = *stats_itr;
       ++stats_itr;
-      accounts_to_clear.emplace_back(acc_stat);
-      poc3_votes.emplace_back(acc_stat.poc3_vote);
-      ilog("====== Processing PoC vote! ${n} ${v}", ("v", acc_stat.poc3_vote)("n", acc_stat.name));
+      if (acc_stat.poc3_vote>0) {
+         poc3_votes.emplace_back(acc_stat.poc3_vote);
+      }
+      if (acc_stat.poc6_vote>0) {
+         poc6_votes.emplace_back(acc_stat.poc6_vote);
+      }
+      if (acc_stat.poc12_vote>0) {
+         poc12_votes.emplace_back(acc_stat.poc12_vote);
+      }
+      ilog("====== Processing PoC vote! ${n} ${v}", ("v", acc_stat)("n", acc_stat.name));
+      modify(acc_stat, [](account_statistics_object& clear_stat)
+      {
+         clear_stat.poc3_vote = 0;
+         clear_stat.poc6_vote = 0;
+         clear_stat.poc12_vote = 0;
+      });
+      ilog("====== Processing PoC vote after Clear! ${n} ${v}", ("v", acc_stat)("n", acc_stat.name));
+
    }
    if (poc3_votes.size()>=gpo.staking_parameters.poc_min_votes) {
       std::sort(poc3_votes.begin(), poc3_votes.end());
@@ -194,15 +211,57 @@ void database::count_poc_votes() {
       });
    }
 
-   if (accounts_to_clear.size()>0) {
-      ilog("====== PoC3 Clear votes ==========");
-      for( auto clear_acc_stat : accounts_to_clear ) {
-         modify(clear_acc_stat, [](account_statistics_object& clear_stat)
-         {
-            clear_stat.poc3_vote = 0;
-         });
+   if (poc6_votes.size()>=gpo.staking_parameters.poc_min_votes) {
+      std::sort(poc6_votes.begin(), poc6_votes.end());
+      auto poc6_length = poc6_votes.size();
+      auto poc6_filter = poc6_length*gpo.staking_parameters.poc_filter_percent/GRAPHENE_100_PERCENT;
+      vector<share_type> poc6_votes_filtered(poc6_votes.begin()+poc6_filter, poc6_votes.end()-poc6_filter);
+      share_type poc6_vote_sum = 0;
+      ilog("======================== COUNT POC6 SORTED FILTERED ========================");
+      for( auto poc6_vote : poc6_votes_filtered ) {
+         poc6_vote_sum+=poc6_vote;
+         ilog("====== PoC6 Filtered vector ${v}", ("v", poc6_vote));
       }
+
+      fc::uint128 poc6_sum(poc6_vote_sum.value);
+      poc6_sum /= poc6_votes_filtered.size();
+      poc6_sum /= GRAPHENE_BLOCKCHAIN_PRECISION;
+      poc6_sum *= GRAPHENE_1_PERCENT;
+      uint64_t poc6_percent = poc6_sum.to_uint64();
+
+      ilog("====== PoC6 Sum ${s}, count ${c}, result ${r}", ("s", poc6_vote_sum)("c", poc6_votes_filtered.size())("r", poc6_percent));
+
+      const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
+      modify(dgpo, [poc6_percent](dynamic_global_property_object& d) {
+         d.poc6_percent = poc6_percent;
+      });
    }
+   if (poc12_votes.size()>=gpo.staking_parameters.poc_min_votes) {
+      std::sort(poc12_votes.begin(), poc12_votes.end());
+      auto poc12_length = poc12_votes.size();
+      auto poc12_filter = poc12_length*gpo.staking_parameters.poc_filter_percent/GRAPHENE_100_PERCENT;
+      vector<share_type> poc12_votes_filtered(poc12_votes.begin()+poc12_filter, poc12_votes.end()-poc12_filter);
+      share_type poc12_vote_sum = 0;
+      ilog("======================== COUNT POC12 SORTED FILTERED ========================");
+      for( auto poc12_vote : poc12_votes_filtered ) {
+         poc12_vote_sum+=poc12_vote;
+         ilog("====== PoC12 Filtered vector ${v}", ("v", poc12_vote));
+      }
+
+      fc::uint128 poc12_sum(poc12_vote_sum.value);
+      poc12_sum /= poc12_votes_filtered.size();
+      poc12_sum /= GRAPHENE_BLOCKCHAIN_PRECISION;
+      poc12_sum *= GRAPHENE_1_PERCENT;
+      uint64_t poc12_percent = poc12_sum.to_uint64();
+
+      ilog("====== PoC12 Sum ${s}, count ${c}, result ${r}", ("s", poc12_vote_sum)("c", poc12_votes_filtered.size())("r", poc12_percent));
+
+      const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
+      modify(dgpo, [poc12_percent](dynamic_global_property_object& d) {
+         d.poc12_percent = poc12_percent;
+      });
+   }
+
 }
 /// @brief A visitor for @ref worker_type which calls pay_worker on the worker within
 struct worker_pay_visitor
@@ -1376,10 +1435,12 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    if( next_poc_vote_time <= next_block.timestamp )
    {
       next_poc_vote_time = next_poc_vote_time+fc::days(gpo.staking_parameters.poc_vote_interval_days);
-      end_poc_vote_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(gpo.staking_parameters.poc_vote_duration);
+      end_poc_vote_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(gpo.staking_parameters.poc_vote_duration+2*60*60);
       poc_vote_is_active = true;
    }
+   // if( end_poc_vote_time <= next_block.timestamp and poc_vote_is_active == true ) {
    if( end_poc_vote_time <= next_block.timestamp and poc_vote_is_active == true ) {
+
       count_poc_votes();
       poc_vote_is_active = false;
    }
