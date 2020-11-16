@@ -80,6 +80,12 @@ struct p2p_ord
    string                     description;
 };
 
+struct scoop_lots
+{
+   lottery_goods_object       lot;
+   uint32_t                   rating;
+};
+
 struct order
 {
    string                     price;
@@ -762,7 +768,7 @@ class database_api
       //////////////
       // GAMEZONE //
       //////////////
-      vector<lottery_goods_object> lottery_goods_get_active() const;
+      vector<scoop_lots> lottery_goods_get_active() const;
       vector<lottery_goods_object> lottery_goods_get_by_owner(const std::string owner, uint8_t status) const;
       vector<lottery_goods_object> lottery_goods_get_by_winner(const std::string winner, uint8_t status) const;
       vector<lottery_goods_object> lottery_goods_need_contacts(const std::string winner) const;
@@ -799,6 +805,7 @@ class database_api
 FC_REFLECT( graphene::app::p2p_adv, (pa)(rating)(volume) );
 FC_REFLECT( graphene::app::p2p_ord, (po)(description));
 
+FC_REFLECT( graphene::app::scoop_lots,(lot)(rating) );
 FC_REFLECT( graphene::app::order, (price)(quote)(base) );
 FC_REFLECT( graphene::app::order_book, (base)(quote)(bids)(asks) );
 FC_REFLECT( graphene::app::market_ticker,

@@ -57,7 +57,7 @@ namespace graphene { namespace chain {
    >;
    using flipcoin_index = generic_index<flipcoin_object, flipcoin_multi_index_type>;
 
-   struct lottery_goods_object : public abstract_object<lottery_goods_object>
+   class lottery_goods_object : public abstract_object<lottery_goods_object>
    {
       public:
          static const uint8_t space_id = protocol_ids;
@@ -194,42 +194,6 @@ namespace graphene { namespace chain {
    >;
    using matrix_index = generic_index<matrix_object, matrix_multi_index_type>;
 
-   // // MATRIX PLAYERS
-   // class matrix_players_object : public abstract_object<matrix_players_object>
-   // {
-   //    public:
-   //       static const uint8_t space_id = protocol_ids;
-   //       static const uint8_t type_id = matrix_players_object_type;
-
-   //       account_id_type      player_account;
-   //       matrix_id_type       matrix;
-   //       uint8_t              active_levels = 0;
-   //       uint8_t              cells_opened = 0;
-
-   // };
-
-   //  struct by_id;
-   //  struct by_player_account_matrix;
-
-   //  using matrix_players_multi_index_type = multi_index_container<
-   //    matrix_players_object,
-   //    indexed_by<
-   //       ordered_unique< tag<by_id>,
-   //          member<object, object_id_type, &object::id>
-   //       >,
-   //       ordered_unique< tag<by_player_account_matrix>,
-   //          composite_key<
-   //             matrix_players_object,
-   //             member<matrix_players_object, account_id_type, &matrix_players_object::player_account>,
-   //             member<matrix_players_object, matrix_id_type, &matrix_players_object::matrix>,
-   //             member< object, object_id_type, &object::id>
-   //          >
-   //       >
-   //    >
-   // >;
-   // using matrix_players_index = generic_index<matrix_players_object, matrix_players_multi_index_type>;
-
-   // MATRIX ROOMS
    class matrix_rooms_object : public abstract_object<matrix_rooms_object>
    {
       public:
@@ -348,12 +312,7 @@ FC_REFLECT_DERIVED(graphene::chain::matrix_object, (graphene::db::object),
    (matrix_level_7_cells)
    (matrix_level_8_cells)
 )  
-// FC_REFLECT_DERIVED(graphene::chain::matrix_players_object, (graphene::db::object),
-//    (player_account)
-//    (matrix)
-//    (active_levels)
-//    (cells_opened)
-// ) 
+
 FC_REFLECT_DERIVED(graphene::chain::matrix_rooms_object, (graphene::db::object),
    (matrix)
    (matrix_player)

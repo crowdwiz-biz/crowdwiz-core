@@ -100,6 +100,42 @@ namespace graphene { namespace chain {
    using pledge_offer_index = generic_index<pledge_offer_object, pledge_offer_multi_index_type>;
 
 
+	class approved_transfer_object : public abstract_object<approved_transfer_object> 
+	{
+		public:
+			static const uint8_t space_id = protocol_ids;
+			static const uint8_t type_id = approved_transfer_object_type;		
+
+			account_id_type  	from;
+			account_id_type  	to;
+			account_id_type  	arbitr;
+			asset            	amount;
+			time_point_sec 		expiration;
+			uint8_t 			status = 0; 
+	};
+
+    struct by_id;
+    struct by_status;
+    struct by_expiration;
+
+	using approved_transfer_multi_index_type = multi_index_container<
+		approved_transfer_object,
+		indexed_by<
+			ordered_unique< 
+				tag<by_id>,
+				member<object, object_id_type, &object::id>
+			>,
+			ordered_non_unique< 
+				tag<by_status>,member<approved_transfer_object, uint8_t, &approved_transfer_object::status>
+			>,
+			ordered_non_unique< 
+				tag<by_expiration>,
+					member< approved_transfer_object, time_point_sec, &approved_transfer_object::expiration>
+			>
+		>
+	>;
+   using approved_transfer_index = generic_index<approved_transfer_object, approved_transfer_multi_index_type>;
+
 
 } } // graphene::chain
 
@@ -118,6 +154,15 @@ FC_REFLECT_DERIVED( graphene::chain::pledge_offer_object, (graphene::db::object)
 	(credit_amount)
 	(repay_amount)
 	(pledge_days)
+	(expiration)
+	(status)
+)
+
+FC_REFLECT_DERIVED( graphene::chain::approved_transfer_object, (graphene::db::object),
+	(from)
+	(to)
+	(arbitr)
+	(amount)
 	(expiration)
 	(status)
 )

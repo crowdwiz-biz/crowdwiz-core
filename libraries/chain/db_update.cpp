@@ -334,6 +334,9 @@ void database::auto_cancel_p2p_orders()
             modify(p2p_gateway_stats, [&](account_statistics_object& p2p_gateway_statistics)
             {
                p2p_gateway_statistics.p2p_canceled_deals++;
+               if (p2p_gateway_statistics.p2p_current_month_rating > 0) {
+                  p2p_gateway_statistics.p2p_current_month_rating--;
+               }
             });
          
             autocancel_p2p_order_operation cancel_order_op;
@@ -378,6 +381,9 @@ void database::auto_cancel_p2p_orders()
                {
                   p2p_client_statistics.p2p_canceled_deals++;
                   p2p_client_statistics.p2p_banned = head_time + first_ban_time;
+                  if (p2p_client_statistics.p2p_current_month_rating > 0) {
+                     p2p_client_statistics.p2p_current_month_rating--;
+                  }
                });
                adjust_balance( order.p2p_gateway, order.amount );
                cancel_order_op.refund_to = order.p2p_gateway;
@@ -385,6 +391,9 @@ void database::auto_cancel_p2p_orders()
                modify(p2p_gateway_stats, [&](account_statistics_object& p2p_gateway_statistics)
                {
                   p2p_gateway_statistics.p2p_canceled_deals++;
+                  if (p2p_gateway_statistics.p2p_current_month_rating > 0) {
+                     p2p_gateway_statistics.p2p_current_month_rating--;
+                  }                  
                });
                adjust_balance( order.p2p_client, order.amount );
                cancel_order_op.refund_to = order.p2p_client;
@@ -411,6 +420,9 @@ void database::auto_cancel_p2p_orders()
             modify(p2p_gateway_stats, [&](account_statistics_object& p2p_gateway_statistics)
             {
                p2p_gateway_statistics.p2p_canceled_deals++;
+               if (p2p_gateway_statistics.p2p_current_month_rating > 0) {
+                  p2p_gateway_statistics.p2p_current_month_rating--;
+               }
             });
          
             autocancel_p2p_order_operation cancel_order_op;
@@ -445,6 +457,9 @@ void database::auto_cancel_p2p_orders()
                {
                   p2p_client_statistics.p2p_canceled_deals++;
                   p2p_client_statistics.p2p_banned = head_time + first_ban_time;
+                  if (p2p_client_statistics.p2p_current_month_rating > 0) {
+                     p2p_client_statistics.p2p_current_month_rating--;
+                  }
                });
                adjust_balance( current_p2p_order.p2p_gateway, current_p2p_order.amount );
                cancel_order_op.refund_to = current_p2p_order.p2p_gateway;
@@ -452,6 +467,9 @@ void database::auto_cancel_p2p_orders()
                modify(p2p_gateway_stats, [&](account_statistics_object& p2p_gateway_statistics)
                {
                   p2p_gateway_statistics.p2p_canceled_deals++;
+                  if (p2p_gateway_statistics.p2p_current_month_rating > 0) {
+                     p2p_gateway_statistics.p2p_current_month_rating--;
+                  }
                });
                adjust_balance( current_p2p_order.p2p_client, current_p2p_order.amount );
                cancel_order_op.refund_to = current_p2p_order.p2p_client;
@@ -571,13 +589,12 @@ void database::proceed_bets()
          {
             s.pay_fee( referral_prize.amount, false );
          });
-         //--------
+
          // if (head_time < HARDFORK_CWD6_TIME) {
             modify(winner_account, [&](account_object& a) {
                a.statistics(*this).process_fees(a, *this);
             });
          // }
-         // -----------------------
 
          remove(flipcoin);
       }
@@ -629,6 +646,48 @@ void database::proceed_pledge()
     }
 } FC_CAPTURE_AND_RETHROW() }
 
+void database::proceed_approved_transfer()
+{ try {
+   auto head_time = head_block_time();
+   
+   auto& ato_idx = get_index_type<approved_transfer_index>().indices().get<by_expiration>();
+   auto itr = ato_idx.upper_bound(fc::time_point_sec(1));
+   auto end = ato_idx.lower_bound( head_time );
+   if (itr != end) {
+      elog( "ATO ITR ${a} status ${s} expiration ${e}", ("a", itr->id)("s", itr->status)("e", itr->expiration) );
+      elog( "ATO END cycle ${a} status ${s} expiration ${e}", ("a", end->id)("s", end->status)("e", end->expiration) );
+   }
+   while( itr != end )
+   {
+      const approved_transfer_object& ato_obj = *itr;
+      elog( "ATO in cycle ${a} status ${s} expiration ${e}", ("a", ato_obj.id)("s", ato_obj.status)("e", ato_obj.expiration) );
+      if (ato_obj.status == 0 && ato_obj.expiration <= head_time) {
+         approved_transfer_cancel_operation ato_cancel;
+         ato_cancel.from = ato_obj.from;
+         ato_cancel.to = ato_obj.to;
+         ato_cancel.arbitr = ato_obj.arbitr;
+         ato_cancel.amount = ato_obj.amount;
+         ato_cancel.ato = ato_obj.id;
+
+         push_applied_operation( ato_cancel );    
+
+         adjust_balance( ato_obj.from, ato_obj.amount );
+
+         elog( "ATO status MARKED FOR REMOVE  ${a} status ${s} expiration ${e}", ("a", ato_obj.id)("s", ato_obj.status)("e", ato_obj.expiration) );
+         modify(ato_obj, [&](approved_transfer_object& p)
+         {
+            p.status = 2;
+            p.expiration = fc::time_point_sec();
+         });
+      }
+      itr++; 
+   }
+    auto& ato_idx_remove = get_index_type<approved_transfer_index>().indices().get<by_status>();
+    while( !ato_idx_remove.empty() && ato_idx_remove.rbegin()->status == 2 ) {
+      elog( "ATO status REMOVED  ${a} status ${s} expiration ${e}", ("a", ato_idx_remove.rbegin()->id)("s", ato_idx_remove.rbegin()->status)("e", ato_idx_remove.rbegin()->expiration) );
+      remove(*ato_idx_remove.rbegin());
+    }
+} FC_CAPTURE_AND_RETHROW() }
 
 void database::proceed_lottery_goods()
 { try {
@@ -855,6 +914,41 @@ void database::proceed_matrix()
             matrix_level_7_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(618));
             matrix_level_8_prize_new                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(1110));        
          }
+
+         const global_property_object& gpo = get_global_properties();
+         const auto& gz_params = gpo.gamezone_parameters;
+         if ( head_time  >= HARDFORK_CWD6_TIME ) { 
+            matrix_lasts_blocks                 = gz_params.matrix_lasts_blocks;
+            matrix_idle_blocks                  = gz_params.matrix_idle_blocks;
+
+            matrix_level_1_cells_new            = gz_params.matrix_level_1_cells;
+            matrix_level_2_cells_new            = gz_params.matrix_level_2_cells;
+            matrix_level_3_cells_new            = gz_params.matrix_level_3_cells;
+            matrix_level_4_cells_new            = gz_params.matrix_level_4_cells;
+            matrix_level_5_cells_new            = gz_params.matrix_level_5_cells;
+            matrix_level_6_cells_new            = gz_params.matrix_level_6_cells;
+            matrix_level_7_cells_new            = gz_params.matrix_level_7_cells;
+            matrix_level_8_cells_new            = gz_params.matrix_level_8_cells;
+
+            matrix_level_1_price_new            = gz_params.matrix_level_1_price;
+            matrix_level_2_price_new            = gz_params.matrix_level_2_price;
+            matrix_level_3_price_new            = gz_params.matrix_level_3_price;
+            matrix_level_4_price_new            = gz_params.matrix_level_4_price;
+            matrix_level_5_price_new            = gz_params.matrix_level_5_price;
+            matrix_level_6_price_new            = gz_params.matrix_level_6_price;
+            matrix_level_7_price_new            = gz_params.matrix_level_7_price;
+            matrix_level_8_price_new            = gz_params.matrix_level_8_price;
+
+            matrix_level_1_prize_new            = gz_params.matrix_level_1_prize;
+            matrix_level_2_prize_new            = gz_params.matrix_level_2_prize;
+            matrix_level_3_prize_new            = gz_params.matrix_level_3_prize;
+            matrix_level_4_prize_new            = gz_params.matrix_level_4_prize;
+            matrix_level_5_prize_new            = gz_params.matrix_level_5_prize;
+            matrix_level_6_prize_new            = gz_params.matrix_level_6_prize;
+            matrix_level_7_prize_new            = gz_params.matrix_level_7_prize;
+            matrix_level_8_prize_new            = gz_params.matrix_level_8_prize;
+         }
+
 
          create<matrix_object>([&](matrix_object& obj){
             obj.start_block_number = head_block + matrix_idle_blocks;

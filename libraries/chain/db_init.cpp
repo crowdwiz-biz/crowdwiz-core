@@ -68,6 +68,7 @@
 #include <graphene/chain/send_message_evaluator.hpp>
 #include <graphene/chain/exchange_evaluator.hpp> //EXCHANGE
 #include <graphene/chain/financial_evaluator.hpp> //FINANCIAL
+#include <graphene/chain/poc_evaluator.hpp> //FINANCIAL
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -154,9 +155,11 @@ const uint8_t p2p_order_object::space_id; //EXCHANGE
 const uint8_t p2p_order_object::type_id; //EXCHANGE
 
 const uint8_t credit_offer_object::space_id; //FINANCIAL
-const uint8_t credit_offer_object::type_id; //FINANCIAL
+const uint8_t credit_offer_object::type_id; //FINANCIALx
 const uint8_t pledge_offer_object::space_id; //FINANCIAL
 const uint8_t pledge_offer_object::type_id; //FINANCIAL
+const uint8_t approved_transfer_object::space_id; //FINANCIAL
+const uint8_t approved_transfer_object::type_id; //FINANCIAL
 
 void database::initialize_evaluators()
 {
@@ -236,6 +239,18 @@ void database::initialize_evaluators()
    register_evaluator<pledge_offer_cancel_evaluator>();//FINANCIAL
    register_evaluator<pledge_offer_fill_evaluator>();//FINANCIAL
    register_evaluator<pledge_offer_repay_evaluator>();//FINANCIAL
+   register_evaluator<committee_member_update_gamezone_parameters_evaluator>();
+   register_evaluator<committee_member_update_staking_parameters_evaluator>();
+   register_evaluator<poc_vote_evaluator>();
+   register_evaluator<poc_stak_evaluator>();
+   register_evaluator<exchange_silver_evaluator>();
+   register_evaluator<buy_gcwd_evaluator>();
+   register_evaluator<approved_transfer_create_evaluator>();
+   register_evaluator<approved_transfer_approve_evaluator>();
+   register_evaluator<approved_transfer_open_dispute_evaluator>();
+   register_evaluator<approved_transfer_resolve_dispute_evaluator>();
+   register_evaluator<mass_payment_evaluator>();
+
 }
 
 void database::initialize_indexes()
@@ -274,6 +289,7 @@ void database::initialize_indexes()
 
    add_index< primary_index<credit_offer_index> >(); //FINANCIAL
    add_index< primary_index<pledge_offer_index> >(); //FINANCIAL
+   add_index< primary_index<approved_transfer_index> >(); //FINANCIAL
 
    //Implementation object indexes
    add_index< primary_index<transaction_index                             > >();

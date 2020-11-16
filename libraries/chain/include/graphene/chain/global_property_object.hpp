@@ -25,6 +25,8 @@
 #include <fc/uint128.hpp>
 
 #include <graphene/chain/protocol/chain_parameters.hpp>
+#include <graphene/chain/protocol/gamezone_parameters.hpp>
+#include <graphene/chain/protocol/staking_parameters.hpp>
 #include <graphene/chain/protocol/types.hpp>
 #include <graphene/chain/database.hpp>
 #include <graphene/db/object.hpp>
@@ -45,6 +47,8 @@ namespace graphene { namespace chain {
          static const uint8_t space_id = implementation_ids;
          static const uint8_t type_id  = impl_global_property_object_type;
 
+         staking_chain_parameters   staking_parameters;
+         gamezone_chain_parameters  gamezone_parameters;
          chain_parameters           parameters;
          optional<chain_parameters> pending_parameters;
 
@@ -74,10 +78,17 @@ namespace graphene { namespace chain {
          time_point_sec    time;
          witness_id_type   current_witness;
          time_point_sec    next_maintenance_time;
-         time_point_sec    next_credit_stats_time;
+         time_point_sec    next_monthly_maintenance_time;
          time_point_sec    last_budget_time;
          share_type        witness_budget;
          uint32_t          accounts_registered_this_interval = 0;
+         share_type        gcwd_price = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(13000));
+         time_point_sec    next_poc_vote_time = fc::time_point_sec(1601078400);         
+         time_point_sec    end_poc_vote_time = fc::time_point_sec();
+         bool		         poc_vote_is_active = false;
+         uint64_t          poc3_percent  = (45*GRAPHENE_1_PERCENT);          
+         uint64_t          poc6_percent  = (78*GRAPHENE_1_PERCENT); 
+         uint64_t          poc12_percent = (97*GRAPHENE_1_PERCENT); 
          /**
           *  Every time a block is missed this increases by
           *  RECENTLY_MISSED_COUNT_INCREMENT,
@@ -131,10 +142,17 @@ FC_REFLECT_DERIVED( graphene::chain::dynamic_global_property_object, (graphene::
                     (time)
                     (current_witness)
                     (next_maintenance_time)
-                    (next_credit_stats_time)
+                    (next_monthly_maintenance_time)
                     (last_budget_time)
                     (witness_budget)
                     (accounts_registered_this_interval)
+                    (gcwd_price)
+                    (next_poc_vote_time)
+                    (end_poc_vote_time)
+                    (poc_vote_is_active)
+                    (poc3_percent)
+                    (poc6_percent)
+                    (poc12_percent)
                     (recently_missed_count)
                     (current_aslot)
                     (recent_slots_filled)
@@ -143,6 +161,8 @@ FC_REFLECT_DERIVED( graphene::chain::dynamic_global_property_object, (graphene::
                   )
 
 FC_REFLECT_DERIVED( graphene::chain::global_property_object, (graphene::db::object),
+                    (staking_parameters)
+                    (gamezone_parameters)
                     (parameters)
                     (pending_parameters)
                     (next_available_vote_id)

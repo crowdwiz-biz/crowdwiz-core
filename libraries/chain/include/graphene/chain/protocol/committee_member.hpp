@@ -24,6 +24,8 @@
 #pragma once
 #include <graphene/chain/protocol/base.hpp>
 #include <graphene/chain/protocol/chain_parameters.hpp>
+#include <graphene/chain/protocol/staking_parameters.hpp>
+#include <graphene/chain/protocol/gamezone_parameters.hpp>
 
 namespace graphene { namespace chain { 
 
@@ -91,12 +93,36 @@ namespace graphene { namespace chain {
       void            validate()const;
    };
 
+   struct committee_member_update_gamezone_parameters_operation : public base_operation
+   {
+      struct fee_parameters_type { uint64_t fee = GRAPHENE_BLOCKCHAIN_PRECISION; };
+
+      asset                      fee;
+      gamezone_chain_parameters  new_parameters;
+
+      account_id_type fee_payer()const { return account_id_type(); }
+      void            validate()const;
+   };
+
+   struct committee_member_update_staking_parameters_operation : public base_operation
+   {
+      struct fee_parameters_type { uint64_t fee = GRAPHENE_BLOCKCHAIN_PRECISION; };
+
+      asset                      fee;
+      staking_chain_parameters  new_parameters;
+
+      account_id_type fee_payer()const { return account_id_type(); }
+      void            validate()const;
+   };
+
    /// TODO: committee_member_resign_operation : public base_operation
 
 } } // graphene::chain
 FC_REFLECT( graphene::chain::committee_member_create_operation::fee_parameters_type, (fee) )
 FC_REFLECT( graphene::chain::committee_member_update_operation::fee_parameters_type, (fee) )
 FC_REFLECT( graphene::chain::committee_member_update_global_parameters_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::chain::committee_member_update_gamezone_parameters_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::chain::committee_member_update_staking_parameters_operation::fee_parameters_type, (fee) )
 
 
 FC_REFLECT( graphene::chain::committee_member_create_operation,
@@ -104,3 +130,5 @@ FC_REFLECT( graphene::chain::committee_member_create_operation,
 FC_REFLECT( graphene::chain::committee_member_update_operation,
             (fee)(committee_member)(committee_member_account)(new_url) )
 FC_REFLECT( graphene::chain::committee_member_update_global_parameters_operation, (fee)(new_parameters) );
+FC_REFLECT( graphene::chain::committee_member_update_gamezone_parameters_operation, (fee)(new_parameters) );
+FC_REFLECT( graphene::chain::committee_member_update_staking_parameters_operation, (fee)(new_parameters) );

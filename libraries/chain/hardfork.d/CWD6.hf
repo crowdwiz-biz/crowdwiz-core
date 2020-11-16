@@ -1,0 +1,4 @@
+// Thursday, 19 November 2020 г., 10:00:00 PoC, new Chain Params, new types of transfers
+#ifndef HARDFORK_CWD6_TIME
+#define HARDFORK_CWD6_TIME (fc::time_point_sec( 1605780000 ))
+#endif

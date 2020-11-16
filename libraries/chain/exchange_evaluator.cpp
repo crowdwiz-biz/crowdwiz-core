@@ -279,6 +279,10 @@ void_result cancel_p2p_order_evaluator::do_apply( const cancel_p2p_order_operati
 	d.modify(d.get_account_stats_by_owner(p2p_order_obj.p2p_gateway), [&]( account_statistics_object &obj )
 	{
 		obj.p2p_canceled_deals++;
+		if (obj.p2p_current_month_rating > 0) {
+			obj.p2p_current_month_rating--;
+		}
+
 	});
 
 	if (p2p_order_obj.order_type == false) {
@@ -392,12 +396,14 @@ void_result release_p2p_order_evaluator::do_apply( const release_p2p_order_opera
 	d.modify(d.get_account_stats_by_owner(p2p_order_obj.p2p_gateway), [&]( account_statistics_object &obj )
 	{
 		obj.p2p_complete_deals++;
+		obj.p2p_current_month_rating++;
 		obj.p2p_deals_volume += p2p_order_obj.amount.amount;
 	});
 
 	d.modify(d.get_account_stats_by_owner(p2p_order_obj.p2p_client), [&]( account_statistics_object &obj )
 	{
 		obj.p2p_complete_deals++;
+		obj.p2p_current_month_rating++;
 		obj.p2p_deals_volume += p2p_order_obj.amount.amount;
 	});
 
@@ -500,12 +506,19 @@ void_result resolve_p2p_dispute_evaluator::do_apply( const resolve_p2p_dispute_o
 	d.modify(d.get_account_stats_by_owner(op.winner), [&]( account_statistics_object &obj )
 	{
 		obj.p2p_complete_deals++;
+		obj.p2p_current_month_rating++;
 		obj.p2p_deals_volume += p2p_order_obj.amount.amount-arbitr_comission;
 	});
 
 	d.modify(d.get_account_stats_by_owner(op.looser), [&]( account_statistics_object &obj )
 	{
 		obj.p2p_arbitrage_loose++;
+		if (obj.p2p_current_month_rating > 2) {
+			obj.p2p_current_month_rating = obj.p2p_current_month_rating-2;
+		}
+		else {
+			obj.p2p_current_month_rating = 0;
+		}
 	});
 
 

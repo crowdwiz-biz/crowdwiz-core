@@ -149,6 +149,7 @@ namespace graphene { namespace chain {
       p2p_order_object_type, //EXCHANGE
       credit_offer_object_type, //FINANCIAL
       pledge_offer_object_type, //FINANCIAL    
+      approved_transfer_object_type, //FINANCIAL    
       OBJECT_TYPE_COUNT ///< Sentry value which contains the number of different object types
    };
 
@@ -200,6 +201,8 @@ namespace graphene { namespace chain {
    class p2p_order_object; //EXCHANGE
    class credit_offer_object; //FINANCIAL
    class pledge_offer_object; //FINANCIAL
+   class approved_transfer_object; //FINANCIAL
+
 
    typedef object_id< protocol_ids, account_object_type,            account_object>               account_id_type;
    typedef object_id< protocol_ids, asset_object_type,              asset_object>                 asset_id_type;
@@ -224,6 +227,7 @@ namespace graphene { namespace chain {
    typedef object_id< protocol_ids, p2p_order_object_type,          p2p_order_object>             p2p_order_id_type;
    typedef object_id< protocol_ids, credit_offer_object_type,       credit_offer_object>          credit_offer_id_type;
    typedef object_id< protocol_ids, pledge_offer_object_type,       pledge_offer_object>          pledge_offer_id_type;
+   typedef object_id< protocol_ids, approved_transfer_object_type,  approved_transfer_object>     approved_transfer_id_type;
 
 
    // implementation types
@@ -390,6 +394,7 @@ FC_REFLECT_ENUM( graphene::chain::object_type,
                  (p2p_order_object_type)
                  (credit_offer_object_type)
                  (pledge_offer_object_type)
+                 (approved_transfer_object_type)
                  (OBJECT_TYPE_COUNT)
                )
 FC_REFLECT_ENUM( graphene::chain::impl_object_type,
@@ -440,6 +445,7 @@ FC_REFLECT_TYPENAME( graphene::chain::p2p_order_id_type )
 
 FC_REFLECT_TYPENAME( graphene::chain::credit_offer_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::pledge_offer_id_type )
+FC_REFLECT_TYPENAME( graphene::chain::approved_transfer_id_type )
 
 FC_REFLECT_TYPENAME( graphene::chain::global_property_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::dynamic_global_property_id_type )

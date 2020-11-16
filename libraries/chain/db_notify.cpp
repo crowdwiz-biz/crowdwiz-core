@@ -465,6 +465,81 @@ struct get_impacted_account_visitor
       _impacted.insert( op.fee_payer() );
    }
 
+   void operator()( const committee_member_update_gamezone_parameters_operation& op )
+   {
+      _impacted.insert( op.fee_payer() ); // account_id_type()
+
+   }
+   void operator()( const committee_member_update_staking_parameters_operation& op )
+   {
+      _impacted.insert( op.fee_payer() ); // account_id_type()
+
+   }
+
+   void operator()( const poc_vote_operation& op ) {
+      _impacted.insert( op.fee_payer() );      
+   }
+   void operator()( const poc_stak_operation& op ) {
+      _impacted.insert( op.fee_payer() );            
+   }
+   void operator()( const poc_staking_referal_operation& op ) {
+       _impacted.insert( op.account );
+       _impacted.insert( op.fee_payer() );      
+   }
+   void operator()( const exchange_silver_operation& op ) {
+      _impacted.insert( op.fee_payer() );                  
+   }
+
+   void operator()( const buy_gcwd_operation& op )
+   {
+      _impacted.insert( op.fee_payer());
+   }
+
+   void operator()( const approved_transfer_create_operation& op )
+   {
+      _impacted.insert( op.fee_payer());
+      _impacted.insert( op.to);
+      _impacted.insert( op.arbitr);
+   }
+
+   void operator()( const approved_transfer_approve_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+      _impacted.insert( op.to );
+      _impacted.insert( op.arbitr);
+   }
+
+   void operator()( const approved_transfer_cancel_operation& op )
+   {
+      _impacted.insert( op.fee_payer() );
+      _impacted.insert( op.to );
+      _impacted.insert( op.arbitr );
+   }
+
+   void operator()( const approved_transfer_open_dispute_operation& op )
+   {
+      _impacted.insert( op.from);
+      _impacted.insert( op.fee_payer());
+      _impacted.insert( op.arbitr);
+   }
+
+   void operator()( const approved_transfer_resolve_dispute_operation& op )
+   {
+      _impacted.insert( op.from);
+      _impacted.insert( op.to);
+      _impacted.insert( op.fee_payer());
+   }
+
+   void operator()( const mass_payment_operation& op )
+   {
+      _impacted.insert( op.fee_payer());
+   }
+
+   void operator()( const mass_payment_pay_operation& op )
+   {
+      _impacted.insert( op.to);
+   }
+
 };
 
 void graphene::chain::operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )
@@ -582,6 +657,12 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
            const auto& aobj = dynamic_cast<const pledge_offer_object*>(obj);
            FC_ASSERT( aobj != nullptr );
            accounts.insert( aobj->creator );           
+           break;
+        } 
+        case approved_transfer_object_type:{
+           const auto& aobj = dynamic_cast<const approved_transfer_object*>(obj);
+           FC_ASSERT( aobj != nullptr );
+           accounts.insert( aobj->from );           
            break;
         } 
         case matrix_object_type:{

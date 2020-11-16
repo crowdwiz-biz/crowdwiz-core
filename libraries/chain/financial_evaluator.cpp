@@ -15,6 +15,19 @@ namespace graphene
 namespace chain
 {
 
+share_type arbitr_reward(share_type a, uint64_t p)
+{
+	if (a == 0 || p == 0)
+		return 0;
+	if (p == GRAPHENE_100_PERCENT)
+		return a;
+
+	fc::uint128 r(a.value);
+	r *= p;
+	r /= GRAPHENE_100_PERCENT;
+	return r.to_uint64();
+}
+
 void_result credit_system_get_evaluator::do_evaluate( const credit_system_get_operation &op)
 {
     try
@@ -407,6 +420,272 @@ void_result pledge_offer_repay_evaluator::do_apply( const pledge_offer_repay_ope
     }
     FC_CAPTURE_AND_RETHROW((op))
 }
+
+void_result buy_gcwd_evaluator::do_evaluate( const buy_gcwd_operation &op)
+{
+    try
+    {
+		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD6_TIME, "HF6 not yet activated");
+		FC_ASSERT( op.amount.asset_id == asset_id_type(), "Payment must be in CWD");
+
+		const account_object& from_account = op.account(d);
+		const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
+		const asset_object& asset_type = op.amount.asset_id(d);
+		FC_ASSERT( op.amount.amount == dgpo.gcwd_price, "Current GCWD price is different");
+		bool insufficient_balance = d.get_balance( from_account, asset_type ).amount >= op.amount.amount;
+		FC_ASSERT( insufficient_balance,
+			"Insufficient Balance: ${balance}, unable to exchange '${total_transfer}' from account '${a}'", 
+			("a",from_account.name)("total_transfer",d.to_pretty_string(op.amount))("balance",d.to_pretty_string(d.get_balance(from_account, asset_type))) );
+
+		const asset_object& gcwd_asset = d.get(asset_id_type(1));
+		const asset_dynamic_data_object* gcwd_dyn_data = &gcwd_asset.dynamic_asset_data_id(d);
+
+		FC_ASSERT( (gcwd_dyn_data->current_supply + 1) <= gcwd_asset.options.max_supply, "System has reached max_supply GCWD limit" );
+
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+void_result buy_gcwd_evaluator::do_apply( const buy_gcwd_operation &op)
+{
+    try
+    {
+		database& d = db();
+		asset gcwd_amount;
+		gcwd_amount.asset_id = asset_id_type(1);
+		gcwd_amount.amount = 1;
+		d.adjust_balance( op.account, -op.amount );
+		d.adjust_balance( op.account, gcwd_amount );
+
+		d.modify( asset_dynamic_data_id_type(1)(d), [op]( asset_dynamic_data_object& dd ) {
+			dd.current_supply++;
+		});
+
+		d.modify(asset_dynamic_data_id_type()(d), [op](asset_dynamic_data_object &addo) {
+			addo.accumulated_fees += op.amount.amount;
+		});
+	  
+		const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
+		share_type gcwd_price = dgpo.gcwd_price + (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(10));
+
+		d.modify(dgpo, [gcwd_price](dynamic_global_property_object& dd) {
+			dd.gcwd_price = gcwd_price;
+		});
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+void_result approved_transfer_create_evaluator::do_evaluate( const approved_transfer_create_operation &op)
+{
+    try
+    {
+		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD6_TIME, "HF6 not yet activated");
+		FC_ASSERT(op.expiration > d.head_block_time(), "Expiration must be in future");		
+		FC_ASSERT(op.amount.asset_id == asset_id_type(), "Payment must be in CWD");
+
+		const account_object& from_account = op.from(d);
+		const asset_object& asset_type = op.amount.asset_id(d);
+		bool insufficient_balance = d.get_balance( from_account, asset_type ).amount >= op.amount.amount;
+
+		FC_ASSERT( insufficient_balance,
+			"Insufficient Balance: ${balance}, unable to exchange '${total_transfer}' from account '${a}'", 
+			("a",from_account.name)("total_transfer",d.to_pretty_string(op.amount))("balance",d.to_pretty_string(d.get_balance(from_account, asset_type))) );
+
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+object_id_type approved_transfer_create_evaluator::do_apply( const approved_transfer_create_operation &op)
+{
+    try
+    {
+		db().adjust_balance( op.from, -op.amount );
+
+        const auto& new_approved_transfer_object = db().create<approved_transfer_object>([&](approved_transfer_object &obj) {
+			obj.from = op.from;
+			obj.to = op.to;
+			obj.arbitr = op.arbitr;
+			obj.amount = op.amount;
+			obj.expiration = op.expiration;
+			obj.status = 0;
+        });
+
+        return new_approved_transfer_object.id;
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+void_result approved_transfer_approve_evaluator::do_evaluate( const approved_transfer_approve_operation &op)
+{
+    try
+    {
+		database& d = db();
+		auto& ato_obj = d.get(op.ato);
+		FC_ASSERT(ato_obj.from == op.from);
+		FC_ASSERT(ato_obj.to == op.to);
+		FC_ASSERT(ato_obj.arbitr == op.arbitr);
+		FC_ASSERT(ato_obj.amount == op.amount);
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+void_result approved_transfer_approve_evaluator::do_apply( const approved_transfer_approve_operation &op)
+{
+    try
+    {
+		database& d = db();
+		auto& ato_obj = d.get(op.ato);
+		d.adjust_balance( ato_obj.to, ato_obj.amount );
+
+		d.remove(ato_obj);
+
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+void_result approved_transfer_open_dispute_evaluator::do_evaluate( const approved_transfer_open_dispute_operation &op)
+{
+    try
+    {
+		database& d = db();
+		auto& ato_obj = d.get(op.ato);
+		FC_ASSERT(ato_obj.from == op.from);
+		FC_ASSERT(ato_obj.to == op.to);
+		FC_ASSERT(ato_obj.arbitr == op.arbitr);
+		FC_ASSERT(ato_obj.amount == op.amount);
+		FC_ASSERT(ato_obj.status == 0);
+
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+void_result approved_transfer_open_dispute_evaluator::do_apply( const approved_transfer_open_dispute_operation &op)
+{
+    try
+    {
+		database& d = db();
+		d.modify(d.get(op.ato), [&]( approved_transfer_object &obj )
+		{
+			obj.status = 1;
+			obj.expiration = fc::time_point_sec();
+		});
+
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+void_result approved_transfer_resolve_dispute_evaluator::do_evaluate( const approved_transfer_resolve_dispute_operation &op)
+{
+    try
+    {
+		database& d = db();
+		auto& ato_obj = d.get(op.ato);
+		FC_ASSERT(ato_obj.from == op.from);
+		FC_ASSERT(ato_obj.to == op.to);
+		FC_ASSERT(ato_obj.arbitr == op.arbitr);
+		FC_ASSERT(ato_obj.amount == op.amount);
+		FC_ASSERT(ato_obj.status == 1);
+		FC_ASSERT(op.winner == op.from || op.winner == op.to);
+
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+void_result approved_transfer_resolve_dispute_evaluator::do_apply( const approved_transfer_resolve_dispute_operation &op)
+{
+    try
+    {
+		database& d = db();
+		auto& ato_obj = d.get(op.ato);
+		uint64_t ch_parameters_arbitr_comission = (5*GRAPHENE_1_PERCENT);
+		asset arbitr_amount;
+		asset winner_amount;
+		winner_amount.asset_id = ato_obj.amount.asset_id;
+		arbitr_amount.asset_id = ato_obj.amount.asset_id;
+
+		arbitr_amount.amount = arbitr_reward(ato_obj.amount.amount, ch_parameters_arbitr_comission);
+		winner_amount.amount = ato_obj.amount.amount - arbitr_amount.amount;
+
+		d.adjust_balance( op.winner, winner_amount);
+		d.adjust_balance( ato_obj.arbitr, arbitr_amount);
+
+		d.remove(ato_obj);
+
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+
+void_result mass_payment_evaluator::do_evaluate( const mass_payment_operation &op)
+{
+    try
+    {
+		database& d = db();
+		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD6_TIME, "HF6 not yet activated");
+		const account_object& from_account = op.from(d);
+		FC_ASSERT( from_account.referral_status_type >= 2, "You must have at least Expert contract");
+		const asset_object& asset_type = op.asset_id(d);
+
+		share_type total_transfer = 0;
+		for( const auto& payment : op.payments )
+			{
+				total_transfer+=payment.second;
+				FC_ASSERT( payment.second > 0, "All payments must be greater than zero");
+			}
+		bool insufficient_balance = d.get_balance( from_account, asset_type ).amount >= total_transfer;
+		FC_ASSERT( insufficient_balance, "Insufficient Balance");
+
+        return void_result();
+
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+void_result mass_payment_evaluator::do_apply( const mass_payment_operation &op)
+{
+    try
+    {
+		database& d = db();
+		share_type total_transfer = 0;
+
+		for( const auto& payment : op.payments )
+			{
+				total_transfer+=payment.second;
+			}
+
+		asset total_amount;
+		total_amount.asset_id = op.asset_id;
+		total_amount.amount = total_transfer;
+
+		d.adjust_balance( op.from, -total_amount);
+		asset mp;
+		mass_payment_pay_operation mass_pay;
+		mass_pay.from = op.from;
+		mp.asset_id = op.asset_id;
+
+		for( const auto& payment : op.payments )
+			{
+				mp.amount = payment.second;
+				mass_pay.to = payment.first;
+				mass_pay.amount = mp;
+				d.push_applied_operation( mass_pay ); 
+				d.adjust_balance( payment.first, mp);
+			}
+
+        return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+
 
 
 }} // namespace chain

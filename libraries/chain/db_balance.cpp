@@ -130,19 +130,19 @@ optional< vesting_balance_id_type > database::deposit_lazy_vesting(
    return vbo.id;
 }
 
-void database::deposit_cashback(const account_object& acct, share_type amount, bool require_vesting)
+void database::deposit_cashback(const account_object& acct, share_type amount, bool require_vesting, bool count_income)
 {
    // If we don't have a VBO, or if it has the wrong maturity
    // due to a policy change, cut it loose.
 
    if( amount == 0 )
       return;
-
-   modify( acct.statistics( *this ), [amount]( account_statistics_object& aso )
-   {
-      aso.current_month_income += amount;
-   } );
-
+   if (count_income) {
+      modify( acct.statistics( *this ), [amount]( account_statistics_object& aso )
+      {
+         aso.current_month_income += amount;
+      } );
+   }
    account_statistics_object stats = acct.statistics( *this );
 
    if (stats.total_credit > 0 && head_block_time() >= HARDFORK_CWD5_TIME) {

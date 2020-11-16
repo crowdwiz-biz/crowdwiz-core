@@ -83,6 +83,13 @@ object_id_type vesting_balance_create_evaluator::do_apply( const vesting_balance
    database& d = db();
    const time_point_sec now = d.head_block_time();
 
+   const account_object& owner = op.owner(d);
+   const auto& owner_stats = owner.statistics(d);
+   if (op.amount.asset_id == asset_id_type(4) && !owner_stats.had_staking) {
+      d.modify(owner_stats, [&](account_statistics_object &s) {
+			s.had_staking = true;
+		});
+   }
    FC_ASSERT( d.get_balance( op.creator, op.amount.asset_id ) >= op.amount );
    d.adjust_balance( op.creator, -op.amount );
 

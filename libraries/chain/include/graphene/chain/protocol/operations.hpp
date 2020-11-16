@@ -42,6 +42,7 @@
 #include <graphene/chain/protocol/send_message.hpp>
 #include <graphene/chain/protocol/exchange.hpp>
 #include <graphene/chain/protocol/financial.hpp>
+#include <graphene/chain/protocol/poc.hpp>
 
 namespace graphene { namespace chain {
 
@@ -142,7 +143,21 @@ namespace graphene { namespace chain {
             pledge_offer_cancel_operation, //FINANCIAL
             pledge_offer_fill_operation, //FINANCIAL
             pledge_offer_repay_operation, //FINANCIAL
-            pledge_offer_auto_repay_operation //FINANCIAL, VIRTUAL
+            pledge_offer_auto_repay_operation, //FINANCIAL, VIRTUAL
+            committee_member_update_gamezone_parameters_operation,
+            committee_member_update_staking_parameters_operation,
+            poc_vote_operation, //PoC
+            poc_stak_operation, //PoC
+            poc_staking_referal_operation, //PoC, VIRTUAL
+            exchange_silver_operation,//PoC
+            buy_gcwd_operation,
+            approved_transfer_create_operation,
+            approved_transfer_approve_operation,
+            approved_transfer_cancel_operation,
+            approved_transfer_open_dispute_operation,
+            approved_transfer_resolve_dispute_operation,
+            mass_payment_operation,
+            mass_payment_pay_operation
          > operation;
 
    /// @} // operations group

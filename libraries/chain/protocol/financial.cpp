@@ -90,4 +90,42 @@ void pledge_offer_auto_repay_operation::validate()const
 		FC_ASSERT( pledge_amount.amount > 0, "Pledge amount should not be negative" );
 	}
 
+void buy_gcwd_operation::validate()const {
+	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+}
+void approved_transfer_create_operation::validate()const {
+	FC_ASSERT( from != arbitr, "Arbitr must not participate in the transaction" );
+	FC_ASSERT( to != arbitr, "Arbitr must not participate in the transaction" );
+	FC_ASSERT( from != to, "Нou should not transfer to yourself" );
+	FC_ASSERT( amount.amount > 0, "Amount should be greater than zero" );
+	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+}
+void approved_transfer_approve_operation::validate()const {
+	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+}
+void approved_transfer_cancel_operation::validate()const {
+	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+}
+void approved_transfer_open_dispute_operation::validate()const {
+	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+}
+void approved_transfer_resolve_dispute_operation::validate()const {
+	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+}
+void mass_payment_operation::validate()const {
+	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+	FC_ASSERT( payments.size() > 0, "Payments quantity must be greater than zero" );
+	FC_ASSERT( payments.size() <= 1000, "Payments quantity must be lower or equal than 1000" );
+}
+void mass_payment_pay_operation::validate()const {
+	FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+}
+
+share_type mass_payment_operation::calculate_fee(const fee_parameters_type& k) const
+{
+	share_type result = k.fee + (payments.size() * k.price_per_transfer);
+	return result;
+}
+
+
 } } // graphene::chain

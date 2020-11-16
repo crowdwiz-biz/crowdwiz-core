@@ -87,4 +87,36 @@ void_result committee_member_update_global_parameters_evaluator::do_apply(const 
    return void_result();
 } FC_CAPTURE_AND_RETHROW( (o) ) }
 
+void_result committee_member_update_gamezone_parameters_evaluator::do_evaluate(const committee_member_update_gamezone_parameters_operation& o)
+{ try {
+   FC_ASSERT(trx_state->_is_proposed_trx);
+
+   return void_result();
+} FC_CAPTURE_AND_RETHROW( (o) ) }
+
+void_result committee_member_update_gamezone_parameters_evaluator::do_apply(const committee_member_update_gamezone_parameters_operation& o)
+{ try {
+   db().modify(db().get_global_properties(), [&o](global_property_object& p) {
+      p.gamezone_parameters = o.new_parameters;
+   });
+
+   return void_result();
+} FC_CAPTURE_AND_RETHROW( (o) ) }
+
+void_result committee_member_update_staking_parameters_evaluator::do_evaluate(const committee_member_update_staking_parameters_operation& o)
+{ try {
+   FC_ASSERT(trx_state->_is_proposed_trx);
+
+   return void_result();
+} FC_CAPTURE_AND_RETHROW( (o) ) }
+
+void_result committee_member_update_staking_parameters_evaluator::do_apply(const committee_member_update_staking_parameters_operation& o)
+{ try {
+   db().modify(db().get_global_properties(), [&o](global_property_object& p) {
+      p.staking_parameters = o.new_parameters;
+   });
+
+   return void_result();
+} FC_CAPTURE_AND_RETHROW( (o) ) }
+
 } } // graphene::chain
