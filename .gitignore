@@ -112,3 +112,5 @@ libraries/fc/vendor/secp256k1-zkp/autom4te.cache/requests
 libraries/fc/vendor/editline/autom4te.cache/requests
 libraries/fc/vendor/secp256k1-zkp/autom4te.cache/requests
 libraries/fc/git_revision.cpp
+operations_pre.js
+libraries/fc/git_revision.cpp

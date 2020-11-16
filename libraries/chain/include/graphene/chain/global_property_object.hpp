@@ -82,10 +82,8 @@ namespace graphene { namespace chain {
          time_point_sec    last_budget_time;
          share_type        witness_budget;
          uint32_t          accounts_registered_this_interval = 0;
-         share_type        gcwd_price = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         // time_point_sec    next_poc_vote_time = fc::time_point_sec(1601078400);
-         time_point_sec    next_poc_vote_time = fc::time_point_sec(1605030725);
-         
+         share_type        gcwd_price = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(13000));
+         time_point_sec    next_poc_vote_time = fc::time_point_sec(1601078400);         
          time_point_sec    end_poc_vote_time = fc::time_point_sec();
          bool		         poc_vote_is_active = false;
          uint64_t          poc3_percent  = (45*GRAPHENE_1_PERCENT);          

@@ -27,7 +27,7 @@ namespace graphene
 			uint16_t	poc_status_denominator_02	= (100*GRAPHENE_1_PERCENT);
 			uint16_t	poc_status_denominator_03	= (100*GRAPHENE_1_PERCENT);
 			uint16_t	poc_status_denominator_04	= (100*GRAPHENE_1_PERCENT);
-			uint32_t	poc_vote_duration			= (24*60*60*4);
+			uint32_t	poc_vote_duration			= (24*60*60);
 			uint16_t	poc_vote_interval_days		= 90;
 			uint16_t	poc_min_votes				= 160;
 			uint16_t	poc_filter_percent			= (10*GRAPHENE_1_PERCENT);

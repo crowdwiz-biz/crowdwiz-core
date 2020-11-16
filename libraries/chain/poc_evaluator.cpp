@@ -72,6 +72,10 @@ namespace graphene
 				asset credit_ref_amount;
 				credit_ref_amount.asset_id=asset_id_type();
 				credit_ref_amount.amount=ref_amount.amount;
+				d.modify( stats, [credit_ref_amount]( account_statistics_object& aso )
+				{
+					aso.current_month_income += credit_ref_amount.amount;
+				} );
 				if (stats.total_credit > 0) {
 					share_type credit = stats.total_credit-stats.allowed_to_repay;
 
@@ -118,7 +122,7 @@ namespace graphene
 				}
 
 				if (credit_ref_amount.amount>0) {
-					d.adjust_balance( acc_ref.id, credit_ref_amount );
+					d.adjust_balance( acc_ref.id, credit_ref_amount );					
 					poc_staking_referal_operation poc_ref_op;
 					poc_ref_op.referrer = acc_ref.id;
 					poc_ref_op.account = account.id;

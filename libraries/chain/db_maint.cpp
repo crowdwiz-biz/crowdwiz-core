@@ -161,7 +161,6 @@ void database::count_poc_votes() {
    vector<share_type> poc6_votes;
    vector<share_type> poc12_votes;
 
-   ilog("======================== COUNT POC3 VOTES UNFILTERED ========================");
    while( stats_itr != stats_idx.end() )
    {
       const account_statistics_object& acc_stat = *stats_itr;
@@ -175,15 +174,12 @@ void database::count_poc_votes() {
       if (acc_stat.poc12_vote>0) {
          poc12_votes.emplace_back(acc_stat.poc12_vote);
       }
-      ilog("====== Processing PoC vote! ${n} ${v}", ("v", acc_stat)("n", acc_stat.name));
       modify(acc_stat, [](account_statistics_object& clear_stat)
       {
          clear_stat.poc3_vote = 0;
          clear_stat.poc6_vote = 0;
          clear_stat.poc12_vote = 0;
       });
-      ilog("====== Processing PoC vote after Clear! ${n} ${v}", ("v", acc_stat)("n", acc_stat.name));
-
    }
    if (poc3_votes.size()>=gpo.staking_parameters.poc_min_votes) {
       std::sort(poc3_votes.begin(), poc3_votes.end());
@@ -191,10 +187,8 @@ void database::count_poc_votes() {
       auto poc3_filter = poc3_length*gpo.staking_parameters.poc_filter_percent/GRAPHENE_100_PERCENT;
       vector<share_type> poc3_votes_filtered(poc3_votes.begin()+poc3_filter, poc3_votes.end()-poc3_filter);
       share_type poc3_vote_sum = 0;
-      ilog("======================== COUNT POC3 SORTED FILTERED ========================");
       for( auto poc3_vote : poc3_votes_filtered ) {
          poc3_vote_sum+=poc3_vote;
-         ilog("====== PoC3 Filtered vector ${v}", ("v", poc3_vote));
       }
 
       fc::uint128 poc3_sum(poc3_vote_sum.value);
@@ -217,10 +211,8 @@ void database::count_poc_votes() {
       auto poc6_filter = poc6_length*gpo.staking_parameters.poc_filter_percent/GRAPHENE_100_PERCENT;
       vector<share_type> poc6_votes_filtered(poc6_votes.begin()+poc6_filter, poc6_votes.end()-poc6_filter);
       share_type poc6_vote_sum = 0;
-      ilog("======================== COUNT POC6 SORTED FILTERED ========================");
       for( auto poc6_vote : poc6_votes_filtered ) {
          poc6_vote_sum+=poc6_vote;
-         ilog("====== PoC6 Filtered vector ${v}", ("v", poc6_vote));
       }
 
       fc::uint128 poc6_sum(poc6_vote_sum.value);
@@ -242,10 +234,8 @@ void database::count_poc_votes() {
       auto poc12_filter = poc12_length*gpo.staking_parameters.poc_filter_percent/GRAPHENE_100_PERCENT;
       vector<share_type> poc12_votes_filtered(poc12_votes.begin()+poc12_filter, poc12_votes.end()-poc12_filter);
       share_type poc12_vote_sum = 0;
-      ilog("======================== COUNT POC12 SORTED FILTERED ========================");
       for( auto poc12_vote : poc12_votes_filtered ) {
          poc12_vote_sum+=poc12_vote;
-         ilog("====== PoC12 Filtered vector ${v}", ("v", poc12_vote));
       }
 
       fc::uint128 poc12_sum(poc12_vote_sum.value);
@@ -1435,12 +1425,10 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    if( next_poc_vote_time <= next_block.timestamp )
    {
       next_poc_vote_time = next_poc_vote_time+fc::days(gpo.staking_parameters.poc_vote_interval_days);
-      end_poc_vote_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(gpo.staking_parameters.poc_vote_duration+2*60*60);
+      end_poc_vote_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(gpo.staking_parameters.poc_vote_duration);
       poc_vote_is_active = true;
    }
-   // if( end_poc_vote_time <= next_block.timestamp and poc_vote_is_active == true ) {
    if( end_poc_vote_time <= next_block.timestamp and poc_vote_is_active == true ) {
-
       count_poc_votes();
       poc_vote_is_active = false;
    }
