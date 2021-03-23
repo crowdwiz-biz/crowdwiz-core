@@ -531,9 +531,7 @@ void_result change_referrer_evaluator::do_evaluate(const change_referrer_evaluat
 { try {
    database& d = db();
    const auto &params = d.get_global_properties().parameters;
-   account = &d.get(o.account_id);
-   const account_object* new_referrer = &d.get(o.new_referrer);
-   FC_ASSERT( new_referrer.get_id() >= params.root_account, "Referrer must be under root acount." );
+   FC_ASSERT( !(o.new_referrer < params.root_account), "Referrer must be under root acount." );
    return void_result();
 } FC_RETHROW_EXCEPTIONS( error, "Unable to change referrer '${a}'", ("a",o.account_id(db()).name) ) }
 
