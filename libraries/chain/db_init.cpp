@@ -250,6 +250,7 @@ void database::initialize_evaluators()
    register_evaluator<approved_transfer_open_dispute_evaluator>();
    register_evaluator<approved_transfer_resolve_dispute_evaluator>();
    register_evaluator<mass_payment_evaluator>();
+   register_evaluator<change_referrer_evaluator>();
 
 }
 

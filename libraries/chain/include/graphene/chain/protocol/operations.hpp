@@ -52,112 +52,113 @@ namespace graphene { namespace chain {
     * Defines the set of valid operations as a discriminated union type.
     */
    typedef fc::static_variant<
-            transfer_operation,
-            limit_order_create_operation,
-            limit_order_cancel_operation,
-            call_order_update_operation,
-            fill_order_operation,           // VIRTUAL
-            account_create_operation,
-            account_update_operation,
-            account_whitelist_operation,
-            account_upgrade_operation,
-            account_transfer_operation,
-            asset_create_operation,
-            asset_update_operation,
-            asset_update_bitasset_operation,
-            asset_update_feed_producers_operation,
-            asset_issue_operation,
-            asset_reserve_operation,
-            asset_fund_fee_pool_operation,
-            asset_settle_operation,
-            asset_global_settle_operation,
-            asset_publish_feed_operation,
-            witness_create_operation,
-            witness_update_operation,
-            proposal_create_operation,
-            proposal_update_operation,
-            proposal_delete_operation,
-            withdraw_permission_create_operation,
-            withdraw_permission_update_operation,
-            withdraw_permission_claim_operation,
-            withdraw_permission_delete_operation,
-            committee_member_create_operation,
-            committee_member_update_operation,
-            committee_member_update_global_parameters_operation,
-            vesting_balance_create_operation,
-            vesting_balance_withdraw_operation,
-            worker_create_operation,
-            custom_operation,
-            assert_operation,
-            balance_claim_operation,
-            override_transfer_operation,
-            transfer_to_blind_operation,
-            blind_transfer_operation,
-            transfer_from_blind_operation,
-            asset_settle_cancel_operation,  // VIRTUAL
-            asset_claim_fees_operation,
-            fba_distribute_operation,       // VIRTUAL
-            bid_collateral_operation,
-            execute_bid_operation,          // VIRTUAL
-            asset_claim_pool_operation,
-            asset_update_issuer_operation,
-            account_status_upgrade_operation,
-            flipcoin_bet_operation,  //GAMEZONE
-            flipcoin_call_operation,  //GAMEZONE
-            flipcoin_win_operation,  //VOP
-            flipcoin_cancel_operation,  //VOP
-            flipcoin_loose_operation,  //VOP
-            lottery_goods_create_lot_operation,  // GAMEZONE
-            lottery_goods_buy_ticket_operation,  // GAMEZONE
-            lottery_goods_send_contacts_operation,  // GAMEZONE
-            lottery_goods_confirm_delivery_operation,  // GAMEZONE
-            lottery_goods_win_operation,  // GAMEZONE, VIRTUAL
-            lottery_goods_loose_operation,  // GAMEZONE, VIRTUAL
-            send_message_operation,
-            matrix_open_room_operation,
-            matrix_room_closed_operation, // GAMEZONE, VIRTUAL
-            matrix_cell_filled_operation, // GAMEZONE, VIRTUAL
-            create_p2p_adv_operation, // EXCHANGE
-            edit_p2p_adv_operation, // EXCHANGE
-            clear_p2p_adv_black_list_operation, // EXCHANGE
-            remove_from_p2p_adv_black_list_operation, // EXCHANGE
-            create_p2p_order_operation, // EXCHANGE
-            cancel_p2p_order_operation, // EXCHANGE
-            autocancel_p2p_order_operation, // EXCHANGE, VIRTUAL
-            autorefund_p2p_order_operation, // EXCHANGE, VIRTUAL
-            call_p2p_order_operation, // EXCHANGE
-            payment_p2p_order_operation, // EXCHANGE
-            release_p2p_order_operation, // EXCHANGE
-            open_p2p_dispute_operation, // EXCHANGE
-            reply_p2p_dispute_operation, // EXCHANGE
-            resolve_p2p_dispute_operation, // EXCHANGE
-            lottery_goods_refund_operation,  // GAMEZONE, VIRTUAL
-            credit_system_get_operation, //FINANCIAL
-            credit_total_repay_operation, //FINANCIAL, VIRTUAL
-            credit_repay_operation, //FINANCIAL
-            credit_offer_create_operation, //FINANCIAL
-            credit_offer_cancel_operation, //FINANCIAL
-            credit_offer_fill_operation, //FINANCIAL
-            pledge_offer_give_create_operation, //FINANCIAL
-            pledge_offer_take_create_operation, //FINANCIAL
-            pledge_offer_cancel_operation, //FINANCIAL
-            pledge_offer_fill_operation, //FINANCIAL
-            pledge_offer_repay_operation, //FINANCIAL
-            pledge_offer_auto_repay_operation, //FINANCIAL, VIRTUAL
-            committee_member_update_gamezone_parameters_operation,
-            committee_member_update_staking_parameters_operation,
-            poc_vote_operation, //PoC
-            poc_stak_operation, //PoC
-            poc_staking_referal_operation, //PoC, VIRTUAL
-            exchange_silver_operation,//PoC
-            buy_gcwd_operation,
-            approved_transfer_create_operation,
-            approved_transfer_approve_operation,
-            approved_transfer_cancel_operation,
-            approved_transfer_open_dispute_operation,
-            approved_transfer_resolve_dispute_operation,
-            mass_payment_operation,
-            mass_payment_pay_operation
+      /* 0   */   transfer_operation,
+      /* 1   */   limit_order_create_operation,
+      /* 2   */   limit_order_cancel_operation,
+      /* 3   */   call_order_update_operation,
+      /* 4   */   fill_order_operation,           // VIRTUAL
+      /* 5   */   account_create_operation,
+      /* 6   */   account_update_operation,
+      /* 7   */   account_whitelist_operation,
+      /* 8   */   account_upgrade_operation,
+      /* 9   */   account_transfer_operation,
+      /* 10  */   asset_create_operation,
+      /* 11  */   asset_update_operation,
+      /* 12  */   asset_update_bitasset_operation,
+      /* 13  */   asset_update_feed_producers_operation,
+      /* 14  */   asset_issue_operation,
+      /* 15  */   asset_reserve_operation,
+      /* 16  */   asset_fund_fee_pool_operation,
+      /* 17  */   asset_settle_operation,
+      /* 18  */   asset_global_settle_operation,
+      /* 19  */   asset_publish_feed_operation,
+      /* 20  */   witness_create_operation,
+      /* 21  */   witness_update_operation,
+      /* 22  */   proposal_create_operation,
+      /* 23  */   proposal_update_operation,
+      /* 24  */   proposal_delete_operation,
+      /* 25  */   withdraw_permission_create_operation,
+      /* 26  */   withdraw_permission_update_operation,
+      /* 27  */   withdraw_permission_claim_operation,
+      /* 28  */   withdraw_permission_delete_operation,
+      /* 29  */   committee_member_create_operation,
+      /* 30  */   committee_member_update_operation,
+      /* 31  */   committee_member_update_global_parameters_operation,
+      /* 32  */   vesting_balance_create_operation,
+      /* 33  */   vesting_balance_withdraw_operation,
+      /* 34  */   worker_create_operation,
+      /* 35  */   custom_operation,
+      /* 36  */   assert_operation,
+      /* 37  */   balance_claim_operation,
+      /* 38  */   override_transfer_operation,
+      /* 39  */   transfer_to_blind_operation,
+      /* 40  */   blind_transfer_operation,
+      /* 41  */   transfer_from_blind_operation,
+      /* 42  */   asset_settle_cancel_operation,  // VIRTUAL
+      /* 43  */   asset_claim_fees_operation,
+      /* 44  */   fba_distribute_operation,       // VIRTUAL
+      /* 45  */   bid_collateral_operation,
+      /* 46  */   execute_bid_operation,          // VIRTUAL
+      /* 47  */   asset_claim_pool_operation,
+      /* 48  */   asset_update_issuer_operation,
+      /* 49  */   account_status_upgrade_operation,
+      /* 50  */   flipcoin_bet_operation,  //GAMEZONE
+      /* 51  */   flipcoin_call_operation,  //GAMEZONE
+      /* 52  */   flipcoin_win_operation,  //VOP
+      /* 53  */   flipcoin_cancel_operation,  //VOP
+      /* 54  */   flipcoin_loose_operation,  //VOP
+      /* 55  */   lottery_goods_create_lot_operation,  // GAMEZONE
+      /* 56  */   lottery_goods_buy_ticket_operation,  // GAMEZONE
+      /* 57  */   lottery_goods_send_contacts_operation,  // GAMEZONE
+      /* 58  */   lottery_goods_confirm_delivery_operation,  // GAMEZONE
+      /* 59  */   lottery_goods_win_operation,  // GAMEZONE, VIRTUAL
+      /* 60  */   lottery_goods_loose_operation,  // GAMEZONE, VIRTUAL
+      /* 61  */   send_message_operation,
+      /* 62  */   matrix_open_room_operation,
+      /* 63  */   matrix_room_closed_operation, // GAMEZONE, VIRTUAL
+      /* 64  */   matrix_cell_filled_operation, // GAMEZONE, VIRTUAL
+      /* 65  */   create_p2p_adv_operation, // EXCHANGE
+      /* 66  */   edit_p2p_adv_operation, // EXCHANGE
+      /* 67  */   clear_p2p_adv_black_list_operation, // EXCHANGE
+      /* 68  */   remove_from_p2p_adv_black_list_operation, // EXCHANGE
+      /* 69  */   create_p2p_order_operation, // EXCHANGE
+      /* 70  */   cancel_p2p_order_operation, // EXCHANGE
+      /* 71  */   autocancel_p2p_order_operation, // EXCHANGE, VIRTUAL
+      /* 72  */   autorefund_p2p_order_operation, // EXCHANGE, VIRTUAL
+      /* 73  */   call_p2p_order_operation, // EXCHANGE
+      /* 74  */   payment_p2p_order_operation, // EXCHANGE
+      /* 75  */   release_p2p_order_operation, // EXCHANGE
+      /* 76  */   open_p2p_dispute_operation, // EXCHANGE
+      /* 77  */   reply_p2p_dispute_operation, // EXCHANGE
+      /* 78  */   resolve_p2p_dispute_operation, // EXCHANGE
+      /* 79  */   lottery_goods_refund_operation,  // GAMEZONE, VIRTUAL
+      /* 80  */   credit_system_get_operation, //FINANCIAL
+      /* 81  */   credit_total_repay_operation, //FINANCIAL, VIRTUAL
+      /* 82  */   credit_repay_operation, //FINANCIAL
+      /* 83  */   credit_offer_create_operation, //FINANCIAL
+      /* 84  */   credit_offer_cancel_operation, //FINANCIAL
+      /* 85  */   credit_offer_fill_operation, //FINANCIAL
+      /* 86  */   pledge_offer_give_create_operation, //FINANCIAL
+      /* 87  */   pledge_offer_take_create_operation, //FINANCIAL
+      /* 88  */   pledge_offer_cancel_operation, //FINANCIAL
+      /* 89  */   pledge_offer_fill_operation, //FINANCIAL
+      /* 90  */   pledge_offer_repay_operation, //FINANCIAL
+      /* 91  */   pledge_offer_auto_repay_operation, //FINANCIAL, VIRTUAL
+      /* 92  */   committee_member_update_gamezone_parameters_operation,
+      /* 93  */   committee_member_update_staking_parameters_operation,
+      /* 94  */   poc_vote_operation, //PoC
+      /* 95  */   poc_stak_operation, //PoC
+      /* 96  */   poc_staking_referal_operation, //PoC, VIRTUAL
+      /* 97  */   exchange_silver_operation,//PoC
+      /* 98  */   buy_gcwd_operation,
+      /* 99  */   approved_transfer_create_operation,
+      /* 100 */   approved_transfer_approve_operation,
+      /* 101 */   approved_transfer_cancel_operation,
+      /* 102 */   approved_transfer_open_dispute_operation,
+      /* 103 */   approved_transfer_resolve_dispute_operation,
+      /* 104 */   mass_payment_operation,
+      /* 105 */   mass_payment_pay_operation,
+      /* 106 */   change_referrer_operation
          > operation;
 
    /// @} // operations group

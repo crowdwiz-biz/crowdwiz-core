@@ -263,7 +263,10 @@ struct get_impacted_account_visitor
    {
       _impacted.insert( op.fee_payer() ); // account_id
    }
-
+   void operator()( const change_referrer_operation& op )
+   {
+      _impacted.insert( op.fee_payer() ); // account_id
+   }
    void operator()( const flipcoin_bet_operation& op )
    {
       _impacted.insert( op.fee_payer() ); // account_id

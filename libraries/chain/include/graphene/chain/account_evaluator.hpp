@@ -80,4 +80,15 @@ public:
    const account_object* account;
 };
 
+class change_referrer_evaluator : public evaluator<change_referrer_evaluator>
+{
+public:
+   typedef change_referrer_operation operation_type;
+
+   void_result do_evaluate(const operation_type& o);
+   void_result do_apply(const operation_type& o);
+
+   const account_object* account;
+};
+
 } } // graphene::chain

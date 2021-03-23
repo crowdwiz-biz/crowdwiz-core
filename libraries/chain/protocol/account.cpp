@@ -293,4 +293,9 @@ void account_status_upgrade_operation::validate() const
    FC_ASSERT( referral_status_type <= 4);
 }
 
+void change_referrer_operation::validate()const
+{
+   FC_ASSERT( fee.amount >= 0 );
+}
+
 } } // graphene::chain

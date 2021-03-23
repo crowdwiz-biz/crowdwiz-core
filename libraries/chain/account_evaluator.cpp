@@ -527,4 +527,26 @@ void_result account_status_upgrade_evaluator::do_apply(const account_status_upgr
    return {};
 } FC_RETHROW_EXCEPTIONS( error, "Unable to upgrade account status '${a}'", ("a",o.account_to_upgrade(db()).name) ) }
 
+void_result change_referrer_evaluator::do_evaluate(const change_referrer_evaluator::operation_type& o)
+{ try {
+   database& d = db();
+   const auto &params = d.get_global_properties().parameters;
+   account = &d.get(o.account_id);
+   const account_object* new_referrer = &d.get(o.new_referrer);
+   FC_ASSERT( new_referrer.get_id() >= params.root_account, "Referrer must be under root acount." );
+   return void_result();
+} FC_RETHROW_EXCEPTIONS( error, "Unable to change referrer '${a}'", ("a",o.account_id(db()).name) ) }
+
+void_result change_referrer_evaluator::do_apply(const change_referrer_evaluator::operation_type& o)
+{ try {
+   database& d = db();
+
+   d.modify(*account, [&](account_object& a) {
+      a.referrer = o.new_referrer;
+   });
+
+   return void_result();
+} FC_RETHROW_EXCEPTIONS( error, "Unable to change referrer '${a}'", ("a",o.account_id(db()).name) ) }
+
+
 } } // graphene::chain

@@ -287,6 +287,18 @@ namespace graphene { namespace chain {
       share_type      calculate_fee( const fee_parameters_type& k )const;
    };
 
+   struct change_referrer_operation : public base_operation
+   {
+      struct fee_parameters_type { uint64_t fee = 5000 * GRAPHENE_BLOCKCHAIN_PRECISION; };
+
+      asset           fee;
+      account_id_type account_id;
+      account_id_type new_referrer;
+
+      account_id_type fee_payer()const { return account_id; }
+      void        validate()const;
+   };
+
 } } // graphene::chain
 
 FC_REFLECT(graphene::chain::account_options, (memo_key)(voting_account)(num_witness)(num_committee)(votes)(extensions))
@@ -317,7 +329,9 @@ FC_REFLECT( graphene::chain::account_whitelist_operation::fee_parameters_type, (
 FC_REFLECT( graphene::chain::account_update_operation::fee_parameters_type, (fee)(price_per_kbyte) )
 FC_REFLECT( graphene::chain::account_upgrade_operation::fee_parameters_type, (membership_annual_fee)(membership_lifetime_fee) )
 FC_REFLECT( graphene::chain::account_transfer_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::chain::change_referrer_operation::fee_parameters_type, (fee) )
 FC_REFLECT( graphene::chain::account_status_upgrade_operation::fee_parameters_type, (status_1_fee)(status_2_fee)(status_3_fee)(status_4_fee) )
 
 FC_REFLECT( graphene::chain::account_transfer_operation, (fee)(account_id)(new_owner)(extensions) )
 FC_REFLECT( graphene::chain::account_status_upgrade_operation,(fee)(account_to_upgrade)(referral_status_type) )
+FC_REFLECT( graphene::chain::change_referrer_operation, (fee)(account_id)(new_referrer) )
