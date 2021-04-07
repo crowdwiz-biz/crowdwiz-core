@@ -115,43 +115,6 @@ namespace graphene { namespace chain {
       uint16_t                nv_level_reward_07                  = (7*GRAPHENE_1_PERCENT); 
       uint16_t                nv_level_reward_08                  = (8*GRAPHENE_1_PERCENT); 
 
-/*      optional<bool>          allow_p2p_exchange                  = true;
-      optional<uint64_t>      cwd_deposit_for_order               = 1000;
-	  optional<uint16_t>      first_ban_time                      = (12*3600);
-      optional<uint16_t>      arbitr_comission                    = (20*GRAPHENE_1_PERCENT);*/
-
-      // optional<share_type>    matrix_level_1_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(45));
-      // optional<share_type>    matrix_level_2_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(80));
-      // optional<share_type>    matrix_level_3_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(218));
-      // optional<share_type>    matrix_level_4_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(790));
-      // optional<share_type>    matrix_level_5_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(2870));
-      // optional<share_type>    matrix_level_6_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(7820));
-      // optional<share_type>    matrix_level_7_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(14200));
-      // optional<share_type>    matrix_level_8_price                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(25800));
-      // optional<share_type>    matrix_level_1_prize                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(90));
-      // optional<share_type>    matrix_level_2_prize                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(240));
-      // optional<share_type>    matrix_level_3_prize                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(872));
-      // optional<share_type>    matrix_level_4_prize                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(3160));
-      // optional<share_type>    matrix_level_5_prize                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(8610));
-      // optional<share_type>    matrix_level_6_prize                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15640));
-      // optional<share_type>    matrix_level_7_prize                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(28400));
-      // optional<share_type>    matrix_level_8_prize                = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(51600));
-      // optional<uint8_t>       matrix_level_1_cells                = uint8_t(2);
-      // optional<uint8_t>       matrix_level_2_cells                = uint8_t(3);
-      // optional<uint8_t>       matrix_level_3_cells                = uint8_t(4);
-      // optional<uint8_t>       matrix_level_4_cells                = uint8_t(4);
-      // optional<uint8_t>       matrix_level_5_cells                = uint8_t(3);
-      // optional<uint8_t>       matrix_level_6_cells                = uint8_t(2);
-      // optional<uint8_t>       matrix_level_7_cells                = uint8_t(2);
-      // optional<uint8_t>       matrix_level_8_cells                = uint8_t(2);
-      // optional<uint32_t>      matrix_first_start_block            = uint32_t(100);
-      // optional<uint32_t>      matrix_lasts_blocks                 = uint32_t(1000);
-      // optional<uint32_t>      matrix_idle_blocks                  = uint32_t(100);
-
-      // uint32_t                lottery_goods_max_participants      = 5000;
-      // uint16_t                lottery_goods_max_latency           = 100; 
-      // account_id_type         lottery_goods_account               = account_id_type(27);
-
       extensions_type         extensions;
 
       /** defined in fee_schedule.cpp */
@@ -240,35 +203,5 @@ FC_REFLECT( graphene::chain::chain_parameters,
             (nv_level_reward_06)
             (nv_level_reward_07)
             (nv_level_reward_08)
-            // (matrix_level_1_price)
-            // (matrix_level_2_price)
-            // (matrix_level_3_price)
-            // (matrix_level_4_price)
-            // (matrix_level_5_price)
-            // (matrix_level_6_price)
-            // (matrix_level_7_price)
-            // (matrix_level_8_price)
-            // (matrix_level_1_prize)
-            // (matrix_level_2_prize)
-            // (matrix_level_3_prize)
-            // (matrix_level_4_prize)
-            // (matrix_level_5_prize)
-            // (matrix_level_6_prize)
-            // (matrix_level_7_prize)
-            // (matrix_level_8_prize)
-            // (matrix_level_1_cells)
-            // (matrix_level_2_cells)
-            // (matrix_level_3_cells)
-            // (matrix_level_4_cells)
-            // (matrix_level_5_cells)
-            // (matrix_level_6_cells)
-            // (matrix_level_7_cells)
-            // (matrix_level_8_cells)
-            // (matrix_first_start_block)
-            // (matrix_lasts_blocks)
-            // (matrix_idle_blocks)
-            // (lottery_goods_max_participants)
-            // (lottery_goods_max_latency)
-            // (lottery_goods_account)
             (extensions)
           )

@@ -59,6 +59,7 @@ add_library( graphene_chain
              protocol/confidential.cpp
              protocol/vote.cpp
              protocol/gamezone.cpp
+             protocol/greatrace.cpp
              protocol/send_message.cpp
              protocol/exchange.cpp
              protocol/financial.cpp
@@ -86,6 +87,7 @@ add_library( graphene_chain
              special_authority.cpp
              buyback.cpp
              gamezone_evaluator.cpp
+             greatrace_evaluator.cpp
              send_message_evaluator.cpp
              exchange_evaluator.cpp
              financial_evaluator.cpp

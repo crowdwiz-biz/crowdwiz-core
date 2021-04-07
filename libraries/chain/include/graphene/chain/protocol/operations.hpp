@@ -43,6 +43,7 @@
 #include <graphene/chain/protocol/exchange.hpp>
 #include <graphene/chain/protocol/financial.hpp>
 #include <graphene/chain/protocol/poc.hpp>
+#include <graphene/chain/protocol/greatrace.hpp>
 
 namespace graphene { namespace chain {
 
@@ -158,7 +159,18 @@ namespace graphene { namespace chain {
       /* 103 */   approved_transfer_resolve_dispute_operation,
       /* 104 */   mass_payment_operation,
       /* 105 */   mass_payment_pay_operation,
-      /* 106 */   change_referrer_operation
+      /* 106 */   change_referrer_operation,
+      /* 107 */   gr_team_create_operaton,
+      /* 108 */   gr_team_delete_operaton,
+      /* 109 */   gr_invite_send_operaton,
+      /* 110 */   gr_invite_accept_operaton,
+      /* 111 */   gr_player_remove_operaton,
+      /* 112 */   gr_team_leave_operaton,
+      /* 113 */   gr_vote_operaton,
+      /* 114 */   gr_assign_rank_operaton,
+      /* 115 */   gr_pay_rank_reward_operaton,
+      /* 116 */   gr_pay_top_reward_operaton,
+      /* 117 */   gr_apostolos_operaton
          > operation;
 
    /// @} // operations group

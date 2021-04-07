@@ -543,6 +543,58 @@ struct get_impacted_account_visitor
       _impacted.insert( op.to);
    }
 
+   void operator()( const gr_team_create_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+   }
+   void operator()( const gr_team_delete_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+   }
+   void operator()( const gr_invite_send_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+      _impacted.insert( op.player);
+
+   }
+   void operator()( const gr_invite_accept_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+      _impacted.insert( op.captain);
+
+   }
+   void operator()( const gr_player_remove_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+      _impacted.insert( op.player);
+
+   }
+   void operator()( const gr_team_leave_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+      _impacted.insert( op.captain);
+   }
+   void operator()( const gr_vote_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+   }
+   void operator()( const gr_assign_rank_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+   }
+   void operator()( const gr_pay_rank_reward_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+   }
+   void operator()( const gr_pay_top_reward_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+   }
+   void operator()( const gr_apostolos_operaton& op )
+   {
+      _impacted.insert( op.fee_payer());
+   }
+
 };
 
 void graphene::chain::operation_get_impacted_accounts( const operation& op, flat_set<account_id_type>& result )
@@ -687,6 +739,26 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
            break;
         }
 
+        case gr_team_object_type:{
+           const auto& aobj = dynamic_cast<const gr_team_object*>(obj);
+           FC_ASSERT( aobj != nullptr );
+           accounts.insert( aobj->captain );
+           break;
+        }
+
+        case gr_invite_object_type:{
+           const auto& aobj = dynamic_cast<const gr_invite_object*>(obj);
+           FC_ASSERT( aobj != nullptr );
+           accounts.insert( aobj->captain );
+           break;
+        }
+
+        case gr_votes_object_type:{
+           const auto& aobj = dynamic_cast<const gr_votes_object*>(obj);
+           FC_ASSERT( aobj != nullptr );
+           accounts.insert( aobj->player );
+           break;
+        }
       }
    }
    else if( obj->id.space() == implementation_ids )

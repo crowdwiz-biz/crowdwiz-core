@@ -149,7 +149,10 @@ namespace graphene { namespace chain {
       p2p_order_object_type, //EXCHANGE
       credit_offer_object_type, //FINANCIAL
       pledge_offer_object_type, //FINANCIAL    
-      approved_transfer_object_type, //FINANCIAL    
+      approved_transfer_object_type, //FINANCIAL
+      gr_team_object_type, //GREATRACE
+      gr_invite_object_type,
+      gr_votes_object_type,
       OBJECT_TYPE_COUNT ///< Sentry value which contains the number of different object types
    };
 
@@ -202,7 +205,8 @@ namespace graphene { namespace chain {
    class credit_offer_object; //FINANCIAL
    class pledge_offer_object; //FINANCIAL
    class approved_transfer_object; //FINANCIAL
-
+   class gr_team_object; //GREATRACE
+   class gr_invite_object; //GREATRACE
 
    typedef object_id< protocol_ids, account_object_type,            account_object>               account_id_type;
    typedef object_id< protocol_ids, asset_object_type,              asset_object>                 asset_id_type;
@@ -228,6 +232,9 @@ namespace graphene { namespace chain {
    typedef object_id< protocol_ids, credit_offer_object_type,       credit_offer_object>          credit_offer_id_type;
    typedef object_id< protocol_ids, pledge_offer_object_type,       pledge_offer_object>          pledge_offer_id_type;
    typedef object_id< protocol_ids, approved_transfer_object_type,  approved_transfer_object>     approved_transfer_id_type;
+   typedef object_id< protocol_ids, gr_team_object_type,            gr_team_object>               gr_team_id_type;
+   typedef object_id< protocol_ids, gr_invite_object_type,          gr_invite_object>             gr_invite_id_type;
+   typedef object_id< protocol_ids, gr_votes_object_type,           gr_votes_object>              gr_votes_id_type;
 
 
    // implementation types
@@ -395,6 +402,9 @@ FC_REFLECT_ENUM( graphene::chain::object_type,
                  (credit_offer_object_type)
                  (pledge_offer_object_type)
                  (approved_transfer_object_type)
+                 (gr_team_object_type)
+                 (gr_invite_object_type)
+                 (gr_votes_object_type)
                  (OBJECT_TYPE_COUNT)
                )
 FC_REFLECT_ENUM( graphene::chain::impl_object_type,
@@ -446,6 +456,9 @@ FC_REFLECT_TYPENAME( graphene::chain::p2p_order_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::credit_offer_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::pledge_offer_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::approved_transfer_id_type )
+FC_REFLECT_TYPENAME( graphene::chain::gr_team_id_type )
+FC_REFLECT_TYPENAME( graphene::chain::gr_invite_id_type )
+FC_REFLECT_TYPENAME( graphene::chain::gr_votes_id_type )
 
 FC_REFLECT_TYPENAME( graphene::chain::global_property_id_type )
 FC_REFLECT_TYPENAME( graphene::chain::dynamic_global_property_id_type )
