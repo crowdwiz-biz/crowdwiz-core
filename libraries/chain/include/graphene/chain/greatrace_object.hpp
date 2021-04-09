@@ -26,7 +26,7 @@ namespace graphene { namespace chain {
 			string description;
 			string logo;
 			account_id_type captain;
-			uint8_t players_num;
+			flat_set<account_id_type> players;
 			share_type gr_interval_2_volume;
 			share_type gr_interval_4_volume;
 			share_type gr_interval_6_volume;
@@ -34,6 +34,7 @@ namespace graphene { namespace chain {
 			share_type gr_interval_11_volume;
 			share_type gr_interval_13_volume;
 			uint8_t last_gr_rank;
+
 
 			inline share_type first_half_volume() const {return gr_interval_2_volume + gr_interval_4_volume + gr_interval_6_volume;}
 			inline share_type second_half_volume() const {return gr_interval_9_volume + gr_interval_11_volume + gr_interval_13_volume;}
@@ -51,11 +52,15 @@ namespace graphene { namespace chain {
 	struct by_total_first_half_volume;
 	struct by_total_second_half_volume;
 	struct by_total_volume;
+	struct by_name;
+	struct by_captain;
 
 	typedef multi_index_container<
 		gr_team_object,
 		indexed_by<
 		ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
+		ordered_unique<tag<by_name>, member<gr_team_object, string, &gr_team_object::name>>,
+		ordered_unique<tag<by_captain>, member<gr_team_object, account_id_type, &gr_team_object::captain>>,
 		ordered_non_unique<tag<by_gr_interval_2_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_2_volume>>,
 		ordered_non_unique<tag<by_gr_interval_4_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_4_volume>>,
 		ordered_non_unique<tag<by_gr_interval_6_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_6_volume>>,
@@ -135,7 +140,7 @@ FC_REFLECT_DERIVED(graphene::chain::gr_team_object,
 					(description)
 					(logo)
 					(captain)
-					(players_num)
+					(players)
 					(gr_interval_2_volume)
 					(gr_interval_4_volume)
 					(gr_interval_6_volume)

@@ -157,6 +157,10 @@ class account_statistics_object : public graphene::db::abstract_object<account_s
    share_type third_month_income = 0;
    share_type current_month_income = 0;
 
+   // great race first line stats
+   share_type first_month_gr = 0;
+   share_type current_month_gr = 0;
+
    // credit parameters
    share_type total_credit = 0;
    share_type allowed_to_repay = 0;
@@ -336,6 +340,14 @@ class account_object : public graphene::db::abstract_object<account_object>
    time_point_sec referral_status_expiration_date;
    uint16_t status_denominator;
 
+   optional<gr_team_id_type> gr_team;
+   uint8_t last_gr_rank = 0;
+
+   inline bool has_gr_rank() const
+   {
+      return (last_gr_rank > 0);
+   }
+
    bool has_special_authority() const
    {
       return (owner_special_authority.which() != special_authority::tag<no_special_authority>::value) || (active_special_authority.which() != special_authority::tag<no_special_authority>::value);
@@ -485,6 +497,7 @@ struct by_name
 {
 };
 struct by_status_expiration;
+struct by_gr_rank;
 
 /**
     * @ingroup object_index
@@ -494,6 +507,11 @@ typedef multi_index_container<
     indexed_by<
         ordered_unique<tag<by_id>, member<object, object_id_type, &object::id>>,
         ordered_non_unique<tag<by_status_expiration>, member<account_object, time_point_sec, &account_object::referral_status_expiration_date>>,
+        ordered_unique<tag<by_gr_rank>,
+                composite_key<
+                    account_object,
+                    const_mem_fun<account_object, bool, &account_object::has_gr_rank>,
+                    member<account_object, string, &account_object::name>>>,
         ordered_unique<tag<by_name>, member<account_object, string, &account_object::name>>>>
     account_multi_index_type;
 /**
@@ -550,7 +568,7 @@ typedef generic_index<account_statistics_object, account_stats_multi_index_type>
 
 FC_REFLECT_DERIVED(graphene::chain::account_object,
                    (graphene::db::object),
-                   (membership_expiration_date)(registrar)(referrer)(lifetime_referrer)(network_fee_percentage)(lifetime_referrer_fee_percentage)(referrer_rewards_percentage)(name)(owner)(active)(options)(statistics)(whitelisting_accounts)(blacklisting_accounts)(whitelisted_accounts)(blacklisted_accounts)(cashback_vb)(owner_special_authority)(active_special_authority)(top_n_control_flags)(allowed_assets)(referral_levels)(referral_status_type)(referral_status_paid_fee)(referral_status_expiration_date)(status_denominator))
+                   (membership_expiration_date)(registrar)(referrer)(lifetime_referrer)(network_fee_percentage)(lifetime_referrer_fee_percentage)(referrer_rewards_percentage)(name)(owner)(active)(options)(statistics)(whitelisting_accounts)(blacklisting_accounts)(whitelisted_accounts)(blacklisted_accounts)(cashback_vb)(owner_special_authority)(active_special_authority)(top_n_control_flags)(allowed_assets)(referral_levels)(referral_status_type)(referral_status_paid_fee)(referral_status_expiration_date)(status_denominator)(gr_team)(last_gr_rank))
 
 FC_REFLECT_DERIVED(graphene::chain::account_balance_object,
                    (graphene::db::object),
@@ -592,6 +610,8 @@ FC_REFLECT_DERIVED(graphene::chain::account_statistics_object,
                    (second_month_income)
                    (third_month_income)
                    (current_month_income)
+                   (first_month_gr)
+                   (current_month_gr)
                    (total_credit)
                    (allowed_to_repay)
                    (credit_repaid)
