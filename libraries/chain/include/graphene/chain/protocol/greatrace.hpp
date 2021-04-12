@@ -104,6 +104,7 @@ namespace graphene { namespace chain {
 		
 		account_id_type		player;
 		gr_team_id_type		team;
+		uint8_t 			rank;
 
 		account_id_type		fee_payer()const { return player; }
 		void				validate()const;
@@ -211,6 +212,7 @@ FC_REFLECT( graphene::chain::gr_assign_rank_operaton::fee_parameters_type, (fee)
 FC_REFLECT( graphene::chain::gr_assign_rank_operaton,
 	(player)
 	(team)
+	(rank)
 )
 
 FC_REFLECT( graphene::chain::gr_pay_rank_reward_operaton::fee_parameters_type, (fee) )

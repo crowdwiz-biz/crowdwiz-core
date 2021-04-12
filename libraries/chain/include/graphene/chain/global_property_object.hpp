@@ -115,6 +115,9 @@ namespace graphene { namespace chain {
          share_type        gr_diamond_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
          share_type        gr_elite_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
          share_type        gr_master_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
+
+         share_type        gr_top3_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
+
          /**
           *  Every time a block is missed this increases by
           *  RECENTLY_MISSED_COUNT_INCREMENT,
@@ -198,6 +201,7 @@ FC_REFLECT_DERIVED( graphene::chain::dynamic_global_property_object, (graphene::
                     (gr_diamond_reward)
                     (gr_elite_reward)
                     (gr_master_reward)
+                    (gr_top3_reward)
                     (recently_missed_count)
                     (current_aslot)
                     (recent_slots_filled)

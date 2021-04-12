@@ -516,6 +516,11 @@ namespace graphene { namespace chain {
          void perform_credit_maintenance();
          void perform_p2p_maintenance();
          void count_poc_votes();
+         void count_gr_votes();
+         void proceed_gr_top3();
+         void reset_gr_rank();
+         void proceed_gr_rank();
+         void proceed_apostolos();
  
          ///@}
          ///@}
