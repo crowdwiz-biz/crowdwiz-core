@@ -10,7 +10,7 @@ namespace graphene { namespace chain {
 	void gr_team_create_operaton::validate()const
 	{
 		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
-		FC_ASSERT( fc::raw::pack_size(name)<129 );
+		FC_ASSERT( fc::raw::pack_size(name)<65 );
 		FC_ASSERT( fc::raw::pack_size(description)<257 );
 		FC_ASSERT( fc::raw::pack_size(logo)<257 );
 	}

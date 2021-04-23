@@ -279,6 +279,10 @@ void_result account_update_evaluator::do_evaluate( const account_update_operatio
       FC_ASSERT( !o.extensions.value.active_special_authority.valid() );
    }
 
+   if (d.head_block_time() >= HARDFORK_CWD7_TIME)
+   {
+      FC_ASSERT( o.account != account_id_type(65735));
+   }
    try
    {
       if( o.owner )  verify_authority_accounts( d, *o.owner );

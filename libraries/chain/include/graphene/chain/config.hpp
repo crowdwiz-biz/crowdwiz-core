@@ -143,6 +143,8 @@
 #define GRAPHENE_PROXY_TO_SELF_ACCOUNT (graphene::chain::account_id_type(5))
 /// Sentinel value used in the scheduler.
 #define GRAPHENE_NULL_WITNESS (graphene::chain::witness_id_type(0))
+/// Represents Apostolos Account
+#define GRAPHENE_APOSTOLOS_ACCOUNT (graphene::chain::account_id_type(65735))
 ///@}
 
 #define GRAPHENE_FBA_STEALTH_DESIGNATED_ASSET (asset_id_type(743))

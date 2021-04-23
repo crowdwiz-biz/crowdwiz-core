@@ -151,7 +151,71 @@ void database::perform_p2p_maintenance()
 }
 
 void database::count_gr_votes() {
+   
+   const auto& gr_votes_idx = get_index_type< gr_votes_index >().indices().get< by_id >();
+   auto votes_itr = gr_votes_idx.begin();
+   auto total_votes = votes_itr.size();
 
+   share_type gr_iron_volume = 0;
+   share_type gr_bronze_volume = 0;
+   share_type gr_silver_volume = 0;
+   share_type gr_gold_volume = 0;
+   share_type gr_platinum_volume = 0;
+   share_type gr_diamond_volume = 0;
+   share_type gr_elite_volume = 0;
+   share_type gr_iron_reward = 0;
+   share_type gr_bronze_reward = 0;
+   share_type gr_silver_reward = 0;
+   share_type gr_gold_reward = 0;
+   share_type gr_platinum_reward = 0;
+   share_type gr_diamond_reward = 0;
+   share_type gr_elite_reward = 0;
+   share_type gr_master_reward = 0;
+
+   while( votes_itr != gr_votes_idx.end() )
+   {
+      const gr_votes_object& vote = *votes_itr;
+      gr_iron_volume+=vote.gr_iron_volume;
+      gr_bronze_volume+=vote.gr_bronze_volume;
+      gr_silver_volume+=vote.gr_silver_volume;
+      gr_gold_volume+=vote.gr_gold_volume;
+      gr_platinum_volume+=vote.gr_platinum_volume;
+      gr_diamond_volume+=vote.gr_diamond_volume;
+      gr_elite_volume+=vote.gr_elite_volume;
+      gr_iron_reward+=vote.gr_iron_reward;
+      gr_bronze_reward+=vote.gr_bronze_reward;
+      gr_silver_reward+=vote.gr_silver_reward;
+      gr_gold_reward+=vote.gr_gold_reward;
+      gr_platinum_reward+=vote.gr_platinum_reward;
+      gr_diamond_reward+=vote.gr_diamond_reward;
+      gr_elite_reward+=vote.gr_elite_reward;
+      gr_master_reward+=vote.gr_master_reward;
+      ++votes_itr;
+   }
+
+   while( !gr_votes_idx.empty()
+   {
+      const gr_votes_object& vote = *gr_votes_idx.begin();
+      remove(vote);
+   }
+   const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
+   modify(dgpo, [&](dynamic_global_property_object& d) {
+      d.gr_iron_volume=gr_iron_volume/total_votes;
+      d.gr_bronze_volume=gr_bronze_volume/total_votes;
+      d.gr_silver_volume=gr_silver_volume/total_votes;
+      d.gr_gold_volume=gr_gold_volume/total_votes;
+      d.gr_platinum_volume=gr_platinum_volume/total_votes;
+      d.gr_diamond_volume=gr_diamond_volume/total_votes;
+      d.gr_elite_volume=gr_elite_volume/total_votes;
+      d.gr_iron_reward=gr_iron_reward/total_votes;
+      d.gr_bronze_reward=gr_bronze_reward/total_votes;
+      d.gr_silver_reward=gr_silver_reward/total_votes;
+      d.gr_gold_reward=gr_gold_reward/total_votes;
+      d.gr_platinum_reward=gr_platinum_reward/total_votes;
+      d.gr_diamond_reward=gr_diamond_reward/total_votes;
+      d.gr_elite_reward=gr_elite_reward/total_votes;
+      d.gr_master_reward=gr_master_reward/total_votes;
+   });
 }
 
 void database::proceed_gr_top3() {
@@ -295,12 +359,285 @@ void database::proceed_gr_rank() {
       }
       itr++;
    }
+
+   // BRONZE
+   auto itr = rank_idx.lower_bound(dgpo.gr_bronze_volume);
+   auto end = rank_idx.lower_bound(dgpo.gr_silver_volume-int64_t(1));
+
+   while( itr != end )
+   {
+      const gr_team_object& team_obj = *itr;
+
+      modify(team_obj, [](gr_team_object& t)
+      {
+         t.last_gr_rank = 2;
+      });
+      modify( get(team_obj.captain), [](account_object& a) {
+         a.last_gr_rank = 2;
+      });
+      gr_pay_rank_reward_operaton  vop;
+      vop.captain = team_obj.captain;
+      vop.team = team_obj.id;
+      vop.amount =  asset( dgpo.gr_bronze_reward, asset_id_type(0) );
+      vop.rank = 2;
+      push_applied_operation( vop );
+
+      total_reward += dgpo.gr_bronze_reward;
+      adjust_balance(team_obj.captain, asset( dgpo.gr_bronze_reward, asset_id_type(0) ));
+ 
+      for( auto player : team_obj.players ) {
+         modify( get(player), [](account_object& a) {
+            a.last_gr_rank = 2;
+         });
+         gr_assign_rank_operaton vop;
+         vop.player = team_obj.player;
+         vop.team = team_obj.id;
+         vop.rank = 2;
+         push_applied_operation( vop );
+      }
+      itr++;
+   }
+
+   // SILVER
+   auto itr = rank_idx.lower_bound(dgpo.gr_silver_volume);
+   auto end = rank_idx.lower_bound(dgpo.gr_gold_volume-int64_t(1));
+
+   while( itr != end )
+   {
+      const gr_team_object& team_obj = *itr;
+
+      modify(team_obj, [](gr_team_object& t)
+      {
+         t.last_gr_rank = 3;
+      });
+      modify( get(team_obj.captain), [](account_object& a) {
+         a.last_gr_rank = 3;
+      });
+      gr_pay_rank_reward_operaton  vop;
+      vop.captain = team_obj.captain;
+      vop.team = team_obj.id;
+      vop.amount =  asset( dgpo.gr_silver_reward, asset_id_type(0) );
+      vop.rank = 3;
+      push_applied_operation( vop );
+
+      total_reward += dgpo.gr_silver_reward;
+      adjust_balance(team_obj.captain, asset( dgpo.gr_silver_reward, asset_id_type(0) ));
+ 
+      for( auto player : team_obj.players ) {
+         modify( get(player), [](account_object& a) {
+            a.last_gr_rank = 3;
+         });
+         gr_assign_rank_operaton vop;
+         vop.player = team_obj.player;
+         vop.team = team_obj.id;
+         vop.rank = 3;
+         push_applied_operation( vop );
+      }
+      itr++;
+   }
+
+   // GOLD
+   auto itr = rank_idx.lower_bound(dgpo.gr_gold_volume);
+   auto end = rank_idx.lower_bound(dgpo.gr_platinum_volume-int64_t(1));
+
+   while( itr != end )
+   {
+      const gr_team_object& team_obj = *itr;
+
+      modify(team_obj, [](gr_team_object& t)
+      {
+         t.last_gr_rank = 4;
+      });
+      modify( get(team_obj.captain), [](account_object& a) {
+         a.last_gr_rank = 4;
+      });
+      gr_pay_rank_reward_operaton  vop;
+      vop.captain = team_obj.captain;
+      vop.team = team_obj.id;
+      vop.amount =  asset( dgpo.gr_gold_reward, asset_id_type(0) );
+      vop.rank = 4;
+      push_applied_operation( vop );
+
+      total_reward += dgpo.gr_gold_reward;
+      adjust_balance(team_obj.captain, asset( dgpo.gr_gold_reward, asset_id_type(0) ));
+ 
+      for( auto player : team_obj.players ) {
+         modify( get(player), [](account_object& a) {
+            a.last_gr_rank = 4;
+         });
+         gr_assign_rank_operaton vop;
+         vop.player = team_obj.player;
+         vop.team = team_obj.id;
+         vop.rank = 4;
+         push_applied_operation( vop );
+      }
+      itr++;
+   }
+
+   // PLATINUM
+   auto itr = rank_idx.lower_bound(dgpo.gr_platinum_volume);
+   auto end = rank_idx.lower_bound(dgpo.gr_diamond_volume-int64_t(1));
+
+   while( itr != end )
+   {
+      const gr_team_object& team_obj = *itr;
+
+      modify(team_obj, [](gr_team_object& t)
+      {
+         t.last_gr_rank = 5;
+      });
+      modify( get(team_obj.captain), [](account_object& a) {
+         a.last_gr_rank = 5;
+      });
+      gr_pay_rank_reward_operaton  vop;
+      vop.captain = team_obj.captain;
+      vop.team = team_obj.id;
+      vop.amount =  asset( dgpo.gr_platinum_reward, asset_id_type(0) );
+      vop.rank = 5;
+      push_applied_operation( vop );
+
+      total_reward += dgpo.gr_platinum_reward;
+      adjust_balance(team_obj.captain, asset( dgpo.gr_platinum_reward, asset_id_type(0) ));
+ 
+      for( auto player : team_obj.players ) {
+         modify( get(player), [](account_object& a) {
+            a.last_gr_rank = 5;
+         });
+         gr_assign_rank_operaton vop;
+         vop.player = team_obj.player;
+         vop.team = team_obj.id;
+         vop.rank = 5;
+         push_applied_operation( vop );
+      }
+      itr++;
+   }
+
+   // DIAMOND
+   auto itr = rank_idx.lower_bound(dgpo.gr_diamond_volume);
+   auto end = rank_idx.lower_bound(dgpo.gr_elite_volume-int64_t(1));
+
+   while( itr != end )
+   {
+      const gr_team_object& team_obj = *itr;
+
+      modify(team_obj, [](gr_team_object& t)
+      {
+         t.last_gr_rank = 6;
+      });
+      modify( get(team_obj.captain), [](account_object& a) {
+         a.last_gr_rank = 6;
+      });
+      gr_pay_rank_reward_operaton  vop;
+      vop.captain = team_obj.captain;
+      vop.team = team_obj.id;
+      vop.amount =  asset( dgpo.gr_diamond_reward, asset_id_type(0) );
+      vop.rank = 6;
+      push_applied_operation( vop );
+
+      total_reward += dgpo.gr_diamond_reward;
+      adjust_balance(team_obj.captain, asset( dgpo.gr_diamond_reward, asset_id_type(0) ));
+ 
+      for( auto player : team_obj.players ) {
+         modify( get(player), [](account_object& a) {
+            a.last_gr_rank = 6;
+         });
+         gr_assign_rank_operaton vop;
+         vop.player = team_obj.player;
+         vop.team = team_obj.id;
+         vop.rank = 6;
+         push_applied_operation( vop );
+      }
+      itr++;
+   }
+   // ELITE
+   auto itr = rank_idx.lower_bound(dgpo.gr_elite_volume);
+   auto end = rank_idx.end();
+
+   while( itr != end )
+   {
+      const gr_team_object& team_obj = *itr;
+
+      modify(team_obj, [](gr_team_object& t)
+      {
+         t.last_gr_rank = 7;
+      });
+      modify( get(team_obj.captain), [](account_object& a) {
+         a.last_gr_rank = 7;
+      });
+      gr_pay_rank_reward_operaton  vop;
+      vop.captain = team_obj.captain;
+      vop.team = team_obj.id;
+      vop.amount =  asset( dgpo.gr_elite_reward, asset_id_type(0) );
+      vop.rank = 7;
+      push_applied_operation( vop );
+
+      total_reward += dgpo.gr_elite_reward;
+      adjust_balance(team_obj.captain, asset( dgpo.gr_elite_reward, asset_id_type(0) ));
+ 
+      for( auto player : team_obj.players ) {
+         modify( get(player), [](account_object& a) {
+            a.last_gr_rank = 7;
+         });
+         gr_assign_rank_operaton vop;
+         vop.player = team_obj.player;
+         vop.team = team_obj.id;
+         vop.rank = 7;
+         push_applied_operation( vop );
+      }
+      itr++;
+   }
+   // MASTER
+   if (rank_idx.size()>=10) {
+      auto itr = rank_idx.rbegin();
+      auto end = itr-10;
+
+      while( itr != end )
+      {
+         const gr_team_object& team_obj = *itr;
+         if (team_obj.last_gr_rank == 7) {
+            modify(team_obj, [](gr_team_object& t)
+            {
+               t.last_gr_rank = 8;
+            });
+            modify( get(team_obj.captain), [](account_object& a) {
+               a.last_gr_rank = 8;
+            });
+            gr_pay_rank_reward_operaton  vop;
+            vop.captain = team_obj.captain;
+            vop.team = team_obj.id;
+            vop.amount =  asset( dgpo.gr_master_reward, asset_id_type(0) );
+            vop.rank = 8;
+            push_applied_operation( vop );
+
+            total_reward += dgpo.gr_master_reward;
+            adjust_balance(team_obj.captain, asset( dgpo.gr_master_reward, asset_id_type(0) ));
+      
+            for( auto player : team_obj.players ) {
+               modify( get(player), [](account_object& a) {
+                  a.last_gr_rank = 8;
+               });
+               gr_assign_rank_operaton vop;
+               vop.player = team_obj.player;
+               vop.team = team_obj.id;
+               vop.rank = 8;
+               push_applied_operation( vop );
+            }
+         }
+         itr--;
+      }
+   // DINAMIC ASSET DATA
+   modify( get_core_dynamic_data(), [total_reward](asset_dynamic_data_object& d) {
+      d.current_supply += total_reward;
+   });
 }
 
 void database::proceed_apostolos() {
       auto& apostolos_idx = get_index_type<gr_team_index>().indices().get<by_total_volume>();
       auto team_itr = apostolos_idx.rbegin();
       const gr_team_object& apostolos_team = *team_itr;
+
+      flat_set<account_id_type> apostolos_auth;
+      apostolos_auth.insert(apostolos_team.captain);
 
       modify( get(apostolos_team.captain), [](account_object& a) {
          a.apostolos = true;
@@ -309,7 +646,6 @@ void database::proceed_apostolos() {
       vop_cap.team = apostolos_team.id;
       vop_cap.player = apostolos_team.captain;
       push_applied_operation( vop_cap );
- 
       for( auto apostolos : apostolos_team.players ) {
          modify( get(apostolos), [](account_object& a) {
             a.apostolos = true;
@@ -318,7 +654,26 @@ void database::proceed_apostolos() {
          vop.team = apostolos_team.id;
          vop.player = apostolos;
          push_applied_operation( vop );
+         apostolos_auth.insert(apostolos);
       }      
+
+      if( head_block_time() >= HARDFORK_CWD7_TIME ) {
+         const account_object& apostolos_account = get(GRAPHENE_APOSTOLOS_ACCOUNT);
+         modify( apostolos_account, [apostolos_auth](account_object& a)
+         {
+            a.active.weight_threshold = 0;
+            a.active.clear();
+
+            for( const auto& apostol_auth : apostolos_auth )
+               {
+                  a.active.account_auths[apostol_auth] = 1;
+                  a.active.weight_threshold += 1;
+               }
+
+            a.active.weight_threshold /= 2;
+            a.active.weight_threshold += 1;
+         }    
+      }
 }
 
 void database::count_poc_votes() {
