@@ -132,6 +132,24 @@ void database::perform_credit_maintenance()
    }
 }
 
+void database::perform_gr_maintenance()
+{
+   const auto& stats_idx = get_index_type< account_stats_index >().indices().get< by_gr_volume >();
+   auto stats_itr = stats_idx.lower_bound( true );
+
+   while( stats_itr != stats_idx.end() )
+   {
+      const account_statistics_object& acc_stat = *stats_itr;
+      ++stats_itr;
+
+      modify( acc_stat, []( account_statistics_object& aso )
+      {
+         aso.last_period_gr=aso.current_period_gr;
+         aso.current_period_gr=0;
+      } );
+   }
+}
+
 void database::perform_p2p_maintenance()
 {
    const auto& stats_idx = get_index_type< account_stats_index >().indices().get< by_p2p_rating >();
@@ -154,7 +172,7 @@ void database::count_gr_votes() {
    
    const auto& gr_votes_idx = get_index_type< gr_votes_index >().indices().get< by_id >();
    auto votes_itr = gr_votes_idx.begin();
-   auto total_votes = votes_itr.size();
+   auto total_votes = gr_votes_idx.size();
 
    share_type gr_iron_volume = 0;
    share_type gr_bronze_volume = 0;
@@ -222,64 +240,435 @@ void database::proceed_gr_top3() {
    const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
    if (dgpo.current_gr_interval == 2) {
       auto& top3_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_2_volume>();
+      if (top3_idx.size()>=3) {
+         modify( get_core_dynamic_data(), [dgpo](asset_dynamic_data_object& d) {
+            d.current_supply += dgpo.gr_top3_reward * 3;
+         });
+
+         uint8_t count = 0;
+         auto team_itr = top3_idx.rbegin();
+         while( count < 3)
+         {
+            const gr_team_object& team = *team_itr;
+            gr_pay_top_reward_operation vop;
+            vop.captain = team.captain;
+            vop.team = team.id;
+            vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
+            vop.interval = dgpo.current_gr_interval;
+            push_applied_operation( vop );
+            adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+            ++count;
+            --team_itr;
+         }
+      }
    }
    if (dgpo.current_gr_interval == 4) {
       auto& top3_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_4_volume>();
+      if (top3_idx.size()>=3) {
+         modify( get_core_dynamic_data(), [dgpo](asset_dynamic_data_object& d) {
+            d.current_supply += dgpo.gr_top3_reward * 3;
+         });
+
+         uint8_t count = 0;
+         auto team_itr = top3_idx.rbegin();
+         while( count < 3)
+         {
+            const gr_team_object& team = *team_itr;
+            gr_pay_top_reward_operation vop;
+            vop.captain = team.captain;
+            vop.team = team.id;
+            vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
+            vop.interval = dgpo.current_gr_interval;
+            push_applied_operation( vop );
+            adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+            ++count;
+            --team_itr;
+         }
+      }
    }   
    if (dgpo.current_gr_interval == 6) {
       auto& top3_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_6_volume>();
+      if (top3_idx.size()>=3) {
+         modify( get_core_dynamic_data(), [dgpo](asset_dynamic_data_object& d) {
+            d.current_supply += dgpo.gr_top3_reward * 3;
+         });
+
+         uint8_t count = 0;
+         auto team_itr = top3_idx.rbegin();
+         while( count < 3)
+         {
+            const gr_team_object& team = *team_itr;
+            gr_pay_top_reward_operation vop;
+            vop.captain = team.captain;
+            vop.team = team.id;
+            vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
+            vop.interval = dgpo.current_gr_interval;
+            push_applied_operation( vop );
+            adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+            ++count;
+            --team_itr;
+         }
+      }
    }
    if (dgpo.current_gr_interval == 9) {
       auto& top3_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_9_volume>();
+      if (top3_idx.size()>=3) {
+         modify( get_core_dynamic_data(), [dgpo](asset_dynamic_data_object& d) {
+            d.current_supply += dgpo.gr_top3_reward * 3;
+         });
+
+         uint8_t count = 0;
+         auto team_itr = top3_idx.rbegin();
+         while( count < 3)
+         {
+            const gr_team_object& team = *team_itr;
+            gr_pay_top_reward_operation vop;
+            vop.captain = team.captain;
+            vop.team = team.id;
+            vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
+            vop.interval = dgpo.current_gr_interval;
+            push_applied_operation( vop );
+            adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+            ++count;
+            --team_itr;
+         }
+      }
    }
    if (dgpo.current_gr_interval == 11) {
       auto& top3_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_11_volume>();
+      if (top3_idx.size()>=3) {
+         modify( get_core_dynamic_data(), [dgpo](asset_dynamic_data_object& d) {
+            d.current_supply += dgpo.gr_top3_reward * 3;
+         });
+
+         uint8_t count = 0;
+         auto team_itr = top3_idx.rbegin();
+         while( count < 3)
+         {
+            const gr_team_object& team = *team_itr;
+            gr_pay_top_reward_operation vop;
+            vop.captain = team.captain;
+            vop.team = team.id;
+            vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
+            vop.interval = dgpo.current_gr_interval;
+            push_applied_operation( vop );
+            adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+            ++count;
+            --team_itr;
+         }
+      }
    }   
    if (dgpo.current_gr_interval == 13) {
       auto& top3_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_13_volume>();
+      if (top3_idx.size()>=3) {
+         modify( get_core_dynamic_data(), [dgpo](asset_dynamic_data_object& d) {
+            d.current_supply += dgpo.gr_top3_reward * 3;
+         });
+
+         uint8_t count = 0;
+         auto team_itr = top3_idx.rbegin();
+         while( count < 3)
+         {
+            const gr_team_object& team = *team_itr;
+            gr_pay_top_reward_operation vop;
+            vop.captain = team.captain;
+            vop.team = team.id;
+            vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
+            vop.interval = dgpo.current_gr_interval;
+            push_applied_operation( vop );
+            adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+            ++count;
+            --team_itr;
+         }
+      }
+   }
+}
+
+
+void database::proceed_gr_bets() {
+   // COUNT PLACES
+   const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
+   map<gr_team_id_type, uint64_t> rating;
+
+   if (dgpo.current_gr_interval == 2) {
+      auto& team_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_2_volume>();
+      uint64_t place=1;
+      auto team_itr = team_idx.rbegin();
+      while( team_itr != team_idx.rend() )
+      {
+         rating[*team_itr->id]=place;
+         place++;
+         --team_itr;
+      } 
+   }
+   if (dgpo.current_gr_interval == 4) {
+      auto& team_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_4_volume>();
+      uint64_t place=1;
+      auto team_itr = team_idx.rbegin();
+
+      while( team_itr != team_idx.rend() )
+      {
+         rating[*team_itr->id]=place;
+         place++;
+         --team_itr;
+      } 
+   }   
+   if (dgpo.current_gr_interval == 6) {
+      auto& team_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_6_volume>();
+      uint64_t place=1;
+      auto team_itr = team_idx.rbegin();
+
+      while( team_itr != team_idx.rend() )
+      {
+         rating[*team_itr->id]=place;
+         place++;
+         --team_itr;
+      } 
+   }
+   if (dgpo.current_gr_interval == 9) {
+      auto& team_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_9_volume>();
+      uint64_t place=1;
+      auto team_itr = team_idx.rbegin();
+
+      while( team_itr != team_idx.rend() )
+      {
+         rating[*team_itr->id]=place;
+         place++;
+         --team_itr;
+      } 
+   }
+   if (dgpo.current_gr_interval == 11) {
+      auto& team_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_11_volume>();
+      uint64_t place=1;
+      auto team_itr = team_idx.rbegin();
+
+      while( team_itr != team_idx.rend() )
+      {
+         rating[*team_itr->id]=place;
+         place++;
+         --team_itr;
+      } 
+   }   
+   if (dgpo.current_gr_interval == 13) {
+      auto& team_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_13_volume>();
+      uint64_t place=1;
+      auto team_itr = team_idx.rbegin();
+
+      while( team_itr != team_idx.rend() )
+      {
+         rating[*team_itr->id]=place;
+         place++;
+         --team_itr;
+      } 
+   }
+  
+   // GR RANGE BETS Proceed
+   const auto& gr_range_bets_idx = get_index_type< gr_range_bet_index >().indices().get< by_id >();
+
+   auto gr_range_itr = gr_range_bets_idx.begin();
+   share_type accumulated_fee = 0;
+   while( gr_range_itr != gr_range_bets_idx.end() )
+   {
+      const gr_range_bet_object& gr_range = *gr_range_itr;
+      uint64_t place = rating[gr_range.team];
+      if (place >= gr_range.lower_rank && place <= gr_range.upper_rank) { 
+            share_type total_payed=0;          
+            for( auto bet : gr_range.true_bets ) {
+               fc::uint128 prize_part_calc(gr_range.total_prize);
+               prize_part_calc *= bet.second;
+               prize_part_calc /= gr_range.total_true_bets;
+               uint64_t prize_part = prize_part_calc.to_uint64();
+               total_payed+=prize_part;
+               if (prize_part>0) {
+                  gr_range_bet_win_operation vop;
+
+                  vop.gr_range_bet = gr_range.id;
+                  vop.team = gr_range.team;
+                  vop.lower_rank = gr_range.lower_rank;
+                  vop.upper_rank = gr_range.upper_rank;
+                  vop.result = place;
+                  vop.total_bets = gr_range.total_prize;
+                  vop.total_wins = gr_range.total_true_bets;
+                  vop.bettor_part = bet.second;
+                  vop.reward = asset( prize_part, asset_id_type(0) );
+                  vop.bettor = bet.first;
+
+                  push_applied_operation( vop );
+                  adjust_balance(bet.first, asset( prize_part, asset_id_type(0)));
+               }
+            }
+            if (gr_range.total_prize>total_payed) {
+               accumulated_fee+=(gr_range.total_prize-total_payed);
+            }
+            for( auto bet : gr_range.false_bets ) { 
+               gr_range_bet_loose_operation vop;
+               vop.gr_range_bet = gr_range.id;
+               vop.team = gr_range.team;
+               vop.lower_rank = gr_range.lower_rank;
+               vop.upper_rank = gr_range.upper_rank;
+               vop.result = place;
+               vop.bettor = bet.first;
+
+               push_applied_operation( vop );               
+            }
+         }
+      else {
+            share_type total_payed=0;          
+            for( auto bet : gr_range.false_bets ) {
+               fc::uint128 prize_part_calc(gr_range.total_prize);
+               prize_part_calc *= bet.second;
+               prize_part_calc /= gr_range.total_false_bets;
+               uint64_t prize_part = prize_part_calc.to_uint64();
+               total_payed+=prize_part;
+               if (prize_part>0) {
+                  gr_range_bet_win_operation vop;
+
+                  vop.gr_range_bet = gr_range.id;
+                  vop.team = gr_range.team;
+                  vop.lower_rank = gr_range.lower_rank;
+                  vop.upper_rank = gr_range.upper_rank;
+                  vop.result = place;
+                  vop.total_bets = gr_range.total_prize;
+                  vop.total_wins = gr_range.total_false_bets;
+                  vop.bettor_part = bet.second;
+                  vop.reward = asset( prize_part, asset_id_type(0) );
+                  vop.bettor = bet.first;
+
+                  push_applied_operation( vop );
+                  adjust_balance(bet.first, asset( prize_part, asset_id_type(0)));
+               }
+            }
+            if (gr_range.total_prize>total_payed) {
+               accumulated_fee+=(gr_range.total_prize-total_payed);
+            }
+            for( auto bet : gr_range.true_bets ) { 
+               gr_range_bet_loose_operation vop;
+               vop.gr_range_bet = gr_range.id;
+               vop.team = gr_range.team;
+               vop.lower_rank = gr_range.lower_rank;
+               vop.upper_rank = gr_range.upper_rank;
+               vop.result = place;
+               vop.bettor = bet.first;
+
+               push_applied_operation( vop );               
+            }
+      }
+      ++gr_range_itr;
    }
 
-   if (top3_idx.size()>=3) {
-      modify( get_core_dynamic_data(), [dgpo](asset_dynamic_data_object& d) {
-         d.current_supply += dgpo.gr_top3_reward * 3;
-      });
-
-      auto team_itr = top3_idx.rbegin();
-      const gr_team_object& team1 = *team_itr;
-
-      gr_pay_top_reward_operaton vop1;
-      vop1.captain = team1.captain;
-      vop1.team = team1.id;
-      vop1.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
-      vop1.interval = dgpo.current_gr_interval;
-      push_applied_operation( vop1 );
-      adjust_balance(team1.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
-
-      --team_itr;
-
-      const gr_team_object& team2 = *team_itr;
-      gr_pay_top_reward_operaton vop2;
-      vop2.captain = team2.captain;
-      vop2.team = team2.id;
-      vop2.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
-      vop2.interval = dgpo.current_gr_interval;
-      push_applied_operation( vop2 );
-      adjust_balance(team2.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
-
-      --team_itr;
-
-      const gr_team_object& team3 = *team_itr;
-      gr_pay_top_reward_operaton vop3;
-      vop3.captain = team3.captain;
-      vop3.team = team3.id;
-      vop3.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
-      vop3.interval = dgpo.current_gr_interval;
-      push_applied_operation( vop3 );
-      adjust_balance(team3.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
-
+   // REMOVIND RANGE BETS OBJECS
+   while( !gr_range_bets_idx.empty()
+   {
+      const gr_range_bet_object& gr_range = *gr_range_bets_idx.begin();
+      remove(gr_range);
    }
 
+   // GR TEAMS BETS Proceed
+   const auto& gr_team_bets_idx = get_index_type< gr_range_bet_index >().indices().get< by_id >();
 
+   auto gr_team_itr = gr_team_bets_idx.begin();
+   while( gr_team_itr != gr_team_bets_idx.end() )
+   {
+      const gr_team_bet_object& gr_team = *gr_team_itr;
+      uint64_t team1_place = rating[gr_team.team1];
+      uint64_t team2_place = rating[gr_team.team1];
+
+      if (team1_place < team2_place) { 
+            share_type total_payed=0;          
+            for( auto bet : gr_team.team1_bets ) {
+               fc::uint128 prize_part_calc(gr_team.total_prize);
+               prize_part_calc *= bet.second;
+               prize_part_calc /= gr_team.total_team1_bets;
+               uint64_t prize_part = prize_part_calc.to_uint64();
+               total_payed+=prize_part;
+               if (prize_part>0) {
+                  gr_team_bet_win_operation vop;
+                  vop.gr_team_bet = gr_team.id;
+                  vop.team1 = gr_team.team1;
+                  vop.team2 = gr_team.team2;
+                  vop.winner = gr_team.team1;
+                  vop.total_bets = gr_team.total_prize;
+                  vop.total_wins = gr_team.total_team1_bets;
+                  vop.bettor_part = bet.second;
+                  vop.reward = asset( prize_part, asset_id_type(0) );
+                  vop.bettor = bet.first;
+
+                  push_applied_operation( vop );
+                  adjust_balance(bet.first, asset( prize_part, asset_id_type(0)));
+               }
+            }
+            if (gr_team.total_prize>total_payed) {
+               accumulated_fee+=(gr_team.total_prize-total_payed);
+            }
+            for( auto bet : gr_team.team2_bets ) { 
+               gr_team_bet_loose_operation vop;
+               vop.gr_team_bet = gr_team.id;
+               vop.team1 = gr_team.team1;
+               vop.team2 = gr_team.team2;
+               vop.winner = gr_team.team1;
+               vop.bettor = bet.first;
+
+               push_applied_operation( vop );               
+            }
+         }
+      else {
+            share_type total_payed=0;          
+            for( auto bet : gr_team.team2_bets ) {
+               fc::uint128 prize_part_calc(gr_team.total_prize);
+               prize_part_calc *= bet.second;
+               prize_part_calc /= gr_team.total_team2_bets;
+               uint64_t prize_part = prize_part_calc.to_uint64();
+               total_payed+=prize_part;
+               if (prize_part>0) {
+                  gr_team_bet_win_operation vop;
+                  vop.gr_team_bet = gr_team.id;
+                  vop.team1 = gr_team.team1;
+                  vop.team2 = gr_team.team2;
+                  vop.winner = gr_team.team2;
+                  vop.total_bets = gr_team.total_prize;
+                  vop.total_wins = gr_team.total_team2_bets;
+                  vop.bettor_part = bet.second;
+                  vop.reward = asset( prize_part, asset_id_type(0) );
+                  vop.bettor = bet.first;
+
+                  push_applied_operation( vop );
+                  adjust_balance(bet.first, asset( prize_part, asset_id_type(0)));
+               }
+            }
+            if (gr_team.total_prize>total_payed) {
+               accumulated_fee+=(gr_team.total_prize-total_payed);
+            }
+            for( auto bet : gr_team.team1_bets ) { 
+               gr_team_bet_loose_operation vop;
+               vop.gr_team_bet = gr_team.id;
+               vop.team1 = gr_team.team1;
+               vop.team2 = gr_team.team2;
+               vop.winner = gr_team.team2;
+               vop.bettor = bet.first;
+
+               push_applied_operation( vop );               
+            }
+      }
+      ++gr_team_itr;
+   }
+   while( !gr_team_bets_idx.empty()
+   {
+      const gr_team_bet_object& gr_team = *gr_team_bets_idx.begin();
+      remove(gr_team);
+   }
+
+   modify(asset_dynamic_data_id_type()(d), [accumulated_fee](asset_dynamic_data_object &addo) {
+      addo.accumulated_fees += accumulated_fee;
+   });
+}
+
+void database::clear_gr_invite() {
+   const auto& gr_invite_idx = get_index_type< gr_invite_index >().indices().get< by_id >();
+   while( !gr_invite_idx.empty()
+   {
+      const gr_invite_object& gr_invite = *gr_invite_idx.begin();
+      remove(gr_invite);
+   }
 }
 
 void database::reset_gr_rank() {
@@ -302,10 +691,10 @@ void database::reset_gr_rank() {
 
    while( team_itr != team_idx.end() )
    {
-      const account_object& acc = *team_itr;
+      const gr_team_object& team = *team_itr;
       ++team_itr;
 
-      modify( acc, []( gr_team_object& t )
+      modify( team, []( gr_team_object& t )
       {
          t.last_gr_rank=0;
       });
@@ -337,7 +726,7 @@ void database::proceed_gr_rank() {
       modify( get(team_obj.captain), [](account_object& a) {
          a.last_gr_rank = 1;
       });
-      gr_pay_rank_reward_operaton  vop;
+      gr_pay_rank_reward_operation  vop;
       vop.captain = team_obj.captain;
       vop.team = team_obj.id;
       vop.amount =  asset( dgpo.gr_iron_reward, asset_id_type(0) );
@@ -351,7 +740,7 @@ void database::proceed_gr_rank() {
          modify( get(player), [](account_object& a) {
             a.last_gr_rank = 1;
          });
-         gr_assign_rank_operaton vop;
+         gr_assign_rank_operation vop;
          vop.player = team_obj.player;
          vop.team = team_obj.id;
          vop.rank = 1;
@@ -375,7 +764,7 @@ void database::proceed_gr_rank() {
       modify( get(team_obj.captain), [](account_object& a) {
          a.last_gr_rank = 2;
       });
-      gr_pay_rank_reward_operaton  vop;
+      gr_pay_rank_reward_operation  vop;
       vop.captain = team_obj.captain;
       vop.team = team_obj.id;
       vop.amount =  asset( dgpo.gr_bronze_reward, asset_id_type(0) );
@@ -389,7 +778,7 @@ void database::proceed_gr_rank() {
          modify( get(player), [](account_object& a) {
             a.last_gr_rank = 2;
          });
-         gr_assign_rank_operaton vop;
+         gr_assign_rank_operation vop;
          vop.player = team_obj.player;
          vop.team = team_obj.id;
          vop.rank = 2;
@@ -413,7 +802,7 @@ void database::proceed_gr_rank() {
       modify( get(team_obj.captain), [](account_object& a) {
          a.last_gr_rank = 3;
       });
-      gr_pay_rank_reward_operaton  vop;
+      gr_pay_rank_reward_operation  vop;
       vop.captain = team_obj.captain;
       vop.team = team_obj.id;
       vop.amount =  asset( dgpo.gr_silver_reward, asset_id_type(0) );
@@ -427,7 +816,7 @@ void database::proceed_gr_rank() {
          modify( get(player), [](account_object& a) {
             a.last_gr_rank = 3;
          });
-         gr_assign_rank_operaton vop;
+         gr_assign_rank_operation vop;
          vop.player = team_obj.player;
          vop.team = team_obj.id;
          vop.rank = 3;
@@ -451,7 +840,7 @@ void database::proceed_gr_rank() {
       modify( get(team_obj.captain), [](account_object& a) {
          a.last_gr_rank = 4;
       });
-      gr_pay_rank_reward_operaton  vop;
+      gr_pay_rank_reward_operation  vop;
       vop.captain = team_obj.captain;
       vop.team = team_obj.id;
       vop.amount =  asset( dgpo.gr_gold_reward, asset_id_type(0) );
@@ -465,7 +854,7 @@ void database::proceed_gr_rank() {
          modify( get(player), [](account_object& a) {
             a.last_gr_rank = 4;
          });
-         gr_assign_rank_operaton vop;
+         gr_assign_rank_operation vop;
          vop.player = team_obj.player;
          vop.team = team_obj.id;
          vop.rank = 4;
@@ -489,7 +878,7 @@ void database::proceed_gr_rank() {
       modify( get(team_obj.captain), [](account_object& a) {
          a.last_gr_rank = 5;
       });
-      gr_pay_rank_reward_operaton  vop;
+      gr_pay_rank_reward_operation  vop;
       vop.captain = team_obj.captain;
       vop.team = team_obj.id;
       vop.amount =  asset( dgpo.gr_platinum_reward, asset_id_type(0) );
@@ -503,7 +892,7 @@ void database::proceed_gr_rank() {
          modify( get(player), [](account_object& a) {
             a.last_gr_rank = 5;
          });
-         gr_assign_rank_operaton vop;
+         gr_assign_rank_operation vop;
          vop.player = team_obj.player;
          vop.team = team_obj.id;
          vop.rank = 5;
@@ -527,7 +916,7 @@ void database::proceed_gr_rank() {
       modify( get(team_obj.captain), [](account_object& a) {
          a.last_gr_rank = 6;
       });
-      gr_pay_rank_reward_operaton  vop;
+      gr_pay_rank_reward_operation  vop;
       vop.captain = team_obj.captain;
       vop.team = team_obj.id;
       vop.amount =  asset( dgpo.gr_diamond_reward, asset_id_type(0) );
@@ -541,7 +930,7 @@ void database::proceed_gr_rank() {
          modify( get(player), [](account_object& a) {
             a.last_gr_rank = 6;
          });
-         gr_assign_rank_operaton vop;
+         gr_assign_rank_operation vop;
          vop.player = team_obj.player;
          vop.team = team_obj.id;
          vop.rank = 6;
@@ -564,7 +953,7 @@ void database::proceed_gr_rank() {
       modify( get(team_obj.captain), [](account_object& a) {
          a.last_gr_rank = 7;
       });
-      gr_pay_rank_reward_operaton  vop;
+      gr_pay_rank_reward_operation  vop;
       vop.captain = team_obj.captain;
       vop.team = team_obj.id;
       vop.amount =  asset( dgpo.gr_elite_reward, asset_id_type(0) );
@@ -578,7 +967,7 @@ void database::proceed_gr_rank() {
          modify( get(player), [](account_object& a) {
             a.last_gr_rank = 7;
          });
-         gr_assign_rank_operaton vop;
+         gr_assign_rank_operation vop;
          vop.player = team_obj.player;
          vop.team = team_obj.id;
          vop.rank = 7;
@@ -602,7 +991,7 @@ void database::proceed_gr_rank() {
             modify( get(team_obj.captain), [](account_object& a) {
                a.last_gr_rank = 8;
             });
-            gr_pay_rank_reward_operaton  vop;
+            gr_pay_rank_reward_operation  vop;
             vop.captain = team_obj.captain;
             vop.team = team_obj.id;
             vop.amount =  asset( dgpo.gr_master_reward, asset_id_type(0) );
@@ -616,7 +1005,7 @@ void database::proceed_gr_rank() {
                modify( get(player), [](account_object& a) {
                   a.last_gr_rank = 8;
                });
-               gr_assign_rank_operaton vop;
+               gr_assign_rank_operation vop;
                vop.player = team_obj.player;
                vop.team = team_obj.id;
                vop.rank = 8;
@@ -642,7 +1031,7 @@ void database::proceed_apostolos() {
       modify( get(apostolos_team.captain), [](account_object& a) {
          a.apostolos = true;
       });
-      gr_apostolos_operaton vop_cap;
+      gr_apostolos_operation vop_cap;
       vop_cap.team = apostolos_team.id;
       vop_cap.player = apostolos_team.captain;
       push_applied_operation( vop_cap );
@@ -650,7 +1039,7 @@ void database::proceed_apostolos() {
          modify( get(apostolos), [](account_object& a) {
             a.apostolos = true;
          });
-         gr_apostolos_operaton vop;
+         gr_apostolos_operation vop;
          vop.team = apostolos_team.id;
          vop.player = apostolos;
          push_applied_operation( vop );
@@ -674,6 +1063,27 @@ void database::proceed_apostolos() {
             a.active.weight_threshold += 1;
          }    
       }
+}
+
+void database::reset_gr_volumes() {
+   const auto& team_idx = get_index_type< gr_team_index >().indices().get< by_total_volume >();
+   auto team_itr = team_idx.lower_bound( 1 );
+
+   while( team_itr != team_idx.end() )
+   {
+      const account_object& team = *team_itr;
+      ++team_itr;
+
+      modify( team, []( gr_team_object& t )
+      {
+         t.gr_interval_2_volume = 0;
+         t.gr_interval_4_volume = 0;
+         t.gr_interval_6_volume = 0;
+         t.gr_interval_9_volume = 0;
+         t.gr_interval_11_volume = 0;
+         t.gr_interval_13_volume = 0;
+      });
+   }
 }
 
 void database::count_poc_votes() {
@@ -1963,6 +2373,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    auto next_gr_interval_time = dgpo.next_gr_interval_time;
    auto end_gr_vote_time = dgpo.end_gr_vote_time;
    auto gr_vote_is_active = dgpo.gr_vote_is_active;
+   auto gr_bet_interval_time = dgpo.next_gr_interval_time;
 
    if( next_gr_interval_time <= next_block.timestamp )
    {
@@ -1973,10 +2384,14 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          end_gr_vote_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(gpo.greatrace_parameters.vote_duration);
          proceed_gr_rank();
          proceed_apostolos();
+         reset_gr_volumes();
+         perform_gr_maintenance();
       }
       if( current_gr_interval == 1 ) {
          current_gr_interval = 2;
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_2/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_2);
+         clear_gr_invite();
       }
       if( current_gr_interval == 2 ) {
          current_gr_interval = 3;
@@ -1985,7 +2400,9 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       }
       if( current_gr_interval == 3 ) {
          current_gr_interval = 4;
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_4/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_4);
+         clear_gr_invite();
       }
       if( current_gr_interval == 4 ) {
          current_gr_interval = 5;
@@ -1994,7 +2411,9 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       }
       if( current_gr_interval == 5 ) {
          current_gr_interval = 6;
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_6/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_6);
+         clear_gr_invite();
       }
       if( current_gr_interval == 6 ) {
          current_gr_interval = 7;
@@ -2005,10 +2424,13 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          current_gr_interval = 8;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_8);
          proceed_gr_rank();
+         perform_gr_maintenance();
       }
       if( current_gr_interval == 8 ) {
          current_gr_interval = 9;
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_9/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_9);
+         clear_gr_invite();
       }
       if( current_gr_interval == 9 ) {
          current_gr_interval = 10;
@@ -2017,7 +2439,9 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       }
       if( current_gr_interval == 10 ) {
          current_gr_interval = 11;
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_11/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_11);
+         clear_gr_invite();
       }
       if( current_gr_interval == 11 ) {
          current_gr_interval = 12;
@@ -2026,7 +2450,9 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       }
       if( current_gr_interval == 12 ) {
          current_gr_interval = 13;
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_13/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_13);
+         clear_gr_invite();
       }
       if( current_gr_interval == 13 ) {
          current_gr_interval = 14;
@@ -2084,7 +2510,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    if( (dgpo.next_maintenance_time <= HARDFORK_CORE_935_TIME) && (next_maintenance_time > HARDFORK_CORE_935_TIME)
          && !to_update_and_match_call_orders )
       process_hf_935( *this );
-   modify(dgpo, [next_maintenance_time, next_monthly_maintenance_time, next_poc_vote_time, end_poc_vote_time, poc_vote_is_active, current_gr_interval, next_gr_interval_time, end_gr_vote_time, gr_vote_is_active](dynamic_global_property_object& d) {
+   modify(dgpo, [next_maintenance_time, next_monthly_maintenance_time, next_poc_vote_time, end_poc_vote_time, poc_vote_is_active, current_gr_interval, next_gr_interval_time, end_gr_vote_time, gr_vote_is_active, gr_bet_interval_time](dynamic_global_property_object& d) {
       d.next_maintenance_time = next_maintenance_time;
       d.accounts_registered_this_interval = 0;
       d.next_monthly_maintenance_time = next_monthly_maintenance_time;
@@ -2095,6 +2521,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       d.next_gr_interval_time = next_gr_interval_time;
       d.end_gr_vote_time = end_gr_vote_time;
       d.gr_vote_is_active = gr_vote_is_active;
+      d.gr_bet_interval_time = gr_bet_interval_time;
    });
 
    // We need to do it after updated next_maintenance_time, to apply new rules here

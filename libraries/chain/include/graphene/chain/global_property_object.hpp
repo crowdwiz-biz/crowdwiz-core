@@ -96,6 +96,7 @@ namespace graphene { namespace chain {
          // Great Race parameters
          uint8_t           current_gr_interval = 0; // from 0 to 14
          time_point_sec    next_gr_interval_time = fc::time_point_sec(1601078400); // GR start time
+         time_point_sec    gr_bet_interval_time = fc::time_point_sec(1601078400); // GR start time
          time_point_sec    end_gr_vote_time = fc::time_point_sec();
          bool              gr_vote_is_active = false;
 
@@ -184,6 +185,7 @@ FC_REFLECT_DERIVED( graphene::chain::dynamic_global_property_object, (graphene::
                     (poc12_percent)
                     (current_gr_interval)
                     (next_gr_interval_time)
+                    (gr_bet_interval_time)
                     (end_gr_vote_time)
                     (gr_vote_is_active)
                     (gr_iron_volume)

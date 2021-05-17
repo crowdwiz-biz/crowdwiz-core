@@ -132,6 +132,71 @@ namespace graphene { namespace chain {
 	> gr_votes_multi_index_type;
 	using gr_votes_index = generic_index<gr_votes_object, gr_votes_multi_index_type>;	
 
+	class gr_range_bet_object : public abstract_object<gr_range_bet_object>
+	{
+		public:
+			static const uint8_t space_id = protocol_ids;
+			static const uint8_t type_id = gr_range_bet_object_type;
+
+			gr_team_id_type team;
+			uint8_t lower_rank;
+			uint8_t upper_rank;
+			share_type total_prize;
+			share_type total_true_bets;
+			share_type total_false_bets;
+
+			map<account_id_type, share_type> true_bets;
+			map<account_id_type, share_type> false_bets;
+	
+	};
+
+	struct by_id;
+	struct by_bet;
+
+	typedef multi_index_container<
+		gr_range_bet_object,
+		indexed_by<
+		ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
+		ordered_unique< tag<by_bet>,
+			composite_key< gr_range_bet_object,
+			member< gr_range_bet_object, gr_team_id_type, &gr_range_bet_object::team>,
+			member< gr_range_bet_object, uint8_t, &gr_range_bet_object::lower_rank>,
+			member< gr_range_bet_object, uint8_t, &gr_range_bet_object::upper_rank>
+			>
+		>
+	> gr_range_bet_multi_index_type;
+	using gr_range_bet_index = generic_index<gr_range_bet_object, gr_range_bet_multi_index_type>;
+
+	class gr_team_bet_object : public abstract_object<gr_team_bet_object>
+	{
+		public:
+			static const uint8_t space_id = protocol_ids;
+			static const uint8_t type_id = gr_team_bet_object_type;
+
+			gr_team_id_type team1;
+			gr_team_id_type team2;
+			share_type total_prize;
+			share_type total_team1_bets;
+			share_type total_team2_bets;
+			map<account_id_type, share_type> team1_bets;
+			map<account_id_type, share_type> team2_bets;
+	};
+
+	struct by_id;
+	struct by_bet;
+
+	typedef multi_index_container<
+		gr_team_bet_object,
+		indexed_by<
+		ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
+		ordered_unique< tag<by_bet>,
+			composite_key< gr_team_bet_object,
+			member< gr_team_bet_object, gr_team_id_type, &gr_team_bet_object::team1>,
+			member< gr_team_bet_object, gr_team_id_type, &gr_team_bet_object::team2>
+			>
+		>
+	> gr_team_bet_multi_index_type;
+	using gr_team_bet_index = generic_index<gr_team_bet_object, gr_team_bet_multi_index_type>;
 } } // graphene::chain
 
 FC_REFLECT_DERIVED(graphene::chain::gr_team_object,
@@ -175,4 +240,27 @@ FC_REFLECT_DERIVED(graphene::chain::gr_votes_object,
 					(gr_diamond_reward)
 					(gr_elite_reward)
 					(gr_master_reward)
+)
+
+FC_REFLECT_DERIVED(graphene::chain::gr_range_bet_object,
+					(graphene::db::object),
+					(team)
+					(lower_rank)
+					(upper_rank)
+					(total_prize)
+					(total_true_bets)
+					(total_false_bets)
+					(true_bets)
+					(false_bets)
+)
+
+FC_REFLECT_DERIVED(graphene::chain::gr_team_bet_object,
+					(graphene::db::object),
+					(team1)
+					(team2)
+					(total_prize)
+					(total_team1_bets)
+					(total_team2_bets)
+					(team1_bets)
+					(team2_bets)
 )

@@ -86,6 +86,11 @@ class account_statistics_object : public graphene::db::abstract_object<account_s
       return (first_month_income > 0 || second_month_income > 0 || third_month_income > 0 || current_month_income > 0);
    }
 
+   inline bool has_gr_volume() const
+   {
+      return (last_period_gr > 0 || current_period_gr > 0 );
+   }
+
    inline bool has_p2p_rating() const
    {
       return (p2p_first_month_rating > 0 || p2p_current_month_rating > 0);
@@ -158,8 +163,8 @@ class account_statistics_object : public graphene::db::abstract_object<account_s
    share_type current_month_income = 0;
 
    // great race first line stats
-   share_type first_month_gr = 0;
-   share_type current_month_gr = 0;
+   share_type last_period_gr = 0;
+   share_type current_period_gr = 0;
 
    // credit parameters
    share_type total_credit = 0;
@@ -530,6 +535,7 @@ struct by_owner;
 struct by_creditor;
 struct by_maintenance_seq;
 struct by_network_income;
+struct by_gr_volume;
 struct by_poc_vote;
 struct by_p2p_rating;
 /**
@@ -552,6 +558,11 @@ typedef multi_index_container<
                        composite_key<
                            account_statistics_object,
                            const_mem_fun<account_statistics_object, bool, &account_statistics_object::has_network_income>,
+                           member<account_statistics_object, string, &account_statistics_object::name>>>,
+        ordered_unique<tag<by_gr_volume>,
+                       composite_key<
+                           account_statistics_object,
+                           const_mem_fun<account_statistics_object, bool, &account_statistics_object::has_gr_volume>,
                            member<account_statistics_object, string, &account_statistics_object::name>>>,
         ordered_unique<tag<by_poc_vote>,
                        composite_key<
@@ -617,8 +628,8 @@ FC_REFLECT_DERIVED(graphene::chain::account_statistics_object,
                    (second_month_income)
                    (third_month_income)
                    (current_month_income)
-                   (first_month_gr)
-                   (current_month_gr)
+                   (last_period_gr)
+                   (current_period_gr)
                    (total_credit)
                    (allowed_to_repay)
                    (credit_repaid)

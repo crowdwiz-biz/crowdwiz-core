@@ -518,9 +518,14 @@ namespace graphene { namespace chain {
          void count_poc_votes();
          void count_gr_votes();
          void proceed_gr_top3();
+         void proceed_gr_bets();
          void reset_gr_rank();
          void proceed_gr_rank();
          void proceed_apostolos();
+         void reset_gr_volumes();
+         void perform_gr_maintenance();
+         void clear_gr_invite();
+
  
          ///@}
          ///@}

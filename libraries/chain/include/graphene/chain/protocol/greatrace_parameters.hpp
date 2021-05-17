@@ -27,6 +27,8 @@ namespace graphene
 			uint16_t	interval_12 		= 7;
 			uint16_t	interval_13 		= 21;
 			uint16_t	interval_14 		= 7; 
+			uint16_t	apostolos_reward 	= (GRAPHENE_1_PERCENT)*1; 
+
 		};
 	} } // namespace graphene::chain
 
@@ -50,4 +52,5 @@ FC_REFLECT(graphene::chain::greatrace_chain_parameters,
 	(interval_12)
 	(interval_13)
 	(interval_14)
+	(apostolos_reward)
 )

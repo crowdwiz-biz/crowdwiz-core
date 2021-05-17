@@ -68,5 +68,20 @@ class gr_vote_evaluator : public evaluator<gr_vote_evaluator>
          object_id_type do_apply( const gr_vote_operation& o );
    };
 
+class gr_range_bet_evaluator : public evaluator<gr_range_bet_evaluator>
+   {
+      public:
+         typedef gr_range_bet_operation operation_type;
 
+         void_result do_evaluate( const gr_range_bet_operation& o );
+         object_id_type do_apply( const gr_range_bet_operation& o );      
+   }
+class gr_team_bet_evaluator : public evaluator<gr_team_bet_evaluator>
+   {
+      public:
+         typedef gr_team_bet_operation operation_type;
+
+         void_result do_evaluate( const gr_team_bet_operation& o );
+         object_id_type do_apply( const gr_team_bet_operation& o );
+   }
 } } // graphene::chain 

@@ -35,6 +35,7 @@ namespace graphene
 			ref_amount.asset_id=asset_id_type();
 			ref_amount.amount=0;
 			const global_property_object& gpo = d.get_global_properties();
+			const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
 			const auto& poc_params = gpo.staking_parameters;
 			const account_statistics_object& stats = acc_ref.statistics(d);
 
@@ -69,6 +70,44 @@ namespace graphene
 				}
 			}
 			if (ref_amount.amount>0) {
+					//GR_REWARD
+					if (  level == 1 && (dgpo.current_gr_interval == 2  ||
+							dgpo.current_gr_interval == 4  ||
+							dgpo.current_gr_interval == 6  ||
+							dgpo.current_gr_interval == 9  ||
+							dgpo.current_gr_interval == 11 ||
+							dgpo.current_gr_interval == 13)
+						)
+						{
+							d.modify(d.get(account.statistics), [&](account_statistics_object &s) {
+								s.current_period_gr += ref_amount;
+							});
+
+							if (account.gr_team.valid()) {
+								d.modify(d.get(account.gr_team), [&](gr_team_object &t) {
+									if (dgpo.current_gr_interval == 2) {
+										t.gr_interval_2_volume += ref_amount;
+									}
+									if (dgpo.current_gr_interval == 4) {
+										t.gr_interval_4_volume += ref_amount;
+									}
+									if (dgpo.current_gr_interval == 6) {
+										t.gr_interval_6_volume += ref_amount;
+									}
+									if (dgpo.current_gr_interval == 9) {
+										t.gr_interval_9_volume += ref_amount;
+									}
+									if (dgpo.current_gr_interval == 11) {
+										t.gr_interval_11_volume += ref_amount;
+									}
+									if (dgpo.current_gr_interval == 13) {
+										t.gr_interval_13_volume += ref_amount;
+									}
+								});       
+							}
+						}
+
+
 				asset credit_ref_amount;
 				credit_ref_amount.asset_id=asset_id_type();
 				credit_ref_amount.amount=ref_amount.amount;
@@ -348,7 +387,17 @@ namespace graphene
 				d.modify(asset_dynamic_data_id_type()(d), [gcwd_amount](asset_dynamic_data_object &addo) {
 					addo.accumulated_fees += gcwd_amount;
 				});
+				// APOSTOLOS REWARD
+				if (d.head_block_time() >= HARDFORK_CWD7_TIME)
+				{
+					const auto& gr_params = gpo.greatrace_parameters;
+					share_type apostolos_amount;
+					apostolos_amount=staking_reward(op.stak_amount.amount,gr_params.apostolos_reward);
+					current_supply_increase+=apostolos_amount;
 
+					const account_object& apostolos_account = d.get(GRAPHENE_APOSTOLOS_ACCOUNT);
+					d.deposit_cashback(apostolos_account,apostolos_amount,false,false);
+				}
 				// INCREASE CWD CURRENT SUPPLY 
 				d.modify( asset_dynamic_data_id_type()(d), [current_supply_increase]( asset_dynamic_data_object& dd ) {
 					dd.current_supply += current_supply_increase;

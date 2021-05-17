@@ -153,6 +153,8 @@ namespace graphene { namespace chain {
       gr_team_object_type, //GREATRACE
       gr_invite_object_type,
       gr_votes_object_type,
+      gr_range_bet_object_type,
+      gr_team_bet_object_type,
       OBJECT_TYPE_COUNT ///< Sentry value which contains the number of different object types
    };
 
@@ -235,6 +237,8 @@ namespace graphene { namespace chain {
    typedef object_id< protocol_ids, gr_team_object_type,            gr_team_object>               gr_team_id_type;
    typedef object_id< protocol_ids, gr_invite_object_type,          gr_invite_object>             gr_invite_id_type;
    typedef object_id< protocol_ids, gr_votes_object_type,           gr_votes_object>              gr_votes_id_type;
+   typedef object_id< protocol_ids, gr_range_bet_object_type,       gr_range_bet_object>          gr_range_bet_id_type;
+   typedef object_id< protocol_ids, gr_team_bet_object_type,        gr_team_bet_object>           gr_team_bet_id_type;
 
 
    // implementation types
@@ -405,6 +409,8 @@ FC_REFLECT_ENUM( graphene::chain::object_type,
                  (gr_team_object_type)
                  (gr_invite_object_type)
                  (gr_votes_object_type)
+                 (gr_range_bet_object_type)
+                 (gr_team_bet_object_type)
                  (OBJECT_TYPE_COUNT)
                )
 FC_REFLECT_ENUM( graphene::chain::impl_object_type,

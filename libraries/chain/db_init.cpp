@@ -168,6 +168,10 @@ const uint8_t gr_invite_object::space_id;
 const uint8_t gr_invite_object::type_id;
 const uint8_t gr_votes_object::space_id;
 const uint8_t gr_votes_object::type_id;
+const uint8_t gr_range_bet_object::space_id;
+const uint8_t gr_range_bet_object::type_id;
+const uint8_t gr_team_bet_object::space_id;
+const uint8_t gr_team_bet_object::type_id;
 void database::initialize_evaluators()
 {
    _operation_evaluators.resize(255);
@@ -265,6 +269,8 @@ void database::initialize_evaluators()
    register_evaluator<gr_player_remove_evaluator>();
    register_evaluator<gr_team_leave_evaluator>();
    register_evaluator<gr_vote_evaluator>();
+   register_evaluator<gr_range_bet_evaluator>();
+   register_evaluator<gr_team_bet_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -308,6 +314,8 @@ void database::initialize_indexes()
    add_index< primary_index<gr_team_index> >(); //GREAT RACE
    add_index< primary_index<gr_invite_index> >(); //GREAT RACE
    add_index< primary_index<gr_votes_index> >(); //GREAT RACE
+   add_index< primary_index<gr_range_bet_index> >(); //GREAT RACE
+   add_index< primary_index<gr_team_bet_index> >(); //GREAT RACE
 
    //Implementation object indexes
    add_index< primary_index<transaction_index                             > >();

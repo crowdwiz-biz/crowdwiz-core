@@ -58,10 +58,10 @@ object_id_type gr_team_create_evaluator::do_apply(const gr_team_create_operation
         const account_object& captain = op.captain(d);
 
         const auto& new_gr_team_object = d.create<gr_team_object>([&](gr_team_object &obj) {
-            obj.captain = op.captain
-            obj.name = op.name
-            obj.description = op.description
-            obj.logo = op.logo
+            obj.captain = op.captain;
+            obj.name = op.name;
+            obj.description = op.description;
+            obj.logo = op.logo;
         });
 
         d.modify(*captain, [&](account_object& a) {
@@ -150,6 +150,7 @@ void_result gr_invite_send_evaluator::do_evaluate(const gr_invite_send_operation
         FC_ASSERT( team.captain == op.captain, "You are not captain of this team!" );
         FC_ASSERT( team.players.size() < 11, "You team is full!" );
         FC_ASSERT( team.players.find( op.player ) == team.players.end(), "Player already in team!");
+        FC_ASSERT( !player.gr_team.valid(), "Player in other team!" );
     	return void_result();
     }
     FC_CAPTURE_AND_RETHROW((op))
@@ -160,9 +161,9 @@ object_id_type gr_invite_send_evaluator::do_apply(const gr_invite_send_operation
     {
         database& d = db();
         const auto& new_gr_invite_object = d.create<gr_invite_object>([&](gr_invite_object &obj) {
-            obj.captain = op.captain
-            obj.player = op.player
-            obj.team = op.team
+            obj.captain = op.captain;
+            obj.player = op.player;
+            obj.team = op.team;
         });
         
         return new_gr_invite_object.id;
@@ -375,6 +376,189 @@ object_id_type gr_vote_evaluator::do_apply(const gr_vote_operation &op)
 
 
         return new_gr_votes_object.id;
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+
+/* -----------------------------
+ *  GR BETTING
+ */
+
+void_result gr_range_bet_evaluator::do_evaluate(const gr_range_bet_operation &op)
+{
+    try
+    {
+    	database& d = db();
+        const auto& gr_team_idx = d.get_index_type<gr_team_index>().indices().get<by_id>();
+        const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
+        FC_ASSERT(d.head_block_time() <= dgpo.gr_bet_interval_time, "All bets are off now");
+        const account_object& bettor = op.bettor(d);
+        const asset_object& asset_type  = op.bet.asset_id(d);
+        const gr_team_object& gr_team  = op.team(d);
+        FC_ASSERT(op.lower_rank<=gr_team_idx.size(), "Lower rank must by lower than total GR teams");
+        FC_ASSERT(asset_type.symbol == "CWD", "Bet must be in CWD");
+		bool insufficient_balance = d.get_balance( bettor, asset_type ).amount >= op.bet.amount;
+		FC_ASSERT(insufficient_balance, "Insufficient balance");
+    	return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+object_id_type gr_range_bet_evaluator::do_apply(const gr_range_bet_operation &op)
+{
+    try
+    {
+        const database& d = db();
+        const auto& by_bet_idx = d.get_index_type<gr_range_bet_index>().indices().get<by_bet>();
+        auto itr = by_bet_idx.equal_range(boost::make_tuple( op.team, op.lower_rank, op.upper_rank ));
+        if (itr.first != by_bet_idx.end) {
+            d.modify( *itr, [&](gr_range_bet_object& gr_bet) {
+                if (op.result == true) {
+                    if (gr_bet.true_bets.count(op.bettor) > 0) {
+                        gr_bet.true_bets[op.bettor]+=op.bet.amount;
+                    }
+                    else{
+                        gr_bet.true_bets.emplace(op.bettor,op.bet.amount);
+                    }  
+                    gr_bet.total_true_bets+=op.bet.amount;
+                }
+                else{
+                    if (gr_bet.false_bets.count(op.bettor) > 0) {
+                        gr_bet.false_bets[op.bettor]+=op.bet.amount;
+                    }
+                    else{
+                        gr_bet.false_bets.emplace(op.bettor,op.bet.amount);
+                    }  
+                    gr_bet.total_false_bets+=op.bet.amount;
+                }
+                obj.total_prize += op.bet.amount;
+
+            });
+            
+            d.adjust_balance( op.bettor, -op.bet );
+            return itr->id;
+        }
+        else {
+            const auto& new_gr_range_bet_object = d.create<gr_range_bet_object>([&](gr_range_bet_object &obj) {
+                obj.team = op.team;
+                obj.lower_rank = op.lower_rank;
+                obj.upper_rank = op.upper_rank;
+                obj.total_prize = op.bet.amount;
+                if (op.result == true) {
+                    obj.true_bets.emplace(op.bettor,op.bet.amount);
+                    obj.total_true_bets=op.bet.amount;
+                }
+                else{
+                    obj.false_bets.emplace(op.bettor,op.bet.amount);
+                    obj.total_false_bets=op.bet.amount;
+                }
+            });
+            d.adjust_balance( op.bettor, -op.bet );
+            return new_gr_range_bet_object.id;
+        }
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+
+void_result gr_team_bet_evaluator::do_evaluate(const gr_team_bet_operation &op)
+{
+    try
+    {
+    	database& d = db();
+        const auto& gr_team_idx = d.get_index_type<gr_team_index>().indices().get<by_id>();
+        const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
+        FC_ASSERT(d.head_block_time() <= dgpo.gr_bet_interval_time, "All bets are off now");
+        const account_object& bettor = op.bettor(d);
+        const asset_object& asset_type  = op.bet.asset_id(d);
+        const gr_team_object& gr_team1  = op.team1(d);
+        const gr_team_object& gr_team2  = op.team2(d);
+        FC_ASSERT(op.winner == op.team1 || op.winner == op.team2, "Winner must be one of the bets teams");
+        FC_ASSERT(asset_type.symbol == "CWD", "Bet must be in CWD");
+		bool insufficient_balance = d.get_balance( bettor, asset_type ).amount >= op.bet.amount;
+		FC_ASSERT(insufficient_balance, "Insufficient balance");
+    	return void_result();
+    }
+    FC_CAPTURE_AND_RETHROW((op))
+}
+object_id_type gr_team_bet_evaluator::do_apply(const gr_team_bet_operation &op)
+{
+    try
+    {
+        const database& d = db();
+        const auto& by_bet_idx = d.get_index_type<gr_team_bet_index>().indices().get<by_bet>();
+        auto itr = by_bet_idx.equal_range(boost::make_tuple( op.team1, op.team2 ));
+        if (itr.first != by_bet_idx.end) {
+            d.modify( *itr, [&](gr_team_bet_object& gr_bet) {
+                if (op.winner == op.team1) {
+                    if (gr_bet.team1_bets.count(op.bettor) > 0) {
+
+                        gr_bet.team1_bets[op.bettor]+=op.bet.amount;
+                    }
+                    else {
+                        gr_bet.team1_bets.emplace(op.bettor,op.bet.amount);
+                    }
+                    gr_bet.total_team1_bets+=op.bet.amount;
+
+                }
+                else {
+                    if (gr_bet.team2_bets.count(op.bettor) > 0) {
+                        gr_bet.team2_bets[op.bettor]+=op.bet.amount;
+                    }
+                    else {
+                        gr_bet.team2_bets.emplace(op.bettor,op.bet.amount);
+                    }
+                    gr_bet.total_team2_bets+=op.bet.amount;         
+                }
+            });
+
+            gr_bet.total_prize += op.bet.amount;
+            d.adjust_balance( op.bettor, -op.bet );
+            return itr->id;
+        }
+        else {
+            auto itr2 = by_bet_idx.equal_range(boost::make_tuple( op.team2, op.team1 ));
+            if (itr2.first != by_bet_idx.end) {
+                d.modify( *itr2, [&](gr_team_bet_object& gr_bet) {
+                    if (op.winner == op.team1) {
+                        if (gr_bet.team1_bets.count(op.bettor) > 0) {
+
+                            gr_bet.team1_bets[op.bettor]+=op.bet.amount;
+                        }
+                        else {
+                            gr_bet.team1_bets.emplace(op.bettor,op.bet.amount);
+                        }
+                        gr_bet.total_team1_bets+=op.bet.amount;
+                    }
+                    else {
+                        if (gr_bet.team2_bets.count(op.bettor) > 0) {
+                            gr_bet.team2_bets[op.bettor]+=op.bet.amount;
+                        }
+                        else {
+                            gr_bet.team2_bets.emplace(op.bettor,op.bet.amount);
+                        }  
+                        gr_bet.total_team2_bets+=op.bet.amount;
+           
+                    }
+                });
+                gr_bet.total_prize += op.bet.amount;                
+                d.adjust_balance( op.bettor, -op.bet );
+                return itr2->id;
+            }
+            else {
+                const auto& new_gr_team_bet_object = d.create<gr_team_bet_object>([&](gr_team_bet_object &obj) {
+                    obj.team1 = op.team1;
+                    obj.team2 = op.team2;
+                    obj.total_prize = op.bet.amount;
+                    if (op.winner == op.team1) {
+                        obj.team1_bets.emplace(op.bettor,op.bet.amount);
+                    }
+                    else{
+                        obj.team2_bets.emplace(op.bettor,op.bet.amount);
+                    }
+                });
+                d.adjust_balance( op.bettor, -op.bet );
+                return new_gr_team_bet_object.id;
+        }
     }
     FC_CAPTURE_AND_RETHROW((op))
 }
