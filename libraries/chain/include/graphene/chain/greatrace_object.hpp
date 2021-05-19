@@ -27,13 +27,13 @@ namespace graphene { namespace chain {
 			string logo;
 			account_id_type captain;
 			flat_set<account_id_type> players;
-			share_type gr_interval_2_volume;
-			share_type gr_interval_4_volume;
-			share_type gr_interval_6_volume;
-			share_type gr_interval_9_volume;
-			share_type gr_interval_11_volume;
-			share_type gr_interval_13_volume;
-			uint8_t last_gr_rank;
+			share_type gr_interval_2_volume = 0;
+			share_type gr_interval_4_volume = 0;
+			share_type gr_interval_6_volume = 0;
+			share_type gr_interval_9_volume = 0;
+			share_type gr_interval_11_volume = 0;
+			share_type gr_interval_13_volume = 0;
+			uint8_t last_gr_rank = 0;
 
 
 			inline share_type first_half_volume() const {return gr_interval_2_volume + gr_interval_4_volume + gr_interval_6_volume;}
@@ -68,10 +68,10 @@ namespace graphene { namespace chain {
 		ordered_non_unique<tag<by_gr_interval_11_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_11_volume>>,
 		ordered_non_unique<tag<by_gr_interval_13_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_13_volume>>,
 		ordered_non_unique<tag<by_last_gr_rank>, member<gr_team_object, uint8_t, &gr_team_object::last_gr_rank>>,
-		ordered_non_unique<tag<by_total_first_half_volume>, member<gr_team_object, share_type, &gr_team_object::first_half_volume>>,
-		ordered_non_unique<tag<by_total_second_half_volume>, member<gr_team_object, share_type, &gr_team_object::second_half_volume>>,
-		ordered_non_unique<tag<by_total_volume>, member<gr_team_object, share_type, &gr_team_object::total_volume>>
-	> gr_team_multi_index_type;
+		ordered_non_unique<tag<by_total_first_half_volume>, const_mem_fun<gr_team_object, share_type, &gr_team_object::first_half_volume>>,
+		ordered_non_unique<tag<by_total_second_half_volume>, const_mem_fun<gr_team_object, share_type, &gr_team_object::second_half_volume>>,
+		ordered_non_unique<tag<by_total_volume>, const_mem_fun<gr_team_object, share_type, &gr_team_object::total_volume>>
+	>> gr_team_multi_index_type;
 	using gr_team_index = generic_index<gr_team_object, gr_team_multi_index_type>;
 
 	class gr_invite_object : public abstract_object<gr_invite_object>
@@ -93,7 +93,7 @@ namespace graphene { namespace chain {
 		indexed_by<
 		ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
 		ordered_non_unique<tag<by_player>, member<gr_invite_object, account_id_type, &gr_invite_object::player>>
-	> gr_invite_multi_index_type;
+	>> gr_invite_multi_index_type;
 	using gr_invite_index = generic_index<gr_invite_object, gr_invite_multi_index_type>;
 
 
@@ -104,21 +104,21 @@ namespace graphene { namespace chain {
 			static const uint8_t type_id = gr_votes_object_type;
 
 		account_id_type player;
-		share_type gr_iron_volume;
-		share_type gr_bronze_volume;
-		share_type gr_silver_volume;
-		share_type gr_gold_volume;
-		share_type gr_platinum_volume;
-		share_type gr_diamond_volume;
-		share_type gr_elite_volume;
-		share_type gr_iron_reward;
-		share_type gr_bronze_reward;
-		share_type gr_silver_reward;
-		share_type gr_gold_reward;
-		share_type gr_platinum_reward;
-		share_type gr_diamond_reward;
-		share_type gr_elite_reward;
-		share_type gr_master_reward;
+		share_type gr_iron_volume = 0;
+		share_type gr_bronze_volume = 0;
+		share_type gr_silver_volume = 0;
+		share_type gr_gold_volume = 0;
+		share_type gr_platinum_volume = 0;
+		share_type gr_diamond_volume = 0;
+		share_type gr_elite_volume = 0;
+		share_type gr_iron_reward = 0;
+		share_type gr_bronze_reward = 0;
+		share_type gr_silver_reward = 0;
+		share_type gr_gold_reward = 0;
+		share_type gr_platinum_reward = 0;
+		share_type gr_diamond_reward = 0;
+		share_type gr_elite_reward = 0;
+		share_type gr_master_reward = 0;
 	};
 
 	struct by_id;
@@ -129,7 +129,7 @@ namespace graphene { namespace chain {
 		indexed_by<
 		ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
 		ordered_non_unique<tag<by_player>, member<gr_votes_object, account_id_type, &gr_votes_object::player>>
-	> gr_votes_multi_index_type;
+	>> gr_votes_multi_index_type;
 	using gr_votes_index = generic_index<gr_votes_object, gr_votes_multi_index_type>;	
 
 	class gr_range_bet_object : public abstract_object<gr_range_bet_object>
@@ -141,9 +141,9 @@ namespace graphene { namespace chain {
 			gr_team_id_type team;
 			uint8_t lower_rank;
 			uint8_t upper_rank;
-			share_type total_prize;
-			share_type total_true_bets;
-			share_type total_false_bets;
+			share_type total_prize = 0;
+			share_type total_true_bets = 0;
+			share_type total_false_bets = 0;
 
 			map<account_id_type, share_type> true_bets;
 			map<account_id_type, share_type> false_bets;
@@ -164,7 +164,7 @@ namespace graphene { namespace chain {
 			member< gr_range_bet_object, uint8_t, &gr_range_bet_object::upper_rank>
 			>
 		>
-	> gr_range_bet_multi_index_type;
+	>> gr_range_bet_multi_index_type;
 	using gr_range_bet_index = generic_index<gr_range_bet_object, gr_range_bet_multi_index_type>;
 
 	class gr_team_bet_object : public abstract_object<gr_team_bet_object>
@@ -175,9 +175,9 @@ namespace graphene { namespace chain {
 
 			gr_team_id_type team1;
 			gr_team_id_type team2;
-			share_type total_prize;
-			share_type total_team1_bets;
-			share_type total_team2_bets;
+			share_type total_prize = 0;
+			share_type total_team1_bets = 0;
+			share_type total_team2_bets = 0;
 			map<account_id_type, share_type> team1_bets;
 			map<account_id_type, share_type> team2_bets;
 	};
@@ -195,7 +195,7 @@ namespace graphene { namespace chain {
 			member< gr_team_bet_object, gr_team_id_type, &gr_team_bet_object::team2>
 			>
 		>
-	> gr_team_bet_multi_index_type;
+	>> gr_team_bet_multi_index_type;
 	using gr_team_bet_index = generic_index<gr_team_bet_object, gr_team_bet_multi_index_type>;
 } } // graphene::chain
 

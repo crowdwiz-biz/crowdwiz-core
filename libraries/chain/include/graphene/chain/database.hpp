@@ -520,6 +520,8 @@ namespace graphene { namespace chain {
          void proceed_gr_top3();
          void proceed_gr_bets();
          void reset_gr_rank();
+         void assign_gr_rank_to_team(const gr_team_object& team_obj, const share_type& reward, const uint8_t& rank);
+         share_type assign_gr_rank(const share_type& start_itr, const share_type& end_itr, const share_type& reward, const uint8_t& rank);
          void proceed_gr_rank();
          void proceed_apostolos();
          void reset_gr_volumes();

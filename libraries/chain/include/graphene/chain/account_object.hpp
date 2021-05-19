@@ -349,11 +349,6 @@ class account_object : public graphene::db::abstract_object<account_object>
    bool apostolos = false;
    uint8_t last_gr_rank = 0;
 
-   inline bool has_gr_rank() const
-   {
-      return (last_gr_rank > 0);
-   }
-
    bool has_special_authority() const
    {
       return (owner_special_authority.which() != special_authority::tag<no_special_authority>::value) || (active_special_authority.which() != special_authority::tag<no_special_authority>::value);
@@ -517,12 +512,12 @@ typedef multi_index_container<
         ordered_unique<tag<by_gr_rank>,
                 composite_key<
                     account_object,
-                    const_mem_fun<account_object, bool, &account_object::has_gr_rank>,
+                    member<account_object, uint8_t, &account_object::last_gr_rank>,
                     member<account_object, string, &account_object::name>>>,
         ordered_unique<tag<by_apostolos>,
                 composite_key<
                     account_object,
-                    const_mem_fun<account_object, bool, &account_object::apostolos>,
+                    member<account_object, bool, &account_object::apostolos>,
                     member<account_object, string, &account_object::name>>>,
         ordered_unique<tag<by_name>, member<account_object, string, &account_object::name>>>>
     account_multi_index_type;

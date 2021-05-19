@@ -117,5 +117,16 @@ namespace graphene { namespace chain {
 	{
 		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
 	}
-
+	void gr_range_bet_loose_operation::validate()const
+	{
+		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+	}
+	void gr_team_bet_win_operation::validate()const
+	{
+		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+	}
+	void gr_team_bet_loose_operation::validate()const
+	{
+		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+	}
 } } // graphene::chain

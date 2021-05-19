@@ -39,6 +39,8 @@
 #include <graphene/chain/gamezone_object.hpp>
 #include <graphene/chain/exchange_object.hpp>
 #include <graphene/chain/financial_object.hpp>
+#include <graphene/chain/greatrace_object.hpp>
+
 #include <iostream>
 
 using namespace graphene::chain;

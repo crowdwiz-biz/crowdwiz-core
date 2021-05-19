@@ -23,6 +23,8 @@
  */
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/asset_object.hpp>
+#include <graphene/chain/greatrace_object.hpp>
+
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/hardfork.hpp>
 #include <fc/uint128.hpp>
@@ -335,7 +337,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                      });
 
                      if (ref_01.gr_team.valid()) {
-                        d.modify(d.get(ref_01.gr_team), [&](gr_team_object &t) {
+                        d.modify(d.get(*ref_01.gr_team), [&](gr_team_object &t) {
                            if (dgpo.current_gr_interval == 2) {
                               t.gr_interval_2_volume += ref_01_fee_cut;
                            }

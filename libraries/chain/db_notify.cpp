@@ -18,6 +18,7 @@
 #include <graphene/chain/impacted.hpp>
 #include <graphene/chain/exchange_object.hpp>
 #include <graphene/chain/financial_object.hpp>
+#include <graphene/chain/greatrace_object.hpp>
 
 using namespace fc;
 using namespace graphene::chain;
@@ -778,7 +779,7 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
            accounts.insert( aobj->player );
            break;
         }
-        case gr_range_bet_object:{
+        case gr_range_bet_object_type:{
            /** these are free from any accounts */
            break;
         }

@@ -2920,7 +2920,7 @@ vector<pledge_offer_object> database_api_impl::pledge_get_offers_by_account(cons
 //  GREAT RACE                                                      //
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
-vector<gr_rating_obj> gr_get_rating(const std::string rating_type) const {
+vector<gr_rating_obj> database_api::gr_get_rating(const std::string rating_type) const {
    return my->gr_get_rating(rating_type);
 }
 
@@ -2930,8 +2930,8 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
    vector<gr_rating_obj> result;
    const dynamic_global_property_object& dgpo = _db.get(dynamic_global_property_id_type());
 
-   if (rating_type == 'race') {
-      auto& rating_idx = get_index_type<gr_team_index>().indices().get<by_total_volume>();
+   if (rating_type == "race") {
+      auto& rating_idx = _db.get_index_type<gr_team_index>().indices().get<by_total_volume>();
       uint64_t place=1;
       auto team_itr = rating_idx.rbegin();
 
@@ -2950,8 +2950,8 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          --team_itr;
       } 
    }
-   if (rating_type == 'stage' && dgpo.current_gr_interval < 8) {
-      auto& rating_idx = get_index_type<gr_team_index>().indices().get<by_total_first_half_volume>();
+   if (rating_type == "stage" && dgpo.current_gr_interval < 8) {
+      auto& rating_idx = _db.get_index_type<gr_team_index>().indices().get<by_total_first_half_volume>();
       uint64_t place=1;
       auto team_itr = rating_idx.rbegin();
 
@@ -2970,8 +2970,8 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          --team_itr;
       } 
    }
-   if (rating_type == 'stage' && dgpo.current_gr_interval >= 8) {
-      auto& rating_idx = get_index_type<gr_team_index>().indices().get<by_total_second_half_volume>();
+   if (rating_type == "stage" && dgpo.current_gr_interval >= 8) {
+      auto& rating_idx = _db.get_index_type<gr_team_index>().indices().get<by_total_second_half_volume>();
       uint64_t place=1;
       auto team_itr = rating_idx.rbegin();
 
@@ -2990,44 +2990,44 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          --team_itr;
       } 
    }
-   if (rating_type == 'current_interval' || rating_type == 'prev_interval') {
+   if (rating_type == "current_interval" || rating_type == "prev_interval") {
       uint8_t needed_interval = 2;
       if (dgpo.current_gr_interval == 1 || dgpo.current_gr_interval == 2 || dgpo.current_gr_interval == 3) {
          needed_interval = 2;
       }
       if (dgpo.current_gr_interval == 4 || dgpo.current_gr_interval == 5) {
          needed_interval = 4;
-         if (rating_type == 'prev_interval') {
+         if (rating_type == "prev_interval") {
                needed_interval = 2;
          }
       }
       if (dgpo.current_gr_interval == 6 || dgpo.current_gr_interval == 7 || dgpo.current_gr_interval == 8) {
          needed_interval = 6;
-         if (rating_type == 'prev_interval') {
+         if (rating_type == "prev_interval") {
                needed_interval = 4;
          }
       }      
       if (dgpo.current_gr_interval == 9 || dgpo.current_gr_interval == 10 ) {
          needed_interval = 9;
-         if (rating_type == 'prev_interval') {
+         if (rating_type == "prev_interval") {
                needed_interval = 6;
          }
       } 
       if (dgpo.current_gr_interval == 11 || dgpo.current_gr_interval == 12 ) {
          needed_interval = 11;
-         if (rating_type == 'prev_interval') {
+         if (rating_type == "prev_interval") {
                needed_interval = 9;
          }
       }
       if (dgpo.current_gr_interval == 13 || dgpo.current_gr_interval == 14 ) {
          needed_interval = 13;
-         if (rating_type == 'prev_interval') {
+         if (rating_type == "prev_interval") {
                needed_interval = 11;
          }
       }
 
       if (needed_interval == 2) {
-         auto& rating_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_2_volume>();
+         auto& rating_idx = _db.get_index_type<gr_team_index>().indices().get<by_gr_interval_2_volume>();
          uint64_t place=1;
          auto team_itr = rating_idx.rbegin();
 
@@ -3047,7 +3047,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          } 
       }
       if (needed_interval == 4) {
-         auto& rating_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_4_volume>();
+         auto& rating_idx = _db.get_index_type<gr_team_index>().indices().get<by_gr_interval_4_volume>();
          uint64_t place=1;
          auto team_itr = rating_idx.rbegin();
 
@@ -3067,7 +3067,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          } 
       }
       if (needed_interval == 6) {
-         auto& rating_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_6_volume>();
+         auto& rating_idx = _db.get_index_type<gr_team_index>().indices().get<by_gr_interval_6_volume>();
          uint64_t place=1;
          auto team_itr = rating_idx.rbegin();
 
@@ -3087,7 +3087,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          } 
       }
       if (needed_interval == 9) {
-         auto& rating_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_9_volume>();
+         auto& rating_idx = _db.get_index_type<gr_team_index>().indices().get<by_gr_interval_9_volume>();
          uint64_t place=1;
          auto team_itr = rating_idx.rbegin();
 
@@ -3107,7 +3107,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          } 
       }
       if (needed_interval == 11) {
-         auto& rating_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_11_volume>();
+         auto& rating_idx = _db.get_index_type<gr_team_index>().indices().get<by_gr_interval_11_volume>();
          uint64_t place=1;
          auto team_itr = rating_idx.rbegin();
 
@@ -3127,7 +3127,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          } 
       }
       if (needed_interval == 13) {
-         auto& rating_idx = get_index_type<gr_team_index>().indices().get<by_gr_interval_13_volume>();
+         auto& rating_idx = _db.get_index_type<gr_team_index>().indices().get<by_gr_interval_13_volume>();
          uint64_t place=1;
          auto team_itr = rating_idx.rbegin();
 
@@ -3152,8 +3152,8 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
 }
 
 
-vector<gr_invite_obj> gr_get_invites(const std::string account_id_or_name) const {
-   return my->gr_get_rating(rating_type);
+vector<gr_invite_obj> database_api::gr_get_invites(const std::string account_id_or_name) const {
+   return my->gr_get_invites(account_id_or_name);
 }
 
 vector<gr_invite_obj> database_api_impl::gr_get_invites(const std::string account_id_or_name) const
@@ -3161,9 +3161,9 @@ vector<gr_invite_obj> database_api_impl::gr_get_invites(const std::string accoun
    vector<gr_invite_obj> result;
    const account_id_type account_id = get_account_from_string(account_id_or_name)->id;
    const auto& idx = _db.get_index_type<gr_invite_index>().indices().get<by_player>().equal_range(account_id);;
-   std::for_each(idx.first, idx.second, [&result](const gr_invite_object& invite) {
+   std::for_each(idx.first, idx.second, [&](const gr_invite_object& invite) {
       gr_invite_obj invite_obj;
-      invite_obj.invite_id = invite.id;
+      invite_obj.gr_invite = invite.id;
       const gr_team_object& gr_team = _db.get(invite.team);
       invite_obj.team = gr_team;
       result.emplace_back(invite_obj);

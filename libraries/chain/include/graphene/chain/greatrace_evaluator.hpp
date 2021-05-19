@@ -75,7 +75,7 @@ class gr_range_bet_evaluator : public evaluator<gr_range_bet_evaluator>
 
          void_result do_evaluate( const gr_range_bet_operation& o );
          object_id_type do_apply( const gr_range_bet_operation& o );      
-   }
+   };
 class gr_team_bet_evaluator : public evaluator<gr_team_bet_evaluator>
    {
       public:
@@ -83,5 +83,5 @@ class gr_team_bet_evaluator : public evaluator<gr_team_bet_evaluator>
 
          void_result do_evaluate( const gr_team_bet_operation& o );
          object_id_type do_apply( const gr_team_bet_operation& o );
-   }
+   };
 } } // graphene::chain 

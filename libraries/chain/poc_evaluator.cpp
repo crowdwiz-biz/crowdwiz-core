@@ -9,6 +9,7 @@
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/vesting_balance_object.hpp>
+#include <graphene/chain/greatrace_object.hpp>
 
 
 namespace graphene
@@ -80,28 +81,28 @@ namespace graphene
 						)
 						{
 							d.modify(d.get(account.statistics), [&](account_statistics_object &s) {
-								s.current_period_gr += ref_amount;
+								s.current_period_gr += ref_amount.amount;
 							});
 
 							if (account.gr_team.valid()) {
-								d.modify(d.get(account.gr_team), [&](gr_team_object &t) {
+								d.modify(d.get(*account.gr_team), [&](gr_team_object &t) {
 									if (dgpo.current_gr_interval == 2) {
-										t.gr_interval_2_volume += ref_amount;
+										t.gr_interval_2_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 4) {
-										t.gr_interval_4_volume += ref_amount;
+										t.gr_interval_4_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 6) {
-										t.gr_interval_6_volume += ref_amount;
+										t.gr_interval_6_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 9) {
-										t.gr_interval_9_volume += ref_amount;
+										t.gr_interval_9_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 11) {
-										t.gr_interval_11_volume += ref_amount;
+										t.gr_interval_11_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 13) {
-										t.gr_interval_13_volume += ref_amount;
+										t.gr_interval_13_volume += ref_amount.amount;
 									}
 								});       
 							}

@@ -209,6 +209,9 @@ namespace graphene { namespace chain {
    class approved_transfer_object; //FINANCIAL
    class gr_team_object; //GREATRACE
    class gr_invite_object; //GREATRACE
+   class gr_votes_object; //GREATRACE
+   class gr_range_bet_object; //GREATRACE
+   class gr_team_bet_object; //GREATRACE
 
    typedef object_id< protocol_ids, account_object_type,            account_object>               account_id_type;
    typedef object_id< protocol_ids, asset_object_type,              asset_object>                 asset_id_type;

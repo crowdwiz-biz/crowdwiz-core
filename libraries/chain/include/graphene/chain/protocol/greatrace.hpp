@@ -217,10 +217,10 @@ namespace graphene { namespace chain {
 		uint8_t 				lower_rank;
 		uint8_t 				upper_rank;
 		uint64_t				result;
-		share_type				total_bets;
-		share_type				total_wins;
-		share_type				bettor_part;
-		share_type				reward;
+		asset					total_bets;
+		asset					total_wins;
+		asset					bettor_part;
+		asset					reward;
 		account_id_type			bettor;
 
 		account_id_type		fee_payer()const { return bettor; }
@@ -250,10 +250,10 @@ namespace graphene { namespace chain {
 		gr_team_id_type 		team1;
 		gr_team_id_type 		team2;
 		gr_team_id_type 		winner;
-		share_type				total_bets;
-		share_type				total_wins;
-		share_type				bettor_part;
-		share_type				reward;
+		asset					total_bets;
+		asset					total_wins;
+		asset					bettor_part;
+		asset					reward;
 		account_id_type			bettor;
 
 		account_id_type		fee_payer()const { return bettor; }
