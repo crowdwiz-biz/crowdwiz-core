@@ -173,67 +173,68 @@ void database::count_gr_votes() {
    const auto& gr_votes_idx = get_index_type< gr_votes_index >().indices().get< by_id >();
    auto votes_itr = gr_votes_idx.begin();
    auto total_votes = gr_votes_idx.size();
+   if (total_votes>0) {
+      share_type gr_iron_volume = 0;
+      share_type gr_bronze_volume = 0;
+      share_type gr_silver_volume = 0;
+      share_type gr_gold_volume = 0;
+      share_type gr_platinum_volume = 0;
+      share_type gr_diamond_volume = 0;
+      share_type gr_elite_volume = 0;
+      share_type gr_iron_reward = 0;
+      share_type gr_bronze_reward = 0;
+      share_type gr_silver_reward = 0;
+      share_type gr_gold_reward = 0;
+      share_type gr_platinum_reward = 0;
+      share_type gr_diamond_reward = 0;
+      share_type gr_elite_reward = 0;
+      share_type gr_master_reward = 0;
 
-   share_type gr_iron_volume = 0;
-   share_type gr_bronze_volume = 0;
-   share_type gr_silver_volume = 0;
-   share_type gr_gold_volume = 0;
-   share_type gr_platinum_volume = 0;
-   share_type gr_diamond_volume = 0;
-   share_type gr_elite_volume = 0;
-   share_type gr_iron_reward = 0;
-   share_type gr_bronze_reward = 0;
-   share_type gr_silver_reward = 0;
-   share_type gr_gold_reward = 0;
-   share_type gr_platinum_reward = 0;
-   share_type gr_diamond_reward = 0;
-   share_type gr_elite_reward = 0;
-   share_type gr_master_reward = 0;
+      while( votes_itr != gr_votes_idx.end() )
+      {
+         const gr_votes_object& vote = *votes_itr;
+         gr_iron_volume+=vote.gr_iron_volume;
+         gr_bronze_volume+=vote.gr_bronze_volume;
+         gr_silver_volume+=vote.gr_silver_volume;
+         gr_gold_volume+=vote.gr_gold_volume;
+         gr_platinum_volume+=vote.gr_platinum_volume;
+         gr_diamond_volume+=vote.gr_diamond_volume;
+         gr_elite_volume+=vote.gr_elite_volume;
+         gr_iron_reward+=vote.gr_iron_reward;
+         gr_bronze_reward+=vote.gr_bronze_reward;
+         gr_silver_reward+=vote.gr_silver_reward;
+         gr_gold_reward+=vote.gr_gold_reward;
+         gr_platinum_reward+=vote.gr_platinum_reward;
+         gr_diamond_reward+=vote.gr_diamond_reward;
+         gr_elite_reward+=vote.gr_elite_reward;
+         gr_master_reward+=vote.gr_master_reward;
+         ++votes_itr;
+      }
 
-   while( votes_itr != gr_votes_idx.end() )
-   {
-      const gr_votes_object& vote = *votes_itr;
-      gr_iron_volume+=vote.gr_iron_volume;
-      gr_bronze_volume+=vote.gr_bronze_volume;
-      gr_silver_volume+=vote.gr_silver_volume;
-      gr_gold_volume+=vote.gr_gold_volume;
-      gr_platinum_volume+=vote.gr_platinum_volume;
-      gr_diamond_volume+=vote.gr_diamond_volume;
-      gr_elite_volume+=vote.gr_elite_volume;
-      gr_iron_reward+=vote.gr_iron_reward;
-      gr_bronze_reward+=vote.gr_bronze_reward;
-      gr_silver_reward+=vote.gr_silver_reward;
-      gr_gold_reward+=vote.gr_gold_reward;
-      gr_platinum_reward+=vote.gr_platinum_reward;
-      gr_diamond_reward+=vote.gr_diamond_reward;
-      gr_elite_reward+=vote.gr_elite_reward;
-      gr_master_reward+=vote.gr_master_reward;
-      ++votes_itr;
+      while( !gr_votes_idx.empty() )
+      {
+         const gr_votes_object& vote = *gr_votes_idx.begin();
+         remove(vote);
+      }
+      const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
+      modify(dgpo, [&](dynamic_global_property_object& d) {
+         d.gr_iron_volume=gr_iron_volume/total_votes;
+         d.gr_bronze_volume=gr_bronze_volume/total_votes;
+         d.gr_silver_volume=gr_silver_volume/total_votes;
+         d.gr_gold_volume=gr_gold_volume/total_votes;
+         d.gr_platinum_volume=gr_platinum_volume/total_votes;
+         d.gr_diamond_volume=gr_diamond_volume/total_votes;
+         d.gr_elite_volume=gr_elite_volume/total_votes;
+         d.gr_iron_reward=gr_iron_reward/total_votes;
+         d.gr_bronze_reward=gr_bronze_reward/total_votes;
+         d.gr_silver_reward=gr_silver_reward/total_votes;
+         d.gr_gold_reward=gr_gold_reward/total_votes;
+         d.gr_platinum_reward=gr_platinum_reward/total_votes;
+         d.gr_diamond_reward=gr_diamond_reward/total_votes;
+         d.gr_elite_reward=gr_elite_reward/total_votes;
+         d.gr_master_reward=gr_master_reward/total_votes;
+      });
    }
-
-   while( !gr_votes_idx.empty() )
-   {
-      const gr_votes_object& vote = *gr_votes_idx.begin();
-      remove(vote);
-   }
-   const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
-   modify(dgpo, [&](dynamic_global_property_object& d) {
-      d.gr_iron_volume=gr_iron_volume/total_votes;
-      d.gr_bronze_volume=gr_bronze_volume/total_votes;
-      d.gr_silver_volume=gr_silver_volume/total_votes;
-      d.gr_gold_volume=gr_gold_volume/total_votes;
-      d.gr_platinum_volume=gr_platinum_volume/total_votes;
-      d.gr_diamond_volume=gr_diamond_volume/total_votes;
-      d.gr_elite_volume=gr_elite_volume/total_votes;
-      d.gr_iron_reward=gr_iron_reward/total_votes;
-      d.gr_bronze_reward=gr_bronze_reward/total_votes;
-      d.gr_silver_reward=gr_silver_reward/total_votes;
-      d.gr_gold_reward=gr_gold_reward/total_votes;
-      d.gr_platinum_reward=gr_platinum_reward/total_votes;
-      d.gr_diamond_reward=gr_diamond_reward/total_votes;
-      d.gr_elite_reward=gr_elite_reward/total_votes;
-      d.gr_master_reward=gr_master_reward/total_votes;
-   });
 }
 
 void database::proceed_gr_top3() {
@@ -840,46 +841,48 @@ void database::proceed_gr_rank() {
 
 void database::proceed_apostolos() {
       auto& apostolos_idx = get_index_type<gr_team_index>().indices().get<by_total_volume>();
-      auto team_itr = apostolos_idx.rbegin();
-      const gr_team_object& apostolos_team = *team_itr;
+      if (apostolos_idx.size() > 0) {
+         auto team_itr = apostolos_idx.rbegin();
+         const gr_team_object& apostolos_team = *team_itr;
 
-      flat_set<account_id_type> apostolos_auth;
-      apostolos_auth.insert(apostolos_team.captain);
+         flat_set<account_id_type> apostolos_auth;
+         apostolos_auth.insert(apostolos_team.captain);
 
-      modify( get(apostolos_team.captain), [](account_object& a) {
-         a.apostolos = true;
-      });
-      gr_apostolos_operation vop_cap;
-      vop_cap.team = apostolos_team.id;
-      vop_cap.player = apostolos_team.captain;
-      push_applied_operation( vop_cap );
-      for( auto apostolos : apostolos_team.players ) {
-         modify( get(apostolos), [](account_object& a) {
+         modify( get(apostolos_team.captain), [](account_object& a) {
             a.apostolos = true;
          });
-         gr_apostolos_operation vop;
-         vop.team = apostolos_team.id;
-         vop.player = apostolos;
-         push_applied_operation( vop );
-         apostolos_auth.insert(apostolos);
-      }      
+         gr_apostolos_operation vop_cap;
+         vop_cap.team = apostolos_team.id;
+         vop_cap.player = apostolos_team.captain;
+         push_applied_operation( vop_cap );
+         for( auto apostolos : apostolos_team.players ) {
+            modify( get(apostolos), [](account_object& a) {
+               a.apostolos = true;
+            });
+            gr_apostolos_operation vop;
+            vop.team = apostolos_team.id;
+            vop.player = apostolos;
+            push_applied_operation( vop );
+            apostolos_auth.insert(apostolos);
+         }      
 
-      if( head_block_time() >= HARDFORK_CWD7_TIME ) {
-         const account_object& apostolos_account = get(GRAPHENE_APOSTOLOS_ACCOUNT);
-         modify( apostolos_account, [apostolos_auth](account_object& a)
-         {
-            a.active.weight_threshold = 0;
-            a.active.clear();
+         if( head_block_time() >= HARDFORK_CWD7_TIME ) {
+            const account_object& apostolos_account = get(GRAPHENE_APOSTOLOS_ACCOUNT);
+            modify( apostolos_account, [apostolos_auth](account_object& a)
+            {
+               a.active.weight_threshold = 0;
+               a.active.clear();
 
-            for( const auto& apostol_auth : apostolos_auth )
-               {
-                  a.active.account_auths[apostol_auth] = 1;
-                  a.active.weight_threshold += 1;
-               }
+               for( const auto& apostol_auth : apostolos_auth )
+                  {
+                     a.active.account_auths[apostol_auth] = 1;
+                     a.active.weight_threshold += 1;
+                  }
 
-            a.active.weight_threshold /= 2;
-            a.active.weight_threshold += 1;
-         });    
+               a.active.weight_threshold /= 2;
+               a.active.weight_threshold += 1;
+            });    
+         }
       }
 };
 
@@ -2195,91 +2198,103 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
 
    if( next_gr_interval_time <= next_block.timestamp )
    {
+            elog("--- GR next_gr_interval_time  ${s}", ("s", next_gr_interval_time));         
+
+      elog("--- GR current_gr_interval  ${s}", ("s", current_gr_interval));         
+
       if( current_gr_interval == 0 || current_gr_interval == 14 ) {
          current_gr_interval = 1;
          gr_vote_is_active = true;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_1);
          end_gr_vote_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(gpo.greatrace_parameters.vote_duration);
+         elog("proceed_gr_rank");         
          proceed_gr_rank();
+         elog("proceed_apostolos");
          proceed_apostolos();
+         elog("reset_gr_volumes");
          reset_gr_volumes();
+         elog("perform_gr_maintenance");
          perform_gr_maintenance();
       }
-      if( current_gr_interval == 1 ) {
+      else if( current_gr_interval == 1 ) {
          current_gr_interval = 2;
          gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_2/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_2);
          clear_gr_invite();
       }
-      if( current_gr_interval == 2 ) {
+      else if( current_gr_interval == 2 ) {
          current_gr_interval = 3;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_3);
          proceed_gr_top3();
       }
-      if( current_gr_interval == 3 ) {
+      else if( current_gr_interval == 3 ) {
          current_gr_interval = 4;
          gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_4/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_4);
          clear_gr_invite();
       }
-      if( current_gr_interval == 4 ) {
+      else if( current_gr_interval == 4 ) {
          current_gr_interval = 5;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_5);
          proceed_gr_top3();
       }
-      if( current_gr_interval == 5 ) {
+      else if( current_gr_interval == 5 ) {
          current_gr_interval = 6;
          gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_6/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_6);
          clear_gr_invite();
       }
-      if( current_gr_interval == 6 ) {
+      else if( current_gr_interval == 6 ) {
          current_gr_interval = 7;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_7);
          proceed_gr_top3();
       }
-      if( current_gr_interval == 7 ) {
+      else if( current_gr_interval == 7 ) {
          current_gr_interval = 8;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_8);
          proceed_gr_rank();
          perform_gr_maintenance();
       }
-      if( current_gr_interval == 8 ) {
+      else if( current_gr_interval == 8 ) {
          current_gr_interval = 9;
          gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_9/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_9);
          clear_gr_invite();
       }
-      if( current_gr_interval == 9 ) {
+      else if( current_gr_interval == 9 ) {
          current_gr_interval = 10;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_10);
          proceed_gr_top3();
       }
-      if( current_gr_interval == 10 ) {
+      else if( current_gr_interval == 10 ) {
          current_gr_interval = 11;
          gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_11/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_11);
          clear_gr_invite();
       }
-      if( current_gr_interval == 11 ) {
+      else if( current_gr_interval == 11 ) {
          current_gr_interval = 12;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_12);
          proceed_gr_top3();
       }
-      if( current_gr_interval == 12 ) {
+      else if( current_gr_interval == 12 ) {
          current_gr_interval = 13;
          gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_13/2);
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_13);
          clear_gr_invite();
       }
-      if( current_gr_interval == 13 ) {
+      else if( current_gr_interval == 13 ) {
          current_gr_interval = 14;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_14);
          proceed_gr_top3();
       }
+                  elog("--- GR next_gr_interval_time  2 ${s}", ("s", next_gr_interval_time));         
+
    }
 
    if( end_gr_vote_time <= next_block.timestamp and gr_vote_is_active == true ) {
+      elog("count_gr_votes");         
+
       count_gr_votes();
       gr_vote_is_active = false;
    }  
