@@ -537,7 +537,7 @@ void_result change_referrer_evaluator::do_evaluate(const change_referrer_evaluat
    account = &d.get(o.account_id);
    const auto &params = d.get_global_properties().parameters;
    FC_ASSERT( !(o.new_referrer < params.root_account), "Referrer must be under root acount." );
-   FC_ASSERT(  o.account_id != account.referrer, "You already have this referrer" ); 
+   FC_ASSERT(  o.new_referrer != account->referrer, "You already have this referrer" ); 
    FC_ASSERT(  o.account_id != o.new_referrer, "You can't be your referrer." );
    FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
    return void_result();
