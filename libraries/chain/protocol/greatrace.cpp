@@ -57,7 +57,7 @@ namespace graphene { namespace chain {
 		FC_ASSERT( gr_gold_volume >= 0, "Volume amount should not be negative" );
 		FC_ASSERT( gr_platinum_volume >= 0, "Volume amount should not be negative" );
 		FC_ASSERT( gr_diamond_volume >= 0, "Volume amount should not be negative" );
-		FC_ASSERT( gr_elite_volume >= 0, "Volume amount should not be negative" );
+		FC_ASSERT( gr_master_volume >= 0, "Volume amount should not be negative" );
 		FC_ASSERT( gr_iron_reward >= 0, "Reward amount should not be negative" );
 		FC_ASSERT( gr_bronze_reward >= 0, "Reward amount should not be negative" );
 		FC_ASSERT( gr_silver_reward >= 0, "Reward amount should not be negative" );
@@ -91,6 +91,7 @@ namespace graphene { namespace chain {
 		FC_ASSERT( lower_rank > 0, "Rank should not be negative" );
 		FC_ASSERT( lower_rank <= 100, "Rank should be lower than 100" );
 		FC_ASSERT( lower_rank <= upper_rank, "Wrong rank order" );
+		FC_ASSERT( (bet.amount >= 0), "Bet amount should not be negative" );
 		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
 	}
 
@@ -104,6 +105,7 @@ namespace graphene { namespace chain {
 	void gr_team_bet_operation::validate()const
 	{
 		FC_ASSERT( (winner == team1 || winner == team2), "Winner should be team1 or team2" );
+		FC_ASSERT( (bet.amount >= 0), "Bet amount should not be negative" );
 		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
 	}
 
@@ -129,4 +131,14 @@ namespace graphene { namespace chain {
 	{
 		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
 	}
+
+	void gr_range_bet_cancel_operation::validate()const
+	{
+		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+	}
+	void gr_team_bet_cancel_operation::validate()const
+	{
+		FC_ASSERT( fee.amount >= 0, "Fee amount should not be negative" );
+	}
+	
 } } // graphene::chain

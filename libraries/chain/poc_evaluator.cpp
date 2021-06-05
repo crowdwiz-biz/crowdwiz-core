@@ -80,29 +80,41 @@ namespace graphene
 							dgpo.current_gr_interval == 13)
 						)
 						{
-							d.modify(d.get(account.statistics), [&](account_statistics_object &s) {
+							d.modify(d.get(acc_ref.statistics), [&](account_statistics_object &s) {
 								s.current_period_gr += ref_amount.amount;
 							});
 
-							if (account.gr_team.valid()) {
-								d.modify(d.get(*account.gr_team), [&](gr_team_object &t) {
+							if (acc_ref.gr_team.valid()) {
+								d.modify(d.get(*acc_ref.gr_team), [&](gr_team_object &t) {
 									if (dgpo.current_gr_interval == 2) {
 										t.gr_interval_2_volume += ref_amount.amount;
+										t.first_half_volume += ref_amount.amount;
+										t.total_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 4) {
 										t.gr_interval_4_volume += ref_amount.amount;
+										t.first_half_volume += ref_amount.amount;
+										t.total_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 6) {
 										t.gr_interval_6_volume += ref_amount.amount;
+										t.first_half_volume += ref_amount.amount;
+										t.total_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 9) {
 										t.gr_interval_9_volume += ref_amount.amount;
+										t.second_half_volume += ref_amount.amount;
+										t.total_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 11) {
 										t.gr_interval_11_volume += ref_amount.amount;
+										t.second_half_volume += ref_amount.amount;
+										t.total_volume += ref_amount.amount;
 									}
 									if (dgpo.current_gr_interval == 13) {
 										t.gr_interval_13_volume += ref_amount.amount;
+										t.second_half_volume += ref_amount.amount;
+										t.total_volume += ref_amount.amount;
 									}
 								});       
 							}

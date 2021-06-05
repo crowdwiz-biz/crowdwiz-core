@@ -197,7 +197,8 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       ////////////////
       vector<gr_rating_obj> gr_get_rating(const std::string rating_type) const; // rating_type in ['race', 'stage', 'current_interval', 'prev_interval']
       vector<gr_invite_obj> gr_get_invites(const std::string account_id_or_name) const;
-
+      vector<gr_range_bet_api_obj> gr_get_range_bets() const;
+      vector<gr_team_bet_api_obj> gr_get_team_bets() const;
       //private:
       static string price_to_string( const price& _price, const asset_object& _base, const asset_object& _quote );
 
@@ -2944,10 +2945,10 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          gr_rating_obj_team.img = team.logo;
          gr_rating_obj_team.name = team.name;
          gr_rating_obj_team.players = team.players.size()+1;
-         gr_rating_obj_team.volume = team.total_volume();
+         gr_rating_obj_team.volume = team.total_volume;
          result.emplace_back(gr_rating_obj_team);
          place++;
-         --team_itr;
+         ++team_itr;
       } 
    }
    if (rating_type == "stage" && dgpo.current_gr_interval < 8) {
@@ -2964,10 +2965,10 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          gr_rating_obj_team.img = team.logo;
          gr_rating_obj_team.name = team.name;
          gr_rating_obj_team.players = team.players.size()+1;
-         gr_rating_obj_team.volume = team.first_half_volume();
+         gr_rating_obj_team.volume = team.first_half_volume;
          result.emplace_back(gr_rating_obj_team);
          place++;
-         --team_itr;
+         ++team_itr;
       } 
    }
    if (rating_type == "stage" && dgpo.current_gr_interval >= 8) {
@@ -2984,10 +2985,10 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
          gr_rating_obj_team.img = team.logo;
          gr_rating_obj_team.name = team.name;
          gr_rating_obj_team.players = team.players.size()+1;
-         gr_rating_obj_team.volume = team.second_half_volume();
+         gr_rating_obj_team.volume = team.second_half_volume;
          result.emplace_back(gr_rating_obj_team);
          place++;
-         --team_itr;
+         ++team_itr;
       } 
    }
    if (rating_type == "current_interval" || rating_type == "prev_interval") {
@@ -3043,7 +3044,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
             gr_rating_obj_team.volume = team.gr_interval_2_volume;
             result.emplace_back(gr_rating_obj_team);
             place++;
-            --team_itr;
+            ++team_itr;
          } 
       }
       if (needed_interval == 4) {
@@ -3063,7 +3064,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
             gr_rating_obj_team.volume = team.gr_interval_4_volume;
             result.emplace_back(gr_rating_obj_team);
             place++;
-            --team_itr;
+            ++team_itr;
          } 
       }
       if (needed_interval == 6) {
@@ -3083,7 +3084,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
             gr_rating_obj_team.volume = team.gr_interval_6_volume;
             result.emplace_back(gr_rating_obj_team);
             place++;
-            --team_itr;
+            ++team_itr;
          } 
       }
       if (needed_interval == 9) {
@@ -3103,7 +3104,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
             gr_rating_obj_team.volume = team.gr_interval_9_volume;
             result.emplace_back(gr_rating_obj_team);
             place++;
-            --team_itr;
+            ++team_itr;
          } 
       }
       if (needed_interval == 11) {
@@ -3123,7 +3124,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
             gr_rating_obj_team.volume = team.gr_interval_11_volume;
             result.emplace_back(gr_rating_obj_team);
             place++;
-            --team_itr;
+            ++team_itr;
          } 
       }
       if (needed_interval == 13) {
@@ -3143,7 +3144,7 @@ vector<gr_rating_obj> database_api_impl::gr_get_rating(const std::string rating_
             gr_rating_obj_team.volume = team.gr_interval_13_volume;
             result.emplace_back(gr_rating_obj_team);
             place++;
-            --team_itr;
+            ++team_itr;
          } 
       }
    }
@@ -3160,7 +3161,7 @@ vector<gr_invite_obj> database_api_impl::gr_get_invites(const std::string accoun
 {
    vector<gr_invite_obj> result;
    const account_id_type account_id = get_account_from_string(account_id_or_name)->id;
-   const auto& idx = _db.get_index_type<gr_invite_index>().indices().get<by_player>().equal_range(account_id);;
+   const auto& idx = _db.get_index_type<gr_invite_index>().indices().get<by_player>().equal_range(account_id);
    std::for_each(idx.first, idx.second, [&](const gr_invite_object& invite) {
       gr_invite_obj invite_obj;
       invite_obj.gr_invite = invite.id;
@@ -3170,6 +3171,58 @@ vector<gr_invite_obj> database_api_impl::gr_get_invites(const std::string accoun
    });
    return result;
 }
+
+vector<gr_range_bet_api_obj> database_api::gr_get_range_bets() const {
+   return my->gr_get_range_bets();
+}
+
+vector<gr_range_bet_api_obj> database_api_impl::gr_get_range_bets() const
+{
+   vector<gr_range_bet_api_obj> result;
+   const auto& idx = _db.get_index_type<gr_range_bet_index>().indices().get<by_id>();
+   for (const auto& bet: idx) {
+      gr_range_bet_api_obj bet_obj;
+      const gr_team_object& gr_team = _db.get(bet.team);
+
+      bet_obj.id = bet.id;
+      bet_obj.team_id = gr_team.id;
+      bet_obj.name = gr_team.name;
+      bet_obj.img = gr_team.logo;
+      bet_obj.lower_rank = bet.lower_rank;
+      bet_obj.upper_rank = bet.upper_rank;
+      bet_obj.total_true_bets = bet.total_true_bets;
+      bet_obj.total_false_bets = bet.total_false_bets;
+
+      result.emplace_back(bet_obj);
+   };
+   return result;
+}
+
+vector<gr_team_bet_api_obj> database_api::gr_get_team_bets() const {
+   return my->gr_get_team_bets();
+}
+
+vector<gr_team_bet_api_obj> database_api_impl::gr_get_team_bets() const
+{
+   vector<gr_team_bet_api_obj> result;
+   const auto& idx = _db.get_index_type<gr_team_bet_index>().indices().get<by_id>();
+   for (const auto& bet: idx) {
+      gr_team_bet_api_obj bet_obj;
+      const gr_team_object& gr_team1 = _db.get(bet.team1);
+      const gr_team_object& gr_team2 = _db.get(bet.team2);
+      bet_obj.id = bet.id;
+      bet_obj.team1 = gr_team1;
+      bet_obj.team2 = gr_team2;
+
+      bet_obj.total_team1_bets = bet.total_team1_bets;
+      bet_obj.total_team2_bets = bet.total_team2_bets;
+
+      result.emplace_back(bet_obj);
+   };
+   return result;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 //                                                                  //
 // Private methods                                                  //

@@ -340,21 +340,33 @@ void account_statistics_object::process_fees(const account_object &a, database &
                         d.modify(d.get(*ref_01.gr_team), [&](gr_team_object &t) {
                            if (dgpo.current_gr_interval == 2) {
                               t.gr_interval_2_volume += ref_01_fee_cut;
+                              t.first_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
                            }
                            if (dgpo.current_gr_interval == 4) {
                               t.gr_interval_4_volume += ref_01_fee_cut;
+                              t.first_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
                            }
                            if (dgpo.current_gr_interval == 6) {
                               t.gr_interval_6_volume += ref_01_fee_cut;
+                              t.first_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
                            }
                            if (dgpo.current_gr_interval == 9) {
                               t.gr_interval_9_volume += ref_01_fee_cut;
+                              t.second_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
                            }
                            if (dgpo.current_gr_interval == 11) {
                               t.gr_interval_11_volume += ref_01_fee_cut;
+                              t.second_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
                            }
                            if (dgpo.current_gr_interval == 13) {
                               t.gr_interval_13_volume += ref_01_fee_cut;
+                              t.second_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
                            }
                         });       
                      }

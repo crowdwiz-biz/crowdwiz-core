@@ -97,6 +97,26 @@ struct gr_invite_obj
    gr_invite_id_type          gr_invite;
 };
 
+struct gr_range_bet_api_obj {
+   gr_range_bet_id_type       id;
+   gr_team_id_type            team_id;
+   string                     name;
+   string                     img;
+   uint8_t                    lower_rank;
+   uint8_t                    upper_rank;
+   share_type                 total_true_bets;
+   share_type                 total_false_bets;
+
+};
+
+struct gr_team_bet_api_obj {
+   gr_team_bet_id_type        id;
+   gr_team_object             team1;
+   gr_team_object             team2;
+   share_type                 total_team1_bets;
+   share_type                 total_team2_bets;
+};
+
 struct scoop_lots
 {
    lottery_goods_object       lot;
@@ -818,6 +838,8 @@ class database_api
       ////////////////
       vector<gr_rating_obj> gr_get_rating(const std::string rating_type) const; // rating_type in ['race', 'stage', 'current_interval', 'prev_interval']
       vector<gr_invite_obj> gr_get_invites(const std::string account_id_or_name) const;
+      vector<gr_range_bet_api_obj> gr_get_range_bets() const;
+      vector<gr_team_bet_api_obj> gr_get_team_bets() const;
 
    private:
       std::shared_ptr< database_api_impl > my;
@@ -827,8 +849,12 @@ class database_api
 
 FC_REFLECT( graphene::app::p2p_adv, (pa)(rating)(volume) );
 FC_REFLECT( graphene::app::p2p_ord, (po)(description));
+
 FC_REFLECT( graphene::app::gr_rating_obj, (team_id)(place_num)(img)(name)(players)(volume));
 FC_REFLECT( graphene::app::gr_invite_obj, (team)(gr_invite));
+FC_REFLECT( graphene::app::gr_range_bet_api_obj, (id)(team_id)(name)(img)(lower_rank)(upper_rank)(total_true_bets)(total_false_bets));
+FC_REFLECT( graphene::app::gr_team_bet_api_obj, (id)(team1)(team2)(total_team1_bets)(total_team2_bets));
+
 FC_REFLECT( graphene::app::scoop_lots,(lot)(rating) );
 FC_REFLECT( graphene::app::order, (price)(quote)(base) );
 FC_REFLECT( graphene::app::order_book, (base)(quote)(bids)(asks) );
@@ -973,4 +999,6 @@ FC_API(graphene::app::database_api,
    // Great Race
    (gr_get_rating)
    (gr_get_invites)
+   (gr_get_range_bets)
+   (gr_get_team_bets)
 )

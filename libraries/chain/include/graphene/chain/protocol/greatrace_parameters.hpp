@@ -10,7 +10,8 @@ namespace graphene
 		{
 			uint32_t	vote_duration 		= (24*60*60);
 			uint8_t		min_team_status 	= 4;
-			share_type	min_team_volume 	= (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
+			share_type	min_team_volume 	= 0;
+			share_type	min_gr_bet		 	= (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(5));
 			uint16_t	min_votes 			= 50;
 			uint8_t		min_vote_last_rank	= 7;
 			uint16_t	interval_1 			= 7;
@@ -36,6 +37,7 @@ FC_REFLECT(graphene::chain::greatrace_chain_parameters,
 	(vote_duration)
 	(min_team_status)
 	(min_team_volume)
+	(min_gr_bet)
 	(min_votes)
 	(min_vote_last_rank)
 	(interval_1)

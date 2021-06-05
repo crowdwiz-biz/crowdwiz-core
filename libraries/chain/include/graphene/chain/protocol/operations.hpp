@@ -176,7 +176,9 @@ namespace graphene { namespace chain {
       /* 120 */   gr_range_bet_win_operation,
       /* 121 */   gr_range_bet_loose_operation,
       /* 122 */   gr_team_bet_win_operation,
-      /* 123 */   gr_team_bet_loose_operation
+      /* 123 */   gr_team_bet_loose_operation,
+      /* 124 */   gr_range_bet_cancel_operation,
+      /* 125 */   gr_team_bet_cancel_operation
          > operation;
 
    /// @} // operations group

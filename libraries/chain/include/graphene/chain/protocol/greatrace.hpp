@@ -98,7 +98,7 @@ namespace graphene { namespace chain {
 		share_type	        gr_gold_volume;
 		share_type	        gr_platinum_volume;
 		share_type	        gr_diamond_volume;
-		share_type	        gr_elite_volume;
+		share_type	        gr_master_volume;
 		share_type	        gr_iron_reward;
 		share_type	        gr_bronze_reward;
 		share_type	        gr_silver_reward;
@@ -176,14 +176,14 @@ namespace graphene { namespace chain {
 		asset				fee;
 
 		gr_team_id_type		team;
-		uint8_t 			lower_rank;
-		uint8_t 			upper_rank;
+		uint8_t 			lower_rank; //If rank from first place to third - lower rank - first place = 1 
+		uint8_t 			upper_rank; //If rank from first place to third - upper rank - third place = 3 
 		bool 				result;
 		account_id_type		bettor;
 		asset               bet;
       
       account_id_type         fee_payer()const { return bettor; }
-      void                    validate()const;  
+      void                    validate()const;
       share_type              calculate_fee(const fee_parameters_type& k)const;   
    };
 
@@ -242,6 +242,7 @@ namespace graphene { namespace chain {
 		void				validate()const;
 	};
 
+
 	struct gr_team_bet_win_operation : public base_operation { // VIRTUAL
 		struct fee_parameters_type { uint64_t fee = 0; };
 
@@ -273,6 +274,39 @@ namespace graphene { namespace chain {
 		account_id_type		fee_payer()const { return bettor; }
 		void				validate()const;
 	};
+
+	struct gr_range_bet_cancel_operation : public base_operation { // VIRTUAL
+		struct fee_parameters_type { uint64_t fee = 0; };
+
+		asset					fee;
+		gr_range_bet_id_type	gr_range_bet;
+		gr_team_id_type 		team;
+		uint8_t 				lower_rank;
+		uint8_t 				upper_rank;
+		uint64_t				result;
+		asset					payback;
+		account_id_type			bettor;
+
+		account_id_type		fee_payer()const { return bettor; }
+		void				validate()const;
+	};
+
+	struct gr_team_bet_cancel_operation : public base_operation { // VIRTUAL
+		struct fee_parameters_type { uint64_t fee = 0; };
+
+		asset					fee;
+		gr_team_bet_id_type		gr_team_bet;
+		gr_team_id_type 		team1;
+		gr_team_id_type 		team2;
+		gr_team_id_type 		winner;
+
+		asset					payback;
+		account_id_type			bettor;
+
+		account_id_type		fee_payer()const { return bettor; }
+		void				validate()const;
+	};
+
 
 } } // graphene::chain
 
@@ -335,7 +369,7 @@ FC_REFLECT( graphene::chain::gr_vote_operation,
 	(gr_gold_volume)
 	(gr_platinum_volume)
 	(gr_diamond_volume)
-	(gr_elite_volume)
+	(gr_master_volume)
 	(gr_iron_reward)
 	(gr_bronze_reward)
 	(gr_silver_reward)
@@ -446,5 +480,28 @@ FC_REFLECT( graphene::chain::gr_team_bet_loose_operation,
 	(team1)
 	(team2)
 	(winner)
+	(bettor)
+)
+
+FC_REFLECT( graphene::chain::gr_range_bet_cancel_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::chain::gr_range_bet_cancel_operation,
+	(fee)
+	(gr_range_bet)
+	(team)
+	(lower_rank)
+	(upper_rank)
+	(result)
+	(payback)
+	(bettor)
+)
+
+FC_REFLECT( graphene::chain::gr_team_bet_cancel_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::chain::gr_team_bet_cancel_operation,
+	(fee)
+	(gr_team_bet)
+	(team1)
+	(team2)
+	(winner)
+	(payback)
 	(bettor)
 )

@@ -95,29 +95,29 @@ namespace graphene { namespace chain {
          uint64_t          poc12_percent = (97*GRAPHENE_1_PERCENT); 
          // Great Race parameters
          uint8_t           current_gr_interval = 0; // from 0 to 14
-         time_point_sec    next_gr_interval_time = fc::time_point_sec(1601078400); // GR start time
-         time_point_sec    gr_bet_interval_time = fc::time_point_sec(1601078400); // GR start time
+         time_point_sec    next_gr_interval_time = fc::time_point_sec(1622815200); // GR start time 
+         time_point_sec    gr_bet_interval_time = fc::time_point_sec(1622815200); // GR start time
          time_point_sec    end_gr_vote_time = fc::time_point_sec();
          bool              gr_vote_is_active = false;
 
-         share_type        gr_iron_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_bronze_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_silver_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_gold_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_platinum_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_diamond_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_elite_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
+         share_type        gr_iron_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(100));
+         share_type        gr_bronze_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(200));
+         share_type        gr_silver_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(300));
+         share_type        gr_gold_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(400));
+         share_type        gr_platinum_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(500));
+         share_type        gr_diamond_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(600));
+         share_type        gr_master_volume = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(700));
 
-         share_type        gr_iron_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_bronze_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_silver_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_gold_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_platinum_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_diamond_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_elite_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
-         share_type        gr_master_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
+         share_type        gr_iron_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(2000));
+         share_type        gr_bronze_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(4000));
+         share_type        gr_silver_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(12000));
+         share_type        gr_gold_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(30000));
+         share_type        gr_platinum_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(60000));
+         share_type        gr_diamond_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(100000));
+         share_type        gr_elite_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(250000));
+         share_type        gr_master_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(250000));
 
-         share_type        gr_top3_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(15000));
+         share_type        gr_top3_reward = (GRAPHENE_BLOCKCHAIN_PRECISION * int64_t(10000));
 
          /**
           *  Every time a block is missed this increases by
@@ -194,7 +194,7 @@ FC_REFLECT_DERIVED( graphene::chain::dynamic_global_property_object, (graphene::
                     (gr_gold_volume)
                     (gr_platinum_volume)
                     (gr_diamond_volume)
-                    (gr_elite_volume)
+                    (gr_master_volume)
                     (gr_iron_reward)
                     (gr_bronze_reward)
                     (gr_silver_reward)

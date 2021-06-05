@@ -534,8 +534,11 @@ void_result account_status_upgrade_evaluator::do_apply(const account_status_upgr
 void_result change_referrer_evaluator::do_evaluate(const change_referrer_evaluator::operation_type& o)
 { try {
    database& d = db();
+   account = &d.get(o.account_id);
    const auto &params = d.get_global_properties().parameters;
    FC_ASSERT( !(o.new_referrer < params.root_account), "Referrer must be under root acount." );
+   // FC_ASSERT(  o.account_id != account.referrer, "You already have this referrer" ); //RELEASE
+   FC_ASSERT(  o.account_id != o.new_referrer, "You can't be your referrer." );
    return void_result();
 } FC_RETHROW_EXCEPTIONS( error, "Unable to change referrer '${a}'", ("a",o.account_id(db()).name) ) }
 
@@ -544,6 +547,7 @@ void_result change_referrer_evaluator::do_apply(const change_referrer_evaluator:
    database& d = db();
 
    d.modify(*account, [&](account_object& a) {
+      a.statistics(d).process_fees(a, d);
       a.referrer = o.new_referrer;
    });
 

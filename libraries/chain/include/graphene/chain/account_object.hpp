@@ -348,7 +348,6 @@ class account_object : public graphene::db::abstract_object<account_object>
    optional<gr_team_id_type> gr_team;
    bool apostolos = false;
    uint8_t last_gr_rank = 0;
-
    bool has_special_authority() const
    {
       return (owner_special_authority.which() != special_authority::tag<no_special_authority>::value) || (active_special_authority.which() != special_authority::tag<no_special_authority>::value);

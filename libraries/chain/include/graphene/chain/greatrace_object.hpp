@@ -33,12 +33,11 @@ namespace graphene { namespace chain {
 			share_type gr_interval_9_volume = 0;
 			share_type gr_interval_11_volume = 0;
 			share_type gr_interval_13_volume = 0;
+			share_type first_half_volume = 0;
+			share_type second_half_volume = 0;
+			share_type total_volume = 0;
+
 			uint8_t last_gr_rank = 0;
-
-
-			inline share_type first_half_volume() const {return gr_interval_2_volume + gr_interval_4_volume + gr_interval_6_volume;}
-			inline share_type second_half_volume() const {return gr_interval_9_volume + gr_interval_11_volume + gr_interval_13_volume;}
-			inline share_type total_volume() const {return gr_interval_2_volume + gr_interval_4_volume + gr_interval_6_volume + gr_interval_9_volume + gr_interval_11_volume + gr_interval_13_volume;}
 	};
 
 	struct by_id;
@@ -61,16 +60,96 @@ namespace graphene { namespace chain {
 		ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
 		ordered_unique<tag<by_name>, member<gr_team_object, string, &gr_team_object::name>>,
 		ordered_unique<tag<by_captain>, member<gr_team_object, account_id_type, &gr_team_object::captain>>,
-		ordered_non_unique<tag<by_gr_interval_2_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_2_volume>>,
-		ordered_non_unique<tag<by_gr_interval_4_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_4_volume>>,
-		ordered_non_unique<tag<by_gr_interval_6_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_6_volume>>,
-		ordered_non_unique<tag<by_gr_interval_9_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_9_volume>>,
-		ordered_non_unique<tag<by_gr_interval_11_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_11_volume>>,
-		ordered_non_unique<tag<by_gr_interval_13_volume>, member<gr_team_object, share_type, &gr_team_object::gr_interval_13_volume>>,
-		ordered_non_unique<tag<by_last_gr_rank>, member<gr_team_object, uint8_t, &gr_team_object::last_gr_rank>>,
-		ordered_non_unique<tag<by_total_first_half_volume>, const_mem_fun<gr_team_object, share_type, &gr_team_object::first_half_volume>>,
-		ordered_non_unique<tag<by_total_second_half_volume>, const_mem_fun<gr_team_object, share_type, &gr_team_object::second_half_volume>>,
-		ordered_non_unique<tag<by_total_volume>, const_mem_fun<gr_team_object, share_type, &gr_team_object::total_volume>>
+		ordered_unique<tag<by_gr_interval_2_volume>,
+			composite_key<
+				gr_team_object,
+				member<gr_team_object, share_type, &gr_team_object::gr_interval_2_volume>,
+				member< object, object_id_type, &object::id>
+			>
+		 >,
+		ordered_unique<tag<by_gr_interval_4_volume>,
+			composite_key<
+				gr_team_object,
+				member<gr_team_object, share_type, &gr_team_object::gr_interval_4_volume>,
+				member< object, object_id_type, &object::id>
+			>
+		 >,
+		ordered_unique<tag<by_gr_interval_6_volume>,
+			composite_key<
+				gr_team_object,
+				member<gr_team_object, share_type, &gr_team_object::gr_interval_6_volume>,
+				member< object, object_id_type, &object::id>
+			>
+		 >,
+		ordered_unique<tag<by_gr_interval_9_volume>,
+			composite_key<
+				gr_team_object,
+				member<gr_team_object, share_type, &gr_team_object::gr_interval_9_volume>,
+				member< object, object_id_type, &object::id>
+			>
+		 >,
+		ordered_unique<tag<by_gr_interval_11_volume>,
+			composite_key<
+				gr_team_object,
+				member<gr_team_object, share_type, &gr_team_object::gr_interval_11_volume>,
+				member< object, object_id_type, &object::id>
+			>
+		 >,
+		ordered_unique<tag<by_gr_interval_13_volume>,
+			composite_key<
+				gr_team_object,
+				member<gr_team_object, share_type, &gr_team_object::gr_interval_13_volume>,
+				member< object, object_id_type, &object::id>
+			>
+		 >,
+		ordered_unique<tag<by_total_first_half_volume>,
+			composite_key<
+				gr_team_object,
+				member<gr_team_object, share_type, &gr_team_object::first_half_volume>,
+				member< object, object_id_type, &object::id>
+			>
+		 >,
+		ordered_unique<tag<by_total_second_half_volume>,
+			composite_key<
+				gr_team_object,
+				member<gr_team_object, share_type, &gr_team_object::second_half_volume>,
+				member< object, object_id_type, &object::id>
+			>
+		 >,
+		ordered_unique<tag<by_total_volume>,
+			composite_key<
+				gr_team_object,
+				member<gr_team_object, share_type, &gr_team_object::total_volume>,
+				member< object, object_id_type, &object::id>
+			>
+		 >,
+		// ordered_non_unique<tag<by_gr_interval_4_volume>,
+		//  member<gr_team_object, share_type, &gr_team_object::gr_interval_4_volume>
+		//  >,
+		// ordered_non_unique<tag<by_gr_interval_6_volume>,
+		//  member<gr_team_object, share_type, &gr_team_object::gr_interval_6_volume>
+		//  >,
+		// ordered_non_unique<tag<by_gr_interval_9_volume>,
+		//  member<gr_team_object, share_type, &gr_team_object::gr_interval_9_volume>
+		//  >,
+		// ordered_non_unique<tag<by_gr_interval_11_volume>,
+		//  member<gr_team_object, share_type, &gr_team_object::gr_interval_11_volume>
+		//  >,
+		// ordered_non_unique<tag<by_gr_interval_13_volume>,
+		//  member<gr_team_object, share_type, &gr_team_object::gr_interval_13_volume>
+		//  >,
+		// ordered_non_unique<tag<by_total_first_half_volume>,
+		//  member<gr_team_object, share_type, &gr_team_object::first_half_volume>
+		//  >,
+		// ordered_non_unique<tag<by_total_second_half_volume>,
+		//  member<gr_team_object, share_type, &gr_team_object::second_half_volume>
+		//  >,
+		// ordered_non_unique<tag<by_total_volume>,
+		//  member<gr_team_object, share_type, &gr_team_object::total_volume>
+		//  >,
+		ordered_non_unique<tag<by_last_gr_rank>,
+		 member<gr_team_object, uint8_t, &gr_team_object::last_gr_rank>
+		 >
 	>> gr_team_multi_index_type;
 	using gr_team_index = generic_index<gr_team_object, gr_team_multi_index_type>;
 
@@ -110,7 +189,7 @@ namespace graphene { namespace chain {
 		share_type gr_gold_volume = 0;
 		share_type gr_platinum_volume = 0;
 		share_type gr_diamond_volume = 0;
-		share_type gr_elite_volume = 0;
+		share_type gr_master_volume = 0;
 		share_type gr_iron_reward = 0;
 		share_type gr_bronze_reward = 0;
 		share_type gr_silver_reward = 0;
@@ -212,6 +291,9 @@ FC_REFLECT_DERIVED(graphene::chain::gr_team_object,
 					(gr_interval_9_volume)
 					(gr_interval_11_volume)
 					(gr_interval_13_volume)
+					(first_half_volume)
+					(second_half_volume)
+					(total_volume)
 					(last_gr_rank)
 )
 
@@ -231,7 +313,7 @@ FC_REFLECT_DERIVED(graphene::chain::gr_votes_object,
 					(gr_gold_volume)
 					(gr_platinum_volume)
 					(gr_diamond_volume)
-					(gr_elite_volume)
+					(gr_master_volume)
 					(gr_iron_reward)
 					(gr_bronze_reward)
 					(gr_silver_reward)
