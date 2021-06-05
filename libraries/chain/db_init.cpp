@@ -49,6 +49,7 @@
 #include <graphene/chain/gamezone_object.hpp>
 #include <graphene/chain/exchange_object.hpp> //EXCHANGE
 #include <graphene/chain/financial_object.hpp> //FINANCIAL
+#include <graphene/chain/greatrace_object.hpp> //FINANCIAL
 
 #include <graphene/chain/account_evaluator.hpp>
 #include <graphene/chain/asset_evaluator.hpp>
@@ -69,6 +70,7 @@
 #include <graphene/chain/exchange_evaluator.hpp> //EXCHANGE
 #include <graphene/chain/financial_evaluator.hpp> //FINANCIAL
 #include <graphene/chain/poc_evaluator.hpp> //FINANCIAL
+#include <graphene/chain/greatrace_evaluator.hpp> //FINANCIAL
 
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -160,7 +162,16 @@ const uint8_t pledge_offer_object::space_id; //FINANCIAL
 const uint8_t pledge_offer_object::type_id; //FINANCIAL
 const uint8_t approved_transfer_object::space_id; //FINANCIAL
 const uint8_t approved_transfer_object::type_id; //FINANCIAL
-
+const uint8_t gr_team_object::space_id;
+const uint8_t gr_team_object::type_id;
+const uint8_t gr_invite_object::space_id;
+const uint8_t gr_invite_object::type_id;
+const uint8_t gr_votes_object::space_id;
+const uint8_t gr_votes_object::type_id;
+const uint8_t gr_range_bet_object::space_id;
+const uint8_t gr_range_bet_object::type_id;
+const uint8_t gr_team_bet_object::space_id;
+const uint8_t gr_team_bet_object::type_id;
 void database::initialize_evaluators()
 {
    _operation_evaluators.resize(255);
@@ -250,7 +261,16 @@ void database::initialize_evaluators()
    register_evaluator<approved_transfer_open_dispute_evaluator>();
    register_evaluator<approved_transfer_resolve_dispute_evaluator>();
    register_evaluator<mass_payment_evaluator>();
-
+   register_evaluator<change_referrer_evaluator>();
+   register_evaluator<gr_team_create_evaluator>();
+   register_evaluator<gr_team_delete_evaluator>();
+   register_evaluator<gr_invite_send_evaluator>();
+   register_evaluator<gr_invite_accept_evaluator>();
+   register_evaluator<gr_player_remove_evaluator>();
+   register_evaluator<gr_team_leave_evaluator>();
+   register_evaluator<gr_vote_evaluator>();
+   register_evaluator<gr_range_bet_evaluator>();
+   register_evaluator<gr_team_bet_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -290,6 +310,12 @@ void database::initialize_indexes()
    add_index< primary_index<credit_offer_index> >(); //FINANCIAL
    add_index< primary_index<pledge_offer_index> >(); //FINANCIAL
    add_index< primary_index<approved_transfer_index> >(); //FINANCIAL
+
+   add_index< primary_index<gr_team_index> >(); //GREAT RACE
+   add_index< primary_index<gr_invite_index> >(); //GREAT RACE
+   add_index< primary_index<gr_votes_index> >(); //GREAT RACE
+   add_index< primary_index<gr_range_bet_index> >(); //GREAT RACE
+   add_index< primary_index<gr_team_bet_index> >(); //GREAT RACE
 
    //Implementation object indexes
    add_index< primary_index<transaction_index                             > >();

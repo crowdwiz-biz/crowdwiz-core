@@ -169,7 +169,7 @@ struct pledge_offer_auto_repay_operation : public base_operation
 		void            	validate()const;
 	};
 
-struct buy_gcwd_operation : public base_operation //VITRUAL
+struct buy_gcwd_operation : public base_operation
 	{
 		struct fee_parameters_type { uint64_t fee = 0; };
 		asset				fee;

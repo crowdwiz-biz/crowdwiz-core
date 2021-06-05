@@ -33,6 +33,7 @@
 #include <graphene/chain/exchange_object.hpp>
 #include <graphene/chain/proposal_object.hpp>
 #include <graphene/chain/financial_object.hpp>
+#include <graphene/chain/greatrace_object.hpp>
 #include <graphene/chain/transaction_object.hpp>
 #include <graphene/chain/withdraw_permission_object.hpp>
 #include <graphene/chain/witness_object.hpp>

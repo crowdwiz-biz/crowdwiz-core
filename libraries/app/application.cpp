@@ -165,17 +165,11 @@ void application_impl::reset_p2p_node(const fc::path& data_dir)
    {
       vector<string> seeds = {
          "build2.onbc.xyz:1776",
-         "node1.crowdwiz.biz:1776",
-         "node2.crowdwiz.biz:1776",
-         "node3.crowdwiz.biz:1776",
-         "node4.crowdwiz.biz:1776",
-         "node5.crowdwiz.biz:1776",
-         "node6.crowdwiz.biz:1776",
-         "node7.crowdwiz.biz:1776",
-         "node8.crowdwiz.biz:1776",
-         "node9.crowdwiz.biz:1776",
-         "node10.crowdwiz.biz:1776",
-         "node11.crowdwiz.biz:1776"
+         "cwd.global:1776",
+         "ru.cwd.global:1776",
+         "asia.cwd.global:1776",
+         "eu.cwd.global:1776",
+         "68.183.242.188:1776"
       };
       for( const string& endpoint_string : seeds )
       {

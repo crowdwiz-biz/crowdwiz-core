@@ -23,6 +23,8 @@
  */
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/asset_object.hpp>
+#include <graphene/chain/greatrace_object.hpp>
+
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/hardfork.hpp>
 #include <fc/uint128.hpp>
@@ -320,6 +322,56 @@ void account_statistics_object::process_fees(const account_object &a, database &
                   }
                }
                d.deposit_cashback(d.get(ref_01.get_id()), ref_01_fee_cut, require_vesting);
+               //GR_REWARD
+               const auto &dgpo = d.get_dynamic_global_properties();
+               if (  dgpo.current_gr_interval == 2  ||
+                     dgpo.current_gr_interval == 4  ||
+                     dgpo.current_gr_interval == 6  ||
+                     dgpo.current_gr_interval == 9  ||
+                     dgpo.current_gr_interval == 11 ||
+                     dgpo.current_gr_interval == 13
+                  )
+                  {
+                     d.modify(d.get(ref_01.statistics), [&](account_statistics_object &s) {
+                        s.current_period_gr += ref_01_fee_cut;
+                     });
+
+                     if (ref_01.gr_team.valid()) {
+                        d.modify(d.get(*ref_01.gr_team), [&](gr_team_object &t) {
+                           if (dgpo.current_gr_interval == 2) {
+                              t.gr_interval_2_volume += ref_01_fee_cut;
+                              t.first_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
+                           }
+                           if (dgpo.current_gr_interval == 4) {
+                              t.gr_interval_4_volume += ref_01_fee_cut;
+                              t.first_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
+                           }
+                           if (dgpo.current_gr_interval == 6) {
+                              t.gr_interval_6_volume += ref_01_fee_cut;
+                              t.first_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
+                           }
+                           if (dgpo.current_gr_interval == 9) {
+                              t.gr_interval_9_volume += ref_01_fee_cut;
+                              t.second_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
+                           }
+                           if (dgpo.current_gr_interval == 11) {
+                              t.gr_interval_11_volume += ref_01_fee_cut;
+                              t.second_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
+                           }
+                           if (dgpo.current_gr_interval == 13) {
+                              t.gr_interval_13_volume += ref_01_fee_cut;
+                              t.second_half_volume += ref_01_fee_cut;
+                              t.total_volume += ref_01_fee_cut;
+                           }
+                        });       
+                     }
+                  }
+
                reward_log( "pay_out_fees ref_01 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_01.name)("cbk",ref_01_fee_cut));
 
                network_cut = network_cut - ref_01_fee_cut;
