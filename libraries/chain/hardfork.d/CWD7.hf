@@ -1,5 +1,5 @@
-// Thursday, 04 June 2021 г., 00:00:00 Great Race 1622764800
+// Monday, 7 June 2021 г., 18:00:00 GMT Great Race 1623088800
 #ifndef HARDFORK_CWD7_TIME
-#define HARDFORK_CWD7_TIME (fc::time_point_sec(1622764800))
+#define HARDFORK_CWD7_TIME (fc::time_point_sec(1623088800))
 #endif
 

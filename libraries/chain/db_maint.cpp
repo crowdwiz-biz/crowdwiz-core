@@ -481,9 +481,6 @@ void database::proceed_gr_bets() {
          ++team_itr;
       } 
    }
-   elog("================ PROCEED GR BETS ==================");      
-   elog("Team and Places: ${rating}", ("rating", rating));
-
    // GR RANGE BETS Proceed
    const auto& gr_range_bets_idx = get_index_type< gr_range_bet_index >().indices().get< by_id >();
 
@@ -493,8 +490,6 @@ void database::proceed_gr_bets() {
    {
       const gr_range_bet_object& gr_range = *gr_range_itr;
       uint64_t place = rating[gr_range.team];
-      elog("Range bet: ${gr_range}, ${place}", ("gr_range", gr_range)("place", place));
-
 
       if (gr_range.true_bets.size()>0 && gr_range.false_bets.size()>0) {
 
@@ -519,8 +514,6 @@ void database::proceed_gr_bets() {
                      vop.bettor_part = asset(bet.second, asset_id_type(0) );
                      vop.reward = asset( prize_part, asset_id_type(0) );
                      vop.bettor = bet.first;
-                     elog("RANGE TRUE WIN: ${bettor}", ("bettor", bet.first));
-
                      push_applied_operation( vop );
                      adjust_balance(bet.first, asset( prize_part, asset_id_type(0)));
                   }
@@ -536,8 +529,6 @@ void database::proceed_gr_bets() {
                   vop.upper_rank = gr_range.upper_rank;
                   vop.result = place;
                   vop.bettor = bet.first;
-                  elog("RANGE TRUE LOOSE: ${bettor}", ("bettor", bet.first));
-
                   push_applied_operation( vop );               
                }
             }
@@ -562,8 +553,6 @@ void database::proceed_gr_bets() {
                   vop.bettor_part = asset( bet.second, asset_id_type(0) );
                   vop.reward = asset( prize_part, asset_id_type(0) );
                   vop.bettor = bet.first;
-                  elog("RANGE FALSE WIN: ${bettor}", ("bettor", bet.first));
-
                   push_applied_operation( vop );
                   adjust_balance(bet.first, asset( prize_part, asset_id_type(0)));
                }
@@ -579,8 +568,6 @@ void database::proceed_gr_bets() {
                vop.upper_rank = gr_range.upper_rank;
                vop.result = place;
                vop.bettor = bet.first;
-               elog("RANGE FALSE LOOSE: ${bettor}", ("bettor", bet.first));
-
                push_applied_operation( vop );               
             }
          }
@@ -597,8 +584,6 @@ void database::proceed_gr_bets() {
             vop.result = place;
             vop.payback = asset( bet.second.value, asset_id_type(0) );
             vop.bettor = bet.first;               
-            elog("RANGE TRUE CANCEL: ${bettor}", ("bettor", bet.first));
-
             push_applied_operation( vop );
 
             adjust_balance(bet.first, asset( bet.second.value, asset_id_type(0)));
@@ -615,8 +600,6 @@ void database::proceed_gr_bets() {
             vop.result = place;
             vop.payback = asset( bet.second.value, asset_id_type(0) );
             vop.bettor = bet.first;               
-            elog("RANGE FALSE CANCEL: ${bettor}", ("bettor", bet.first));
-
             push_applied_operation( vop );
 
             adjust_balance(bet.first, asset( bet.second.value, asset_id_type(0)));
@@ -642,7 +625,6 @@ void database::proceed_gr_bets() {
       const gr_team_bet_object& gr_team = *gr_team_itr;
       uint64_t team1_place = rating[gr_team.team1];
       uint64_t team2_place = rating[gr_team.team2];
-      elog("Team bet: ${gr_team}, team1 place ${team1_place}, team2 place ${team2_place}, gr_team.team1_bets.size ${team1_size}, gr_team.team2_bets.size ${team2_size} ", ("gr_team", gr_team)("team1_place", team1_place)("team2_place", team2_place)("team1_size", gr_team.team1_bets.size())("team2_size", gr_team.team2_bets.size()));
 
       if (team1_place < team2_place) { 
          share_type total_payed=0;      
@@ -664,8 +646,6 @@ void database::proceed_gr_bets() {
                   vop.bettor_part = asset( bet.second, asset_id_type(0) );
                   vop.reward = asset( prize_part, asset_id_type(0) );
                   vop.bettor = bet.first;
-                  elog("BET FOR TEAM1 WIN: ${bettor}", ("bettor", bet.first));
-
                   push_applied_operation( vop );
                   adjust_balance(bet.first, asset( prize_part, asset_id_type(0)));
                }
@@ -680,8 +660,6 @@ void database::proceed_gr_bets() {
                vop.team2 = gr_team.team2;
                vop.winner = gr_team.team1;
                vop.bettor = bet.first;
-               elog("BET FOR TEAM1 LOOSE: ${bettor}", ("bettor", bet.first));
-
                push_applied_operation( vop );               
             }
          }
@@ -695,7 +673,6 @@ void database::proceed_gr_bets() {
                vop.winner = gr_team.team1;
                vop.payback = asset( bet.second.value, asset_id_type(0) );
                vop.bettor = bet.first;
-               elog("BET FOR TEAM1-TEAM2 CANCEL: ${bettor}", ("bettor", bet.first));
                push_applied_operation( vop );
 
                adjust_balance(bet.first, asset( bet.second.value, asset_id_type(0)));
@@ -709,7 +686,6 @@ void database::proceed_gr_bets() {
                vop.winner = gr_team.team1;
                vop.payback = asset( bet.second.value, asset_id_type(0) );
                vop.bettor = bet.first;
-               elog("BET FOR TEAM1-TEAM2 CANCEL: ${bettor}", ("bettor", bet.first));
                push_applied_operation( vop );
 
                adjust_balance(bet.first, asset( bet.second.value, asset_id_type(0)));
@@ -736,7 +712,6 @@ void database::proceed_gr_bets() {
                   vop.bettor_part = asset( bet.second, asset_id_type(0) );
                   vop.reward = asset( prize_part, asset_id_type(0) );
                   vop.bettor = bet.first;
-                  elog("BET FOR TEAM2 WIN: ${bettor}", ("bettor", bet.first));
 
                   push_applied_operation( vop );
                   adjust_balance(bet.first, asset( prize_part, asset_id_type(0)));
@@ -752,7 +727,6 @@ void database::proceed_gr_bets() {
                vop.team2 = gr_team.team2;
                vop.winner = gr_team.team2;
                vop.bettor = bet.first;
-               elog("BET FOR TEAM2 LOOSE: ${bettor}", ("bettor", bet.first));
 
                push_applied_operation( vop );               
             }
@@ -768,7 +742,6 @@ void database::proceed_gr_bets() {
                vop.payback = asset( bet.second.value, asset_id_type(0) );
                vop.bettor = bet.first;
                push_applied_operation( vop );
-               elog("BET FOR TEAM2-TEAM1 CANCEL: ${bettor}", ("bettor", bet.first));
 
                adjust_balance(bet.first, asset( bet.second.value, asset_id_type(0)));
             }
@@ -782,7 +755,6 @@ void database::proceed_gr_bets() {
                vop.payback = asset( bet.second.value, asset_id_type(0) );
                vop.bettor = bet.first;
                push_applied_operation( vop );
-               elog("BET FOR TEAM2-TEAM2 CANCEL: ${bettor}", ("bettor", bet.first));
 
                adjust_balance(bet.first, asset( bet.second.value, asset_id_type(0)));
             }            
@@ -2395,9 +2367,8 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       if( current_gr_interval == 0 || current_gr_interval == 14 ) {
          current_gr_interval = 1;
          gr_vote_is_active = true;
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_1);
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
-         end_gr_vote_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(gpo.greatrace_parameters.vote_duration/24/60); //TESTS - REMOVE /24/60
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_1);
+         end_gr_vote_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(gpo.greatrace_parameters.vote_duration); 
          proceed_gr_rank();
          proceed_apostolos();
          reset_gr_volumes();
@@ -2405,107 +2376,82 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       }
       else if( current_gr_interval == 1 ) {
          current_gr_interval = 2;
-         // gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_2 / uint16_t(2) );
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_2);
-         gr_bet_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(300); //TESTS
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_2 / uint16_t(2) );
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_2);
          clear_gr_invite();
       }
       else if( current_gr_interval == 2 ) {
          current_gr_interval = 3;
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_3);
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_3);
          proceed_gr_top3();
          proceed_gr_bets();
       }
       else if( current_gr_interval == 3 ) {
          current_gr_interval = 4;
-         // gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_4 / uint16_t(2) );
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_4);
-         gr_bet_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(300); //TESTS
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_4 / uint16_t(2) );
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_4);
          clear_gr_invite();
       }
       else if( current_gr_interval == 4 ) {
          current_gr_interval = 5;
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_5);
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
-
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_5);
          proceed_gr_top3();
          proceed_gr_bets();
       }
       else if( current_gr_interval == 5 ) {
          current_gr_interval = 6;
-         // gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_6 / uint16_t(2));
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_6);
-         gr_bet_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(300); //TESTS
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_6 / uint16_t(2));
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_6);
          clear_gr_invite();
       }
       else if( current_gr_interval == 6 ) {
          current_gr_interval = 7;
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_7);
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
-
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_7);
          proceed_gr_top3();
          proceed_gr_bets();
       }
       else if( current_gr_interval == 7 ) {
          current_gr_interval = 8;
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_8);
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_8);
          proceed_gr_rank();
          perform_gr_maintenance();
       }
       else if( current_gr_interval == 8 ) {
          current_gr_interval = 9;
-         // gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_9 / uint16_t(2));
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_9);
-         gr_bet_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(300); //TESTS
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_9 / uint16_t(2));
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_9);
          clear_gr_invite();
       }
       else if( current_gr_interval == 9 ) {
          current_gr_interval = 10;
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_10);
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
-
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_10);
          proceed_gr_top3();
          proceed_gr_bets();
       }
       else if( current_gr_interval == 10 ) {
          current_gr_interval = 11;
-         // gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_11 / uint16_t(2));
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_11);
-         gr_bet_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(300); //TESTS
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_11 / uint16_t(2));
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_11);
          clear_gr_invite();
       }
       else if( current_gr_interval == 11 ) {
          current_gr_interval = 12;
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_12);
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
-
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_12);
          proceed_gr_top3();
          proceed_gr_bets();
       }
       else if( current_gr_interval == 12 ) {
          current_gr_interval = 13;
-         // gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_13 / uint16_t(2));
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_13);
-         gr_bet_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(300); //TESTS
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
+         gr_bet_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_13 / uint16_t(2));
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_13);
          clear_gr_invite();
       }
       else if( current_gr_interval == 13 ) {
          current_gr_interval = 14;
-         // next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_14);
-         next_gr_interval_time = time_point_sec() + next_block.timestamp.sec_since_epoch() + fc::seconds(600); //TESTS
-
+         next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_14);
          proceed_gr_top3();
          proceed_gr_bets();
       }
-         elog("GR next block time ${nbt} current_gr_interval ${i} next_gr_interval_time ${s}, gr_bet_interval_time ${bi}", ("nbt",next_block.timestamp)("i", current_gr_interval)("s", next_gr_interval_time)("bi", gr_bet_interval_time));      
    }
 
    if( end_gr_vote_time <= next_block.timestamp && gr_vote_is_active == true ) {

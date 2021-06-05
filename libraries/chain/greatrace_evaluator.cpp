@@ -23,7 +23,8 @@ void_result gr_team_create_evaluator::do_evaluate(const gr_team_create_operation
     {
     	database& d = db();
 		const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
-		// FC_ASSERT( dgpo.current_gr_interval == 1, "Not in GR Start interval"); //RELEASE ENABLE!
+        FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
+		FC_ASSERT( dgpo.current_gr_interval == 1, "Not in GR Start interval");
 
         const account_object& captain = op.captain(d);
         const auto& captain_stats = captain.statistics(d);
@@ -37,6 +38,7 @@ void_result gr_team_create_evaluator::do_evaluate(const gr_team_create_operation
         auto& team_indx = d.get_index_type<gr_team_index>();
         auto current_team_captain_itr = team_indx.indices().get<by_captain>().find( op.captain );
         FC_ASSERT( current_team_captain_itr == team_indx.indices().get<by_captain>().end(), "You already captain of the team!" );
+        FC_ASSERT( !captain.gr_team.valid(), "You in other team!" );
 
         if( op.name.size() )
         {
@@ -82,6 +84,8 @@ void_result gr_team_delete_evaluator::do_evaluate(const  gr_team_delete_operatio
     try
     {
     	database& d = db();
+        FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
+
         const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
 
 		FC_ASSERT(  dgpo.current_gr_interval == 1 ||
@@ -134,6 +138,8 @@ void_result gr_invite_send_evaluator::do_evaluate(const gr_invite_send_operation
     try
     {
     	database& d = db();
+        FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
+
 		const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
         const account_object& player = op.player(d);
 
@@ -180,6 +186,8 @@ void_result gr_invite_accept_evaluator::do_evaluate(const  gr_invite_accept_oper
     try
     {
     	database& d = db();
+        FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
+
         const gr_team_object& team = op.team(d);
         const gr_invite_object& invite = op.invite(d);
         const account_object& player = op.player(d);
@@ -200,6 +208,7 @@ void_result gr_invite_accept_evaluator::do_apply(const  gr_invite_accept_operati
     try
     {
         database& d = db();
+
         const gr_team_object& team = op.team(d);
         const gr_invite_object& invite = op.invite(d);
         const account_object& player = op.player(d);
@@ -226,6 +235,8 @@ void_result gr_player_remove_evaluator::do_evaluate(const  gr_player_remove_oper
     try
     {
     	database& d = db();
+        FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
+
 		const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
 
 		FC_ASSERT(  dgpo.current_gr_interval == 1 ||
@@ -281,6 +292,8 @@ void_result gr_team_leave_evaluator::do_evaluate(const  gr_team_leave_operation 
     try
     {
     	database& d = db();
+        FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
+
 		const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
 
 		FC_ASSERT(  dgpo.current_gr_interval == 1 ||
@@ -336,6 +349,8 @@ void_result gr_vote_evaluator::do_evaluate(const gr_vote_operation &op)
     try
     {
     	database& d = db();
+        FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
+
         const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
         FC_ASSERT(dgpo.gr_vote_is_active, "GR Vore is not running");
         const global_property_object& gpo = db().get_global_properties();
