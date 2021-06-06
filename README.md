@@ -23,4 +23,4 @@ We recommend building on Ubuntu 18.04 LTS (64-bit)
 
 **Build Script:**
 
-    Minimal RAM (now) required for full node is 8GB 
+    Minimal RAM (now) required for building full node is 16GB 
