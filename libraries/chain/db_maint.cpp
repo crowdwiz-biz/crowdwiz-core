@@ -255,15 +255,15 @@ void database::proceed_gr_top3() {
                vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
                vop.interval = dgpo.current_gr_interval;
                push_applied_operation( vop );
-               adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+               // adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
                supply+=dgpo.gr_top3_reward;
             }
             ++count;
             ++team_itr;
          }
-         modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
-            d.current_supply += supply;
-         });
+         // modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
+         //    d.current_supply += supply;
+         // });
       }
    }
    if (dgpo.current_gr_interval == 4) {
@@ -282,15 +282,15 @@ void database::proceed_gr_top3() {
                vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
                vop.interval = dgpo.current_gr_interval;
                push_applied_operation( vop );
-               adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+               // adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
                supply+=dgpo.gr_top3_reward;
             }
             ++count;
             ++team_itr;
          }
-         modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
-            d.current_supply += supply;
-         });
+         // modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
+         //    d.current_supply += supply;
+         // });
       }
    }   
    if (dgpo.current_gr_interval == 6) {
@@ -309,15 +309,15 @@ void database::proceed_gr_top3() {
                vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
                vop.interval = dgpo.current_gr_interval;
                push_applied_operation( vop );
-               adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+               // adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
                supply+=dgpo.gr_top3_reward;
             }
             ++count;
             ++team_itr;
          }
-         modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
-            d.current_supply += supply;
-         });
+         // modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
+         //    d.current_supply += supply;
+         // });
       }
    }
    if (dgpo.current_gr_interval == 9) {
@@ -336,15 +336,15 @@ void database::proceed_gr_top3() {
                vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
                vop.interval = dgpo.current_gr_interval;
                push_applied_operation( vop );
-               adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+               // adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
                supply+=dgpo.gr_top3_reward;
             }
             ++count;
             ++team_itr;
          }
-         modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
-            d.current_supply += supply;
-         });
+         // modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
+         //    d.current_supply += supply;
+         // });
       }
    }
    if (dgpo.current_gr_interval == 11) {
@@ -363,15 +363,15 @@ void database::proceed_gr_top3() {
                vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
                vop.interval = dgpo.current_gr_interval;
                push_applied_operation( vop );
-               adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+               // adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
                supply+=dgpo.gr_top3_reward;
             }
             ++count;
             ++team_itr;
          }
-         modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
-            d.current_supply += supply;
-         });
+         // modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
+         //    d.current_supply += supply;
+         // });
       }
    }   
    if (dgpo.current_gr_interval == 13) {
@@ -390,15 +390,15 @@ void database::proceed_gr_top3() {
                vop.amount = asset( dgpo.gr_top3_reward, asset_id_type(0) );
                vop.interval = dgpo.current_gr_interval;
                push_applied_operation( vop );
-               adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
+               // adjust_balance(team.captain, asset( dgpo.gr_top3_reward, asset_id_type(0) ));
                supply+=dgpo.gr_top3_reward;
             }
             ++count;
             ++team_itr;
          }
-         modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
-            d.current_supply += supply;
-         });
+         // modify( get_core_dynamic_data(), [supply](asset_dynamic_data_object& d) {
+         //    d.current_supply += supply;
+         // });
       }
    }
 }
@@ -827,7 +827,7 @@ void database::assign_gr_rank_to_team(const gr_team_object& team_obj, const shar
 	vop.amount =  asset( reward, asset_id_type(0) );
 	vop.rank = rank;
 	push_applied_operation( vop );
-	adjust_balance(team_obj.captain, asset( reward, asset_id_type(0) ));
+	// adjust_balance(team_obj.captain, asset( reward, asset_id_type(0) ));
 
 	for( auto player : team_obj.players ) {
 		modify( get(player), [rank](account_object& a) {
@@ -933,9 +933,9 @@ void database::proceed_gr_rank() {
 	}
 
    // DINAMIC ASSET DATA
-   modify( get_core_dynamic_data(), [total_reward](asset_dynamic_data_object& d) {
-      d.current_supply += total_reward;
-   });
+   // modify( get_core_dynamic_data(), [total_reward](asset_dynamic_data_object& d) {
+   //    d.current_supply += total_reward;
+   // });
 };
 
 void database::init_gr_race() {
