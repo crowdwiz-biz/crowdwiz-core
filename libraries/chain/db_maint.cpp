@@ -2359,7 +2359,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    auto gr_vote_is_active = dgpo.gr_vote_is_active;
    auto gr_bet_interval_time = dgpo.gr_bet_interval_time;
 
-   if( next_gr_interval_time <= next_block.timestamp )
+   if( next_gr_interval_time <= next_block.timestamp && next_block.timestamp < fc::time_point_sec(1680480000) )
    {       
       if( current_gr_interval == 0) {
          init_gr_race();
