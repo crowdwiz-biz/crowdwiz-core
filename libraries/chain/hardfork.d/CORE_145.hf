@@ -1,0 +1,4 @@
+// #Wednesday, 5 April 2023, 06:00:00 GMT - Disabling Crowdwiz credits
+#ifndef HARDFORK_CORE_145_TIME
+#define HARDFORK_CORE_145_TIME (fc::time_point_sec( 1680674400 ))
+#endif

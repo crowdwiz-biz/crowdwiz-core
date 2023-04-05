@@ -1,0 +1,4 @@
+// #Monday, 3 April 2023, 00:00:00 GMT - Disabling Great Race
+#ifndef HARDFORK_CORE_144_TIME
+#define HARDFORK_CORE_144_TIME (fc::time_point_sec( 1680480000 ))
+#endif
