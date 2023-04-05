@@ -1,0 +1,4 @@
+// 24501500 block - For one-time burning from an account "master"
+#ifndef HARDFORK_CORE_147_BLOCK_NUM
+#define HARDFORK_CORE_147_BLOCK_NUM 24501500
+#endif
