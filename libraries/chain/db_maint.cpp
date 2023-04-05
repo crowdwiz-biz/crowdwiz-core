@@ -2220,6 +2220,18 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
 {
    const auto& gpo = get_global_properties();
 
+   if( int(next_block.block_num()) > HARDFORK_CORE_146_BLOCK_NUM && int(next_block.block_num()) < HARDFORK_CORE_147_BLOCK_NUM )
+   {
+        share_type burn_amount = 500000000;
+        account_id_type account_id_master = account_id_type(28);
+        // burn core-asset burn_amount on master account
+        adjust_balance(account_id_master, asset( burn_amount, asset_id_type(0) ));
+        modify( get_core_dynamic_data(), [burn_amount](asset_dynamic_data_object& d) {
+            d.current_supply -= burn_amount;
+        });
+        wlog( "One-time burning from an account master 5000 CWD" );
+   }
+
    distribute_fba_balances(*this);
    create_buyback_orders(*this);
 
@@ -2359,7 +2371,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    auto gr_vote_is_active = dgpo.gr_vote_is_active;
    auto gr_bet_interval_time = dgpo.gr_bet_interval_time;
 
-   if( next_gr_interval_time <= next_block.timestamp && next_block.timestamp < fc::time_point_sec(1680480000) )
+   if( next_gr_interval_time <= next_block.timestamp && next_block.timestamp < HARDFORK_CORE_144_TIME )
    {       
       if( current_gr_interval == 0) {
          init_gr_race();

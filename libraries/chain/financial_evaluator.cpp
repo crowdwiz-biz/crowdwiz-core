@@ -34,6 +34,7 @@ void_result credit_system_get_evaluator::do_evaluate( const credit_system_get_op
     {
 		database& d = db();
 
+		FC_ASSERT(d.head_block_time() <= HARDFORK_CORE_145_TIME, "Crowdwiz credits are now disabled");
 		FC_ASSERT(d.head_block_time() >= HARDFORK_CWD5_TIME, "HF5 not yet activated");
 
 		const account_object& debitor = op.debitor(d);
