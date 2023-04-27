@@ -1,1 +1,0 @@
-cmd='/home/testnet1/Documents/crowdwiz-core/libraries/fc/vendor/secp256k1-zkp/configure;--prefix=/home/testnet1/Documents/crowdwiz-core/libraries/fc/vendor/secp256k1-zkp;--with-bignum=no'
