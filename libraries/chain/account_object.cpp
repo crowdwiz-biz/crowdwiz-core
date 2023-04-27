@@ -158,7 +158,7 @@ void account_statistics_object::update_nv(share_type volume, uint8_t level, uint
    share_type reward_cut = 0;
    if (a.active_referral_status(d.head_block_time()) >= params.min_nv_status && network_volume_in_period >= params.nv_level_threshold_01)
    {
-      if (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 17250 || !accounts_set.count(a.id))
+      if (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(a.id))
       {
          reward_log( "update_nv, account =${acc}= GOT LEADERS REWARD", ("acc",a.name));
          if (network_volume_in_period >= params.nv_level_threshold_08 && params.nv_level_reward_08 > max_reward_level)
@@ -236,7 +236,6 @@ void account_statistics_object::update_nv(share_type volume, uint8_t level, uint
         {
             d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(reward_cut, asset_id_type(0)));
             reward_log( "Withdrawal CWD from market: account =${acc}= GOT LEADERS REWARD at Level ${level}, amount ${reward_cut}", ("acc",a.name)("level",max_reward_level)("reward_cut",reward_cut));
-            ilog( "Withdrawal CWD from market: account =${acc}= GOT LEADERS REWARD at Level ${level}, amount ${reward_cut}", ("acc",a.name)("level",max_reward_level)("reward_cut",reward_cut));
         }
    }
    level = level + 1;
@@ -297,6 +296,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
 
       //          assert( referrer_cut + registrar_cut + accumulated + reserveed + lifetime_cut == core_fee_total );
       //       };
+
       auto pay_out_fees = [&](const account_object &account, share_type core_fee_total, bool require_vesting) {
          const auto &params = d.get_global_properties().parameters;
          share_type network_cut = core_fee_total;
@@ -333,7 +333,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
          share_type ref_07_fee_cut_withdraw = 0;
          share_type ref_08_fee_cut_withdraw = 0;
 
-         if ( (account.id != ref_01.id || params.cashback) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 18200 || !accounts_set.count(ref_01.id)) )
+         if ( (account.id != ref_01.id || params.cashback) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_01.id)) )
          {
             if (params.ref_01_percent_of_fee > 0 && network_cut > 0 && ref_01.referral_levels >= 1)
             {
@@ -423,7 +423,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
             const account_object &ref_02 = d.get(next_rewardable(ref_01,d));
             reward_log( "pay_out_fees ref_02 =${acc}=", ("acc",ref_02.name));
 
-            if ( (ref_01.id != ref_02.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 18200 || !accounts_set.count(ref_02.id)) )
+            if ( (ref_01.id != ref_02.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_02.id)) )
             {
                if (params.ref_02_percent_of_fee > 0 && network_cut > 0 && ref_02.referral_levels >= 2)
                {
@@ -463,7 +463,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                const account_object &ref_03 = d.get(next_rewardable(ref_02, d));
                reward_log( "pay_out_fees ref_03 =${acc}=", ("acc",ref_03.name));
 
-               if ( (ref_02.id != ref_03.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 18200 || !accounts_set.count(ref_03.id)) )
+               if ( (ref_02.id != ref_03.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_03.id)) )
                {
                   if (params.ref_03_percent_of_fee > 0 && network_cut > 0 && ref_03.referral_levels >= 3)
                   {
@@ -503,7 +503,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                   const account_object &ref_04 = d.get(next_rewardable(ref_03, d));
                   reward_log( "pay_out_fees ref_04 =${acc}=", ("acc",ref_04.name));
 
-                  if ( (ref_03.id != ref_04.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 18200 || !accounts_set.count(ref_04.id)) )
+                  if ( (ref_03.id != ref_04.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_04.id)) )
                   {
                      if (params.ref_04_percent_of_fee > 0 && network_cut > 0 && ref_04.referral_levels >= 4)
                      {
@@ -543,7 +543,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                      const account_object &ref_05 = d.get(next_rewardable(ref_04, d));
                      reward_log( "pay_out_fees ref_05 =${acc}=", ("acc",ref_05.name));
 
-                     if ( (ref_04.id != ref_05.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 18200 || !accounts_set.count(ref_05.id)) )
+                     if ( (ref_04.id != ref_05.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_05.id)) )
                      {
                         if (params.ref_05_percent_of_fee > 0 && network_cut > 0 && ref_05.referral_levels >= 5)
                         {
@@ -583,7 +583,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                         const account_object &ref_06 = d.get(next_rewardable(ref_05, d));
                         reward_log( "pay_out_fees ref_06 =${acc}=", ("acc",ref_06.name));
 
-                        if ( (ref_05.id != ref_06.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 18200 || !accounts_set.count(ref_06.id)) )
+                        if ( (ref_05.id != ref_06.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_06.id)) )
                         {
                            if (params.ref_06_percent_of_fee > 0 && network_cut > 0 && ref_06.referral_levels >= 6)
                            {
@@ -623,7 +623,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                            const account_object &ref_07 = d.get(next_rewardable(ref_06, d));
                            reward_log( "pay_out_fees ref_07 =${acc}=", ("acc",ref_07.name));
 
-                           if ( (ref_06.id != ref_07.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 18200 || !accounts_set.count(ref_07.id)) )
+                           if ( (ref_06.id != ref_07.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_07.id)) )
                            {
                               if (params.ref_07_percent_of_fee > 0 && network_cut > 0 && ref_07.referral_levels >= 7)
                               {
@@ -662,7 +662,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                               }                              
                               const account_object &ref_08 = d.get(next_rewardable(ref_07, d));
                               reward_log( "pay_out_fees ref_08 =${acc}=", ("acc",ref_08.name));
-                              if ( (ref_07.id != ref_08.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 18200 || !accounts_set.count(ref_08.id)) )
+                              if ( (ref_07.id != ref_08.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_08.id)) )
                               {
                                  if (params.ref_08_percent_of_fee > 0 && network_cut > 0 && ref_08.referral_levels >= 8)
                                  {

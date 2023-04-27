@@ -2342,12 +2342,6 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          p.parameters = std::move(*p.pending_parameters);
          p.pending_parameters.reset();
       }
-
-      //
-      // p.parameters.maintenance_interval = 120;
-      // p.parameters.committee_proposal_review_period = 120;
-      // ilog("== gpo_paramets_changed ==");
-      //
    });
 
    auto next_maintenance_time = dgpo.next_maintenance_time;

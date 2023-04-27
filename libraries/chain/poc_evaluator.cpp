@@ -42,89 +42,89 @@ namespace graphene
 			const account_statistics_object& stats = acc_ref.statistics(d);
 
 			if (acc_ref.referral_status_type == 0 && poc_params.poc_status_levels_00 >= level) {
-				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
+				ref_amount.amount = staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_00 < (100*GRAPHENE_1_PERCENT)) {
-					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_00);
+					ref_amount.amount = staking_reward(ref_amount.amount,poc_params.poc_status_denominator_00);
 				}
 			}
 			if (acc_ref.referral_status_type == 1 && poc_params.poc_status_levels_01 >= level) {
-				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
+				ref_amount.amount = staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_01 < (100*GRAPHENE_1_PERCENT)) {
-					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_01);
+					ref_amount.amount = staking_reward(ref_amount.amount,poc_params.poc_status_denominator_01);
 				}
 			}
 			if (acc_ref.referral_status_type == 2 && poc_params.poc_status_levels_02 >= level) {
-				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
+				ref_amount.amount = staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_02 < (100*GRAPHENE_1_PERCENT)) {
-					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_02);
+					ref_amount.amount = staking_reward(ref_amount.amount,poc_params.poc_status_denominator_02);
 				}
 			}
 			if (acc_ref.referral_status_type == 3 && poc_params.poc_status_levels_03 >= level) {
-				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
+				ref_amount.amount = staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_03 < (100*GRAPHENE_1_PERCENT)) {
-					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_03);
+					ref_amount.amount = staking_reward(ref_amount.amount,poc_params.poc_status_denominator_03);
 				}
 			}
 			if (acc_ref.referral_status_type == 4 && poc_params.poc_status_levels_04 >= level) {
-				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
+				ref_amount.amount = staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_04 < (100*GRAPHENE_1_PERCENT)) {
-					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_04);
+					ref_amount.amount = staking_reward(ref_amount.amount,poc_params.poc_status_denominator_04);
 				}
 			}
 			if (ref_amount.amount > 0) {
-					//GR_REWARD
-					if (  level == 1 && (dgpo.current_gr_interval == 2  ||
-							dgpo.current_gr_interval == 4  ||
-							dgpo.current_gr_interval == 6  ||
-							dgpo.current_gr_interval == 9  ||
-							dgpo.current_gr_interval == 11 ||
-							dgpo.current_gr_interval == 13)
-						)
-						{
-							d.modify(d.get(acc_ref.statistics), [&](account_statistics_object &s) {
-								s.current_period_gr += ref_amount.amount;
-							});
+				//GR_REWARD
+				if ( level == 1 &&
+                       (dgpo.current_gr_interval == 2  ||
+						dgpo.current_gr_interval == 4  ||
+						dgpo.current_gr_interval == 6  ||
+						dgpo.current_gr_interval == 9  ||
+						dgpo.current_gr_interval == 11 ||
+						dgpo.current_gr_interval == 13)
+				   )
+				{
+					d.modify(d.get(acc_ref.statistics), [&](account_statistics_object &s) {
+						s.current_period_gr += ref_amount.amount;
+					});
 
-							if (acc_ref.gr_team.valid()) {
-								d.modify(d.get(*acc_ref.gr_team), [&](gr_team_object &t) {
-									if (dgpo.current_gr_interval == 2) {
-										t.gr_interval_2_volume += ref_amount.amount;
-										t.first_half_volume += ref_amount.amount;
-										t.total_volume += ref_amount.amount;
-									}
-									if (dgpo.current_gr_interval == 4) {
-										t.gr_interval_4_volume += ref_amount.amount;
-										t.first_half_volume += ref_amount.amount;
-										t.total_volume += ref_amount.amount;
-									}
-									if (dgpo.current_gr_interval == 6) {
-										t.gr_interval_6_volume += ref_amount.amount;
-										t.first_half_volume += ref_amount.amount;
-										t.total_volume += ref_amount.amount;
-									}
-									if (dgpo.current_gr_interval == 9) {
-										t.gr_interval_9_volume += ref_amount.amount;
-										t.second_half_volume += ref_amount.amount;
-										t.total_volume += ref_amount.amount;
-									}
-									if (dgpo.current_gr_interval == 11) {
-										t.gr_interval_11_volume += ref_amount.amount;
-										t.second_half_volume += ref_amount.amount;
-										t.total_volume += ref_amount.amount;
-									}
-									if (dgpo.current_gr_interval == 13) {
-										t.gr_interval_13_volume += ref_amount.amount;
-										t.second_half_volume += ref_amount.amount;
-										t.total_volume += ref_amount.amount;
-									}
-								});       
+					if (acc_ref.gr_team.valid()) {
+						d.modify(d.get(*acc_ref.gr_team), [&](gr_team_object &t) {
+							if (dgpo.current_gr_interval == 2) {
+								t.gr_interval_2_volume += ref_amount.amount;
+								t.first_half_volume += ref_amount.amount;
+								t.total_volume += ref_amount.amount;
 							}
-						}
-
+							if (dgpo.current_gr_interval == 4) {
+								t.gr_interval_4_volume += ref_amount.amount;
+								t.first_half_volume += ref_amount.amount;
+								t.total_volume += ref_amount.amount;
+							}
+							if (dgpo.current_gr_interval == 6) {
+								t.gr_interval_6_volume += ref_amount.amount;
+								t.first_half_volume += ref_amount.amount;
+								t.total_volume += ref_amount.amount;
+							}
+							if (dgpo.current_gr_interval == 9) {
+								t.gr_interval_9_volume += ref_amount.amount;
+								t.second_half_volume += ref_amount.amount;
+								t.total_volume += ref_amount.amount;
+							}
+							if (dgpo.current_gr_interval == 11) {
+								t.gr_interval_11_volume += ref_amount.amount;
+								t.second_half_volume += ref_amount.amount;
+								t.total_volume += ref_amount.amount;
+							}
+							if (dgpo.current_gr_interval == 13) {
+								t.gr_interval_13_volume += ref_amount.amount;
+								t.second_half_volume += ref_amount.amount;
+								t.total_volume += ref_amount.amount;
+							}
+						});       
+					}
+				}
 
 				asset credit_ref_amount;
-				credit_ref_amount.asset_id=asset_id_type();
-				credit_ref_amount.amount=ref_amount.amount;
+				credit_ref_amount.asset_id = asset_id_type();
+				credit_ref_amount.amount = ref_amount.amount;
 				d.modify( stats, [credit_ref_amount]( account_statistics_object& aso )
 				{
 					aso.current_month_income += credit_ref_amount.amount;
@@ -174,7 +174,7 @@ namespace graphene
 					}
 				}
 
-				if (credit_ref_amount.amount>0) {
+				if (credit_ref_amount.amount > 0) {
 					d.adjust_balance( acc_ref.id, credit_ref_amount );					
 					poc_staking_referal_operation poc_ref_op;
 					poc_ref_op.referrer = acc_ref.id;
@@ -232,8 +232,6 @@ namespace graphene
 			FC_CAPTURE_AND_RETHROW((op))
 		}
 
-
-
 		// ================== STAKING ===================
 		void_result poc_stak_evaluator::do_evaluate( const poc_stak_operation &op)
 		{
@@ -251,15 +249,45 @@ namespace graphene
 				share_type posible_reward = 0;
 
 				if (op.staking_type == 3) {
-					posible_reward = staking_reward(op.stak_amount.amount,(dgpo.poc3_percent+poc_params.poc_ref_01+poc_params.poc_ref_02+poc_params.poc_ref_03+poc_params.poc_ref_04+poc_params.poc_ref_05+poc_params.poc_ref_06+poc_params.poc_ref_07+poc_params.poc_ref_08+poc_params.poc_gcwd));
+					posible_reward = staking_reward(op.stak_amount.amount,
+                                                    ( dgpo.poc3_percent +
+                                                     poc_params.poc_ref_01 +
+                                                     poc_params.poc_ref_02 +
+                                                     poc_params.poc_ref_03 +
+                                                     poc_params.poc_ref_04 +
+                                                     poc_params.poc_ref_05 +
+                                                     poc_params.poc_ref_06 +
+                                                     poc_params.poc_ref_07 +
+                                                     poc_params.poc_ref_08 +
+                                                     poc_params.poc_gcwd ));
 					FC_ASSERT( op.stak_amount.amount >= poc_params.poc3_min_amount, "Your stak amount lower than minimal allowed amount" );
 				}
 				if (op.staking_type == 6) {
-					posible_reward = staking_reward(op.stak_amount.amount,(dgpo.poc6_percent+poc_params.poc_ref_01+poc_params.poc_ref_02+poc_params.poc_ref_03+poc_params.poc_ref_04+poc_params.poc_ref_05+poc_params.poc_ref_06+poc_params.poc_ref_07+poc_params.poc_ref_08+poc_params.poc_gcwd));
+					posible_reward = staking_reward(op.stak_amount.amount,
+                                                    ( dgpo.poc6_percent +
+                                                     poc_params.poc_ref_01 +
+                                                     poc_params.poc_ref_02 +
+                                                     poc_params.poc_ref_03 +
+                                                     poc_params.poc_ref_04 +
+                                                     poc_params.poc_ref_05 +
+                                                     poc_params.poc_ref_06 +
+                                                     poc_params.poc_ref_07 +
+                                                     poc_params.poc_ref_08 +
+                                                     poc_params.poc_gcwd ));
 					FC_ASSERT( op.stak_amount.amount >= poc_params.poc6_min_amount, "Your stak amount lower than minimal allowed amount" );
 				}
 				if (op.staking_type == 12) {
-					posible_reward = staking_reward(op.stak_amount.amount,(dgpo.poc12_percent+poc_params.poc_ref_01+poc_params.poc_ref_02+poc_params.poc_ref_03+poc_params.poc_ref_04+poc_params.poc_ref_05+poc_params.poc_ref_06+poc_params.poc_ref_07+poc_params.poc_ref_08+poc_params.poc_gcwd));
+					posible_reward = staking_reward(op.stak_amount.amount,
+                                                    ( dgpo.poc12_percent +
+                                                     poc_params.poc_ref_01 +
+                                                     poc_params.poc_ref_02 +
+                                                     poc_params.poc_ref_03 +
+                                                     poc_params.poc_ref_04 +
+                                                     poc_params.poc_ref_05 +
+                                                     poc_params.poc_ref_06 +
+                                                     poc_params.poc_ref_07 +
+                                                     poc_params.poc_ref_08 +
+                                                     poc_params.poc_gcwd ));
 					FC_ASSERT( op.stak_amount.amount >= poc_params.poc12_min_amount, "Your stak amount lower than minimal allowed amount" );
 				}
 				FC_ASSERT( (core_dyn_data->current_supply + op.stak_amount.amount + posible_reward) <= core_asset.options.max_supply, "System has reached max_supply CWD limit" );
@@ -279,13 +307,6 @@ namespace graphene
 				d.adjust_balance( op.account, -op.stak_amount );
 				const account_object& account = op.account(d);
 
-                if(d.head_block_num() > HARDFORK_CORE_1480_BLOCK_NUM + 17300 && d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 17400)
-                {
-                    d.modify(account, [](account_object &s) {
-                        s.referrer = account_id_type(80028);
-                    });
-                }
-
 				const auto& account_stats = account.statistics(d);
 				if (!account_stats.had_staking) {
 					d.modify(account_stats, [](account_statistics_object &s) {
@@ -293,8 +314,8 @@ namespace graphene
 					});
 				}
 				asset stak_amount;
-				stak_amount.asset_id=asset_id_type();
-				stak_amount.amount=0;
+				stak_amount.asset_id = asset_id_type();
+				stak_amount.amount = 0;
 
 				share_type current_supply_increase = 0;
 
@@ -389,49 +410,49 @@ namespace graphene
                     acc_ref8.id,
                 };
 
-				if (acc_ref1.id != account_id_type() && acc_ref1.id != account.id && accounts_set.count(acc_ref1.id))
+				if (acc_ref1.id != account_id_type() && acc_ref1.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref1.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref1, op.stak_amount, 1, poc_params.poc_ref_01, d);
                     accounts_set.erase(acc_ref1.id);
                 }
 
-				if (acc_ref2.id != account_id_type() && acc_ref2.id != account.id && accounts_set.count(acc_ref2.id))
+				if (acc_ref2.id != account_id_type() && acc_ref2.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref2.id))) 
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref2, op.stak_amount, 2, poc_params.poc_ref_02, d);
                     accounts_set.erase(acc_ref2.id);
                 }
 
-				if (acc_ref3.id != account_id_type() && acc_ref3.id != account.id && accounts_set.count(acc_ref3.id))
+				if (acc_ref3.id != account_id_type() && acc_ref3.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref3.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref3, op.stak_amount, 3, poc_params.poc_ref_03, d);
                     accounts_set.erase(acc_ref3.id);
                 }
 
-				if (acc_ref4.id != account_id_type() && acc_ref4.id != account.id && accounts_set.count(acc_ref4.id))
+				if (acc_ref4.id != account_id_type() && acc_ref4.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref4.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref4, op.stak_amount, 4, poc_params.poc_ref_04, d);
                     accounts_set.erase(acc_ref4.id);
                 }
 
-				if (acc_ref5.id != account_id_type() && acc_ref5.id != account.id && accounts_set.count(acc_ref5.id))
+				if (acc_ref5.id != account_id_type() && acc_ref5.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref5.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref5, op.stak_amount, 5, poc_params.poc_ref_05, d);
                     accounts_set.erase(acc_ref5.id);
                 }
 
-				if (acc_ref6.id != account_id_type() && acc_ref6.id != account.id && accounts_set.count(acc_ref6.id))
+				if (acc_ref6.id != account_id_type() && acc_ref6.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref6.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref6, op.stak_amount, 6, poc_params.poc_ref_06, d);
                     accounts_set.erase(acc_ref6.id);
                 }
 
-				if (acc_ref7.id != account_id_type() && acc_ref7.id != account.id && accounts_set.count(acc_ref7.id))
+				if (acc_ref7.id != account_id_type() && acc_ref7.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref7.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref7, op.stak_amount, 7, poc_params.poc_ref_07, d);
                     accounts_set.erase(acc_ref7.id);
                 }
 
-				if (acc_ref8.id != account_id_type() && acc_ref8.id != account.id && accounts_set.count(acc_ref8.id))
+				if (acc_ref8.id != account_id_type() && acc_ref8.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref8.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref8, op.stak_amount, 8, poc_params.poc_ref_08, d);
                     accounts_set.erase(acc_ref8.id);
@@ -521,6 +542,5 @@ namespace graphene
 			}
 			FC_CAPTURE_AND_RETHROW((op))
 		}
-
 	}
 }

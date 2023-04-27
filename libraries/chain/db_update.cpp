@@ -577,6 +577,7 @@ void database::proceed_bets()
 
          std::set<account_id_type> accounts_set = {};
          winner_account.statistics(*this).update_nv(referral_prize.amount, uint8_t(1) , uint8_t(0) , winner_account, *this, accounts_set);
+
          const account_statistics_object& customer_statistics = winner_account.statistics(*this);
 
          if ( head_block_time() >= HARDFORK_CWD2_TIME ) {

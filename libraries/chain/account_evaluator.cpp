@@ -543,7 +543,7 @@ void_result change_referrer_evaluator::do_evaluate(const change_referrer_evaluat
    FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
 
    // Checking for looping of the structure
-   if(d.head_block_num() > HARDFORK_CORE_1480_BLOCK_NUM + 14150)
+   if(d.head_block_num() > HARDFORK_CORE_1480_BLOCK_NUM)
    {
       bool is_infinite_loop = true;
       account_object tmp_acc = d.get(o.new_referrer);
