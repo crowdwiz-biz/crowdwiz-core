@@ -1,4 +1,4 @@
-# Install script for directory: /root/crowdwiz-core/libraries/fc/vendor/websocketpp
+# Install script for directory: /home/testnet1/Documents/crowdwiz-core/libraries/fc/vendor/websocketpp
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -47,14 +47,14 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xdevx" OR NOT CMAKE_INSTALL_COMPONEN
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
 file(INSTALL DESTINATION "/usr/local/lib/cmake/websocketpp" TYPE FILE FILES
-    "/root/crowdwiz-core/libraries/fc/vendor/websocketpp/CMakeFiles/websocketpp-config.cmake"
-    "/root/crowdwiz-core/libraries/fc/vendor/websocketpp/CMakeFiles/websocketpp-configVersion.cmake"
+    "/home/testnet1/Documents/crowdwiz-core/libraries/fc/vendor/websocketpp/CMakeFiles/websocketpp-config.cmake"
+    "/home/testnet1/Documents/crowdwiz-core/libraries/fc/vendor/websocketpp/CMakeFiles/websocketpp-configVersion.cmake"
     )
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/root/crowdwiz-core/libraries/fc/vendor/websocketpp/websocketpp/cmake_install.cmake")
+  include("/home/testnet1/Documents/crowdwiz-core/libraries/fc/vendor/websocketpp/websocketpp/cmake_install.cmake")
 
 endif()
 

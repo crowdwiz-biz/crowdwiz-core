@@ -50,7 +50,7 @@
 #define GRAPHENE_DEFAULT_MAINTENANCE_SKIP_SLOTS 3  // number of slots to skip for maintenance interval
 
 #define GRAPHENE_MIN_UNDO_HISTORY 10
-#define GRAPHENE_MAX_UNDO_HISTORY 10000
+#define GRAPHENE_MAX_UNDO_HISTORY 100000
 
 #define GRAPHENE_MIN_BLOCK_SIZE_LIMIT (GRAPHENE_MIN_TRANSACTION_SIZE_LIMIT*5) // 5 transactions per block
 #define GRAPHENE_BLOCKCHAIN_PRECISION                           uint64_t( 100000 )

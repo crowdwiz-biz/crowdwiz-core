@@ -2216,21 +2216,34 @@ void process_hf_935( database& db )
    }
 }
 
-void database::perform_chain_maintenance(const signed_block& next_block, const global_property_object& global_props)
+/******
+ * @brief one-time data process for hardfork core 146 and hardfork core 147
+ *
+ * One-time burning from an account "master" 5000 CWD
+ *
+ * @param db the database
+ */
+// TODO: for better performance, this function can be removed if it actually updated nothing at hf time.
+void process_hf_146_147(database& d, const signed_block& next_block)
 {
-   const auto& gpo = get_global_properties();
-
    if( int(next_block.block_num()) > HARDFORK_CORE_146_BLOCK_NUM && int(next_block.block_num()) < HARDFORK_CORE_147_BLOCK_NUM )
    {
         share_type burn_amount = 500000000;
         account_id_type account_id_master = account_id_type(28);
         // burn core-asset burn_amount on master account
-        adjust_balance(account_id_master, asset( burn_amount, asset_id_type(0) ));
-        modify( get_core_dynamic_data(), [burn_amount](asset_dynamic_data_object& d) {
+        d.adjust_balance(account_id_master, asset(burn_amount, asset_id_type(0)));
+        d.modify( d.get_core_dynamic_data(), [burn_amount](asset_dynamic_data_object& d) {
             d.current_supply -= burn_amount;
         });
-        wlog( "One-time burning from an account master 5000 CWD" );
+        wlog("process_hf_146_147 changed something");
    }
+}
+
+void database::perform_chain_maintenance(const signed_block& next_block, const global_property_object& global_props)
+{
+   const auto& gpo = get_global_properties();
+
+   process_hf_146_147(*this, next_block);
 
    distribute_fba_balances(*this);
    create_buyback_orders(*this);
@@ -2329,6 +2342,12 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
          p.parameters = std::move(*p.pending_parameters);
          p.pending_parameters.reset();
       }
+
+      //
+      // p.parameters.maintenance_interval = 120;
+      // p.parameters.committee_proposal_review_period = 120;
+      // ilog("== gpo_paramets_changed ==");
+      //
    });
 
    auto next_maintenance_time = dgpo.next_maintenance_time;
@@ -2514,7 +2533,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    // Explicitly call check_call_orders of all markets
    if( (dgpo.next_maintenance_time <= HARDFORK_CORE_935_TIME) && (next_maintenance_time > HARDFORK_CORE_935_TIME)
          && !to_update_and_match_call_orders )
-      process_hf_935( *this );
+   process_hf_935( *this );
    modify(dgpo, [next_maintenance_time, next_monthly_maintenance_time, next_poc_vote_time, end_poc_vote_time, poc_vote_is_active, current_gr_interval, next_gr_interval_time, end_gr_vote_time, gr_vote_is_active, gr_bet_interval_time](dynamic_global_property_object& d) {
       d.next_maintenance_time = next_maintenance_time;
       d.accounts_registered_this_interval = 0;

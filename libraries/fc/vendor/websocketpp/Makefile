@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /root/crowdwiz-core
+CMAKE_SOURCE_DIR = /home/testnet1/Documents/crowdwiz-core
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /root/crowdwiz-core
+CMAKE_BINARY_DIR = /home/testnet1/Documents/crowdwiz-core
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -126,14 +126,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /root/crowdwiz-core && $(CMAKE_COMMAND) -E cmake_progress_start /root/crowdwiz-core/CMakeFiles /root/crowdwiz-core/libraries/fc/vendor/websocketpp/CMakeFiles/progress.marks
-	cd /root/crowdwiz-core && $(MAKE) -f CMakeFiles/Makefile2 libraries/fc/vendor/websocketpp/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/crowdwiz-core/CMakeFiles 0
+	cd /home/testnet1/Documents/crowdwiz-core && $(CMAKE_COMMAND) -E cmake_progress_start /home/testnet1/Documents/crowdwiz-core/CMakeFiles /home/testnet1/Documents/crowdwiz-core/libraries/fc/vendor/websocketpp/CMakeFiles/progress.marks
+	cd /home/testnet1/Documents/crowdwiz-core && $(MAKE) -f CMakeFiles/Makefile2 libraries/fc/vendor/websocketpp/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/testnet1/Documents/crowdwiz-core/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /root/crowdwiz-core && $(MAKE) -f CMakeFiles/Makefile2 libraries/fc/vendor/websocketpp/clean
+	cd /home/testnet1/Documents/crowdwiz-core && $(MAKE) -f CMakeFiles/Makefile2 libraries/fc/vendor/websocketpp/clean
 .PHONY : clean
 
 # The main clean target
@@ -143,17 +143,17 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /root/crowdwiz-core && $(MAKE) -f CMakeFiles/Makefile2 libraries/fc/vendor/websocketpp/preinstall
+	cd /home/testnet1/Documents/crowdwiz-core && $(MAKE) -f CMakeFiles/Makefile2 libraries/fc/vendor/websocketpp/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /root/crowdwiz-core && $(MAKE) -f CMakeFiles/Makefile2 libraries/fc/vendor/websocketpp/preinstall
+	cd /home/testnet1/Documents/crowdwiz-core && $(MAKE) -f CMakeFiles/Makefile2 libraries/fc/vendor/websocketpp/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /root/crowdwiz-core && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/testnet1/Documents/crowdwiz-core && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Help Target
@@ -179,6 +179,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /root/crowdwiz-core && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/testnet1/Documents/crowdwiz-core && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

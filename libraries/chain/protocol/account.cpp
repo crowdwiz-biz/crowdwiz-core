@@ -278,12 +278,14 @@ share_type account_status_upgrade_operation::calculate_fee(const fee_parameters_
 {
    if( referral_status_type == 1 )
       return k.status_1_fee;
-   if( referral_status_type == 2 )
+   else if( referral_status_type == 2 )
       return k.status_2_fee;
-   if( referral_status_type == 3 )
+   else if( referral_status_type == 3 )
       return k.status_3_fee;
-   if( referral_status_type == 4 )
+   else if( referral_status_type == 4 )
       return k.status_4_fee;
+   else
+      FC_THROW( "unexpected referral_status_type" );
 }
 
 void account_status_upgrade_operation::validate() const

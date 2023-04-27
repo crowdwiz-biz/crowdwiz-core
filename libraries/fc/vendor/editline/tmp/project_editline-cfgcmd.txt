@@ -1,1 +1,1 @@
-cmd='/root/crowdwiz-core/libraries/fc/vendor/editline/configure;--prefix=/root/crowdwiz-core/libraries/fc/vendor/editline'
+cmd='/home/testnet1/Documents/crowdwiz-core/libraries/fc/vendor/editline/configure;--prefix=/home/testnet1/Documents/crowdwiz-core/libraries/fc/vendor/editline'

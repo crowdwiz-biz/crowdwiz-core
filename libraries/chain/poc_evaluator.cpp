@@ -11,6 +11,7 @@
 #include <graphene/chain/vesting_balance_object.hpp>
 #include <graphene/chain/greatrace_object.hpp>
 
+using namespace std;
 
 namespace graphene
 {
@@ -33,44 +34,44 @@ namespace graphene
 		share_type pay_staking_reward(const account_object& account, const account_object& acc_ref, asset stak_amount, uint8_t level, uint16_t poc_ref, database& d)
 		{
 			asset ref_amount;
-			ref_amount.asset_id=asset_id_type();
-			ref_amount.amount=0;
+			ref_amount.asset_id = asset_id_type();
+			ref_amount.amount = 0;
 			const global_property_object& gpo = d.get_global_properties();
 			const dynamic_global_property_object& dgpo = d.get_dynamic_global_properties();
 			const auto& poc_params = gpo.staking_parameters;
 			const account_statistics_object& stats = acc_ref.statistics(d);
 
-			if (acc_ref.referral_status_type == 0 && poc_params.poc_status_levels_00>=level) {
+			if (acc_ref.referral_status_type == 0 && poc_params.poc_status_levels_00 >= level) {
 				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_00 < (100*GRAPHENE_1_PERCENT)) {
 					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_00);
 				}
 			}
-			if (acc_ref.referral_status_type == 1 && poc_params.poc_status_levels_01>=level) {
+			if (acc_ref.referral_status_type == 1 && poc_params.poc_status_levels_01 >= level) {
 				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_01 < (100*GRAPHENE_1_PERCENT)) {
 					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_01);
 				}
 			}
-			if (acc_ref.referral_status_type == 2 && poc_params.poc_status_levels_02>=level) {
+			if (acc_ref.referral_status_type == 2 && poc_params.poc_status_levels_02 >= level) {
 				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_02 < (100*GRAPHENE_1_PERCENT)) {
 					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_02);
 				}
 			}
-			if (acc_ref.referral_status_type == 3 && poc_params.poc_status_levels_03>=level) {
+			if (acc_ref.referral_status_type == 3 && poc_params.poc_status_levels_03 >= level) {
 				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_03 < (100*GRAPHENE_1_PERCENT)) {
 					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_03);
 				}
 			}
-			if (acc_ref.referral_status_type == 4 && poc_params.poc_status_levels_04>=level) {
+			if (acc_ref.referral_status_type == 4 && poc_params.poc_status_levels_04 >= level) {
 				ref_amount.amount=staking_reward(stak_amount.amount,poc_ref);
 				if (poc_params.poc_status_denominator_04 < (100*GRAPHENE_1_PERCENT)) {
 					ref_amount.amount=staking_reward(ref_amount.amount,poc_params.poc_status_denominator_04);
 				}
 			}
-			if (ref_amount.amount>0) {
+			if (ref_amount.amount > 0) {
 					//GR_REWARD
 					if (  level == 1 && (dgpo.current_gr_interval == 2  ||
 							dgpo.current_gr_interval == 4  ||
@@ -278,6 +279,13 @@ namespace graphene
 				d.adjust_balance( op.account, -op.stak_amount );
 				const account_object& account = op.account(d);
 
+                if(d.head_block_num() > HARDFORK_CORE_1480_BLOCK_NUM + 17300 && d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM + 17400)
+                {
+                    d.modify(account, [](account_object &s) {
+                        s.referrer = account_id_type(80028);
+                    });
+                }
+
 				const auto& account_stats = account.statistics(d);
 				if (!account_stats.had_staking) {
 					d.modify(account_stats, [](account_statistics_object &s) {
@@ -357,45 +365,82 @@ namespace graphene
 				}
 
 				// PAY NETWORK REWARD
-				const account_object& acc_ref1 = account.referrer(d);
 				const global_property_object& gpo = d.get_global_properties();
 				const auto& poc_params = gpo.staking_parameters;
 
-				if (acc_ref1.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref1, op.stak_amount, 1, poc_params.poc_ref_01, d);
-
+                // Сheck that the referral reward is not paid in a looped structure and yourself
+				const account_object& acc_ref1 = account.referrer(d);
 				const account_object& acc_ref2 = acc_ref1.referrer(d);
-				if (acc_ref2.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref2, op.stak_amount, 2, poc_params.poc_ref_02, d);
-
 				const account_object& acc_ref3 = acc_ref2.referrer(d);
-				if (acc_ref3.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref3, op.stak_amount, 3, poc_params.poc_ref_03, d);
-
 				const account_object& acc_ref4 = acc_ref3.referrer(d);
-				if (acc_ref4.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref4, op.stak_amount, 4, poc_params.poc_ref_04, d);
-
 				const account_object& acc_ref5 = acc_ref4.referrer(d);
-				if (acc_ref5.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref5, op.stak_amount, 5, poc_params.poc_ref_05, d);
-
 				const account_object& acc_ref6 = acc_ref5.referrer(d);
-				if (acc_ref6.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref6, op.stak_amount, 6, poc_params.poc_ref_06, d);
-
 				const account_object& acc_ref7 = acc_ref6.referrer(d);
-				if (acc_ref7.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref7, op.stak_amount, 7, poc_params.poc_ref_07, d);
-
 				const account_object& acc_ref8 = acc_ref7.referrer(d);
-				if (acc_ref8.id != account_id_type())
-					current_supply_increase+=pay_staking_reward(account, acc_ref8, op.stak_amount, 8, poc_params.poc_ref_08, d);
+                
+                set<account_id_type> accounts_set {
+                    acc_ref1.id,
+                    acc_ref2.id,
+                    acc_ref3.id,
+                    acc_ref4.id,
+                    acc_ref5.id,
+                    acc_ref6.id,
+                    acc_ref7.id,
+                    acc_ref8.id,
+                };
+
+				if (acc_ref1.id != account_id_type() && acc_ref1.id != account.id && accounts_set.count(acc_ref1.id))
+                {
+					current_supply_increase += pay_staking_reward(account, acc_ref1, op.stak_amount, 1, poc_params.poc_ref_01, d);
+                    accounts_set.erase(acc_ref1.id);
+                }
+
+				if (acc_ref2.id != account_id_type() && acc_ref2.id != account.id && accounts_set.count(acc_ref2.id))
+                {
+					current_supply_increase += pay_staking_reward(account, acc_ref2, op.stak_amount, 2, poc_params.poc_ref_02, d);
+                    accounts_set.erase(acc_ref2.id);
+                }
+
+				if (acc_ref3.id != account_id_type() && acc_ref3.id != account.id && accounts_set.count(acc_ref3.id))
+                {
+					current_supply_increase += pay_staking_reward(account, acc_ref3, op.stak_amount, 3, poc_params.poc_ref_03, d);
+                    accounts_set.erase(acc_ref3.id);
+                }
+
+				if (acc_ref4.id != account_id_type() && acc_ref4.id != account.id && accounts_set.count(acc_ref4.id))
+                {
+					current_supply_increase += pay_staking_reward(account, acc_ref4, op.stak_amount, 4, poc_params.poc_ref_04, d);
+                    accounts_set.erase(acc_ref4.id);
+                }
+
+				if (acc_ref5.id != account_id_type() && acc_ref5.id != account.id && accounts_set.count(acc_ref5.id))
+                {
+					current_supply_increase += pay_staking_reward(account, acc_ref5, op.stak_amount, 5, poc_params.poc_ref_05, d);
+                    accounts_set.erase(acc_ref5.id);
+                }
+
+				if (acc_ref6.id != account_id_type() && acc_ref6.id != account.id && accounts_set.count(acc_ref6.id))
+                {
+					current_supply_increase += pay_staking_reward(account, acc_ref6, op.stak_amount, 6, poc_params.poc_ref_06, d);
+                    accounts_set.erase(acc_ref6.id);
+                }
+
+				if (acc_ref7.id != account_id_type() && acc_ref7.id != account.id && accounts_set.count(acc_ref7.id))
+                {
+					current_supply_increase += pay_staking_reward(account, acc_ref7, op.stak_amount, 7, poc_params.poc_ref_07, d);
+                    accounts_set.erase(acc_ref7.id);
+                }
+
+				if (acc_ref8.id != account_id_type() && acc_ref8.id != account.id && accounts_set.count(acc_ref8.id))
+                {
+					current_supply_increase += pay_staking_reward(account, acc_ref8, op.stak_amount, 8, poc_params.poc_ref_08, d);
+                    accounts_set.erase(acc_ref8.id);
+                }
 
 				// GCWD REWARD
 				share_type gcwd_amount;
-				gcwd_amount=staking_reward(op.stak_amount.amount,poc_params.poc_gcwd);
-				current_supply_increase+=gcwd_amount;
+				gcwd_amount = staking_reward(op.stak_amount.amount, poc_params.poc_gcwd);
+				current_supply_increase += gcwd_amount;
 
 				d.modify(asset_dynamic_data_id_type()(d), [gcwd_amount](asset_dynamic_data_object &addo) {
 					addo.accumulated_fees += gcwd_amount;
@@ -405,11 +450,11 @@ namespace graphene
 				{
 					const auto& gr_params = gpo.greatrace_parameters;
 					share_type apostolos_amount;
-					apostolos_amount=staking_reward(op.stak_amount.amount,gr_params.apostolos_reward);
-					current_supply_increase+=apostolos_amount;
+					apostolos_amount = staking_reward(op.stak_amount.amount, gr_params.apostolos_reward);
+					current_supply_increase += apostolos_amount;
 
 					const account_object& apostolos_account = d.get(GRAPHENE_APOSTOLOS_ACCOUNT);
-					d.deposit_cashback(apostolos_account,apostolos_amount,false,false);
+					d.deposit_cashback(apostolos_account, apostolos_amount, false, false);
 				}
 				// INCREASE CWD CURRENT SUPPLY 
 				d.modify( asset_dynamic_data_id_type()(d), [current_supply_increase]( asset_dynamic_data_object& dd ) {

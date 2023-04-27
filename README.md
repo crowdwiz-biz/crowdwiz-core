@@ -1,5 +1,5 @@
 <div id="header" align="left">
-  <img src="https://github.com/tprvx/crowdwiz-core/blob/master/%5Blatest%5Dcoingecko_logo_with_dark_text.png" width="100px"/>
+  <img src="https://github.com/tprvx/crowdwiz-core/blob/master/images/coingecko_logo.png" width="100px"/>
 </div>
 
 CrowdWiz Core

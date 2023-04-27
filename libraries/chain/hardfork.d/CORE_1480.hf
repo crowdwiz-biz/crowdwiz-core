@@ -1,0 +1,4 @@
+// crowdwiz-core issue #1479 nodes crashing on self-approving proposal
+#ifndef HARDFORK_CORE_1480_BLOCK_NUM
+#define HARDFORK_CORE_1480_BLOCK_NUM 346000
+#endif

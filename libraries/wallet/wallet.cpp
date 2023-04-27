@@ -1233,7 +1233,7 @@ public:
       optional<asset_object> asset_to_update = find_asset(symbol);
       if (!asset_to_update)
         FC_THROW("No asset with that symbol exists!");
-      optional<account_id_type> new_issuer_account_id;
+      optional<account_id_type> new_issuer_account_id = 0;
       if (new_issuer)
       {
         FC_ASSERT( _remote_db->get_dynamic_global_properties().time < HARDFORK_CORE_199_TIME,
