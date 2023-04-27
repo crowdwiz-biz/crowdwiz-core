@@ -194,7 +194,7 @@ class account_statistics_object : public graphene::db::abstract_object<account_s
    /**
           * Update network volume
           */
-   void update_nv(share_type volume, uint8_t level, uint16_t max_reward_level, const account_object &a, database &d) const;
+   void update_nv(share_type volume, uint8_t level, uint16_t max_reward_level, const account_object &a, database &d, std::set<account_id_type> account_set) const;
    share_type get_nv(database &d) const;
    /**
           * Update personal volume

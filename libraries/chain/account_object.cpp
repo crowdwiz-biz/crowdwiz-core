@@ -138,7 +138,7 @@ share_type account_statistics_object::get_nv(database &d) const
       }
    }
 
-void account_statistics_object::update_nv(share_type volume, uint8_t level, uint16_t max_reward_level, const account_object &a, database &d) const
+void account_statistics_object::update_nv(share_type volume, uint8_t level, uint16_t max_reward_level, const account_object &a, database &d, std::set<account_id_type> accounts_set) const
 {
    reward_log( "Called update_nv for account =${acc}= and volume ${vol}, current level ${level}!", ("acc",a.name)("vol",volume)("level",level));
    const auto &params = d.get_global_properties().parameters;
@@ -158,60 +158,63 @@ void account_statistics_object::update_nv(share_type volume, uint8_t level, uint
    share_type reward_cut = 0;
    if (a.active_referral_status(d.head_block_time()) >= params.min_nv_status && network_volume_in_period >= params.nv_level_threshold_01)
    {
-      reward_log( "update_nv, account =${acc}= GOT LEADERS REWARD", ("acc",a.name));
-      if (network_volume_in_period >= params.nv_level_threshold_08 && params.nv_level_reward_08 > max_reward_level)
+      if (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(a.id))
       {
-         reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_08 - max_reward_level));
-         max_reward_level = params.nv_level_reward_08;
-      }
-      else
-      {
-         if (network_volume_in_period >= params.nv_level_threshold_07 && params.nv_level_reward_07 > max_reward_level)
+         reward_log( "update_nv, account =${acc}= GOT LEADERS REWARD", ("acc",a.name));
+         if (network_volume_in_period >= params.nv_level_threshold_08 && params.nv_level_reward_08 > max_reward_level)
          {
-            reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_07 - max_reward_level));
-            max_reward_level = params.nv_level_reward_07;
+            reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_08 - max_reward_level));
+            max_reward_level = params.nv_level_reward_08;
          }
          else
          {
-            if (network_volume_in_period >= params.nv_level_threshold_06 && params.nv_level_reward_06 > max_reward_level)
+            if (network_volume_in_period >= params.nv_level_threshold_07 && params.nv_level_reward_07 > max_reward_level)
             {
-               reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_06 - max_reward_level));
-               max_reward_level = params.nv_level_reward_06;
+               reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_07 - max_reward_level));
+               max_reward_level = params.nv_level_reward_07;
             }
             else
             {
-               if (network_volume_in_period >= params.nv_level_threshold_05 && params.nv_level_reward_05 > max_reward_level)
+               if (network_volume_in_period >= params.nv_level_threshold_06 && params.nv_level_reward_06 > max_reward_level)
                {
-                  reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_05 - max_reward_level));
-                  max_reward_level = params.nv_level_reward_05;
+                  reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_06 - max_reward_level));
+                  max_reward_level = params.nv_level_reward_06;
                }
                else
                {
-                  if (network_volume_in_period >= params.nv_level_threshold_04 && params.nv_level_reward_04 > max_reward_level)
+                  if (network_volume_in_period >= params.nv_level_threshold_05 && params.nv_level_reward_05 > max_reward_level)
                   {
-                     reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_04 - max_reward_level));
-                     max_reward_level = params.nv_level_reward_04;
+                     reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_05 - max_reward_level));
+                     max_reward_level = params.nv_level_reward_05;
                   }
                   else
                   {
-                     if (network_volume_in_period >= params.nv_level_threshold_03 && params.nv_level_reward_03 > max_reward_level)
+                     if (network_volume_in_period >= params.nv_level_threshold_04 && params.nv_level_reward_04 > max_reward_level)
                      {
-                        reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_03 - max_reward_level));
-                        max_reward_level = params.nv_level_reward_03;
+                        reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_04 - max_reward_level));
+                        max_reward_level = params.nv_level_reward_04;
                      }
                      else
                      {
-                        if (network_volume_in_period >= params.nv_level_threshold_02 && params.nv_level_reward_02 > max_reward_level)
+                        if (network_volume_in_period >= params.nv_level_threshold_03 && params.nv_level_reward_03 > max_reward_level)
                         {
-                           reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_02 - max_reward_level));
-                           max_reward_level = params.nv_level_reward_02;
+                           reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_03 - max_reward_level));
+                           max_reward_level = params.nv_level_reward_03;
                         }
                         else
                         {
-                           if (network_volume_in_period >= params.nv_level_threshold_01 && params.nv_level_reward_01 > max_reward_level)
+                           if (network_volume_in_period >= params.nv_level_threshold_02 && params.nv_level_reward_02 > max_reward_level)
                            {
-                              reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_01 - max_reward_level));
-                              max_reward_level = params.nv_level_reward_01;
+                              reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_02 - max_reward_level));
+                              max_reward_level = params.nv_level_reward_02;
+                           }
+                           else
+                           {
+                              if (network_volume_in_period >= params.nv_level_threshold_01 && params.nv_level_reward_01 > max_reward_level)
+                              {
+                                 reward_cut = cut_fee(volume, uint16_t(params.nv_level_reward_01 - max_reward_level));
+                                 max_reward_level = params.nv_level_reward_01;
+                              }
                            }
                         }
                      }
@@ -223,15 +226,23 @@ void account_statistics_object::update_nv(share_type volume, uint8_t level, uint
    }
    if (reward_cut > 0)
    {
-      d.deposit_cashback(a, reward_cut, false);
-      reward_log( "update_nv, after deposit_cashback account =${acc}= GOT LEADERS REWARD at Level ${level}, amount ${reward_cut}", ("acc",a.name)("level",max_reward_level)("reward_cut",reward_cut));
-
+        accounts_set.insert(a.id);
+        if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
+        {
+            d.deposit_cashback(a, reward_cut, false);
+            reward_log( "update_nv, after deposit_cashback account =${acc}= GOT LEADERS REWARD at Level ${level}, amount ${reward_cut}", ("acc",a.name)("level",max_reward_level)("reward_cut",reward_cut));
+        }
+        else
+        {
+            d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(reward_cut, asset_id_type(0)));
+            reward_log( "Withdrawal CWD from market: account =${acc}= GOT LEADERS REWARD at Level ${level}, amount ${reward_cut}", ("acc",a.name)("level",max_reward_level)("reward_cut",reward_cut));
+        }
    }
    level = level + 1;
    if (level <= params.nv_levels && a.get_id() > params.root_account)
    {
       const account_object &a_ref = d.get(next_rewardable(a, d));
-      a_ref.statistics(d).update_nv(volume, level, max_reward_level, a_ref, d);
+      a_ref.statistics(d).update_nv(volume, level, max_reward_level, a_ref, d, accounts_set);
    }
 }
 
@@ -285,6 +296,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
 
       //          assert( referrer_cut + registrar_cut + accumulated + reserveed + lifetime_cut == core_fee_total );
       //       };
+
       auto pay_out_fees = [&](const account_object &account, share_type core_fee_total, bool require_vesting) {
          const auto &params = d.get_global_properties().parameters;
          share_type network_cut = core_fee_total;
@@ -302,7 +314,26 @@ void account_statistics_object::process_fees(const account_object &a, database &
          const account_object& ref_01 = cbk_tmp;
          reward_log( "pay_out_fees ref_01 =${acc}=", ("acc",ref_01.name));
 
-         if (account.id != ref_01.id || params.cashback)
+         std::set<account_id_type> accounts_set = {};
+
+         share_type ref_01_fee_cut_reward = 0;
+         share_type ref_02_fee_cut_reward = 0;
+         share_type ref_03_fee_cut_reward = 0;
+         share_type ref_04_fee_cut_reward = 0;
+         share_type ref_05_fee_cut_reward = 0;
+         share_type ref_06_fee_cut_reward = 0;
+         share_type ref_07_fee_cut_reward = 0;
+         share_type ref_08_fee_cut_reward = 0;
+         share_type ref_01_fee_cut_withdraw = 0;
+         share_type ref_02_fee_cut_withdraw = 0;
+         share_type ref_03_fee_cut_withdraw = 0;
+         share_type ref_04_fee_cut_withdraw = 0;
+         share_type ref_05_fee_cut_withdraw = 0;
+         share_type ref_06_fee_cut_withdraw = 0;
+         share_type ref_07_fee_cut_withdraw = 0;
+         share_type ref_08_fee_cut_withdraw = 0;
+
+         if ( (account.id != ref_01.id || params.cashback) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_01.id)) )
          {
             if (params.ref_01_percent_of_fee > 0 && network_cut > 0 && ref_01.referral_levels >= 1)
             {
@@ -321,8 +352,19 @@ void account_statistics_object::process_fees(const account_object &a, database &
                      total_denominator_volume = 0;
                   }
                }
-               d.deposit_cashback(d.get(ref_01.get_id()), ref_01_fee_cut, require_vesting);
-               //GR_REWARD
+
+               if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
+               {
+                    d.deposit_cashback(d.get(ref_01.get_id()), ref_01_fee_cut, require_vesting);
+               } 
+               else
+               {
+                    ref_01_fee_cut_withdraw = cut_fee(ref_01_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                    ref_01_fee_cut_reward = cut_fee(ref_01_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                    d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_01_fee_cut_withdraw, asset_id_type(0)));
+                    d.deposit_cashback(d.get(ref_01.get_id()), ref_01_fee_cut_reward, require_vesting);
+               }
+               // GR_REWARD
                const auto &dgpo = d.get_dynamic_global_properties();
                if (  dgpo.current_gr_interval == 2  ||
                      dgpo.current_gr_interval == 4  ||
@@ -333,48 +375,47 @@ void account_statistics_object::process_fees(const account_object &a, database &
                   )
                   {
                      d.modify(d.get(ref_01.statistics), [&](account_statistics_object &s) {
-                        s.current_period_gr += ref_01_fee_cut;
+                        s.current_period_gr += ref_01_fee_cut_reward;
                      });
 
                      if (ref_01.gr_team.valid()) {
                         d.modify(d.get(*ref_01.gr_team), [&](gr_team_object &t) {
                            if (dgpo.current_gr_interval == 2) {
-                              t.gr_interval_2_volume += ref_01_fee_cut;
-                              t.first_half_volume += ref_01_fee_cut;
-                              t.total_volume += ref_01_fee_cut;
+                              t.gr_interval_2_volume += ref_01_fee_cut_reward;
+                              t.first_half_volume += ref_01_fee_cut_reward;
+                              t.total_volume += ref_01_fee_cut_reward;
                            }
                            if (dgpo.current_gr_interval == 4) {
-                              t.gr_interval_4_volume += ref_01_fee_cut;
-                              t.first_half_volume += ref_01_fee_cut;
-                              t.total_volume += ref_01_fee_cut;
+                              t.gr_interval_4_volume += ref_01_fee_cut_reward;
+                              t.first_half_volume += ref_01_fee_cut_reward;
+                              t.total_volume += ref_01_fee_cut_reward;
                            }
                            if (dgpo.current_gr_interval == 6) {
-                              t.gr_interval_6_volume += ref_01_fee_cut;
-                              t.first_half_volume += ref_01_fee_cut;
-                              t.total_volume += ref_01_fee_cut;
+                              t.gr_interval_6_volume += ref_01_fee_cut_reward;
+                              t.first_half_volume += ref_01_fee_cut_reward;
+                              t.total_volume += ref_01_fee_cut_reward;
                            }
                            if (dgpo.current_gr_interval == 9) {
-                              t.gr_interval_9_volume += ref_01_fee_cut;
-                              t.second_half_volume += ref_01_fee_cut;
-                              t.total_volume += ref_01_fee_cut;
+                              t.gr_interval_9_volume += ref_01_fee_cut_reward;
+                              t.second_half_volume += ref_01_fee_cut_reward;
+                              t.total_volume += ref_01_fee_cut_reward;
                            }
                            if (dgpo.current_gr_interval == 11) {
-                              t.gr_interval_11_volume += ref_01_fee_cut;
-                              t.second_half_volume += ref_01_fee_cut;
-                              t.total_volume += ref_01_fee_cut;
+                              t.gr_interval_11_volume += ref_01_fee_cut_reward;
+                              t.second_half_volume += ref_01_fee_cut_reward;
+                              t.total_volume += ref_01_fee_cut_reward;
                            }
                            if (dgpo.current_gr_interval == 13) {
-                              t.gr_interval_13_volume += ref_01_fee_cut;
-                              t.second_half_volume += ref_01_fee_cut;
-                              t.total_volume += ref_01_fee_cut;
+                              t.gr_interval_13_volume += ref_01_fee_cut_reward;
+                              t.second_half_volume += ref_01_fee_cut_reward;
+                              t.total_volume += ref_01_fee_cut_reward;
                            }
                         });       
                      }
                   }
-
-               reward_log( "pay_out_fees ref_01 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_01.name)("cbk",ref_01_fee_cut));
-
+               reward_log( "pay_out_fees ref_01 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_01.name)("cbk",ref_01_fee_cut_reward));
                network_cut = network_cut - ref_01_fee_cut;
+               accounts_set.insert(ref_01.id);
             }
             else {
                reward_log( "pay_out_fees ref_01 =${acc}= MISS reward!", ("acc",ref_01.name));
@@ -382,7 +423,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
             const account_object &ref_02 = d.get(next_rewardable(ref_01,d));
             reward_log( "pay_out_fees ref_02 =${acc}=", ("acc",ref_02.name));
 
-            if (ref_01.id != ref_02.id)
+            if ( (ref_01.id != ref_02.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_02.id)) )
             {
                if (params.ref_02_percent_of_fee > 0 && network_cut > 0 && ref_02.referral_levels >= 2)
                {
@@ -401,9 +442,20 @@ void account_statistics_object::process_fees(const account_object &a, database &
                         total_denominator_volume = 0;
                      }
                   }
-                  d.deposit_cashback(ref_02, ref_02_fee_cut, require_vesting);
-                  reward_log( "pay_out_fees ref_02 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_02.name)("cbk",ref_02_fee_cut));
+                  if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
+                  {
+                     d.deposit_cashback(ref_02, ref_02_fee_cut, require_vesting);
+                  } 
+                  else
+                  {
+                     ref_02_fee_cut_withdraw = cut_fee(ref_02_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                     ref_02_fee_cut_reward = cut_fee(ref_02_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                     d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_02_fee_cut_withdraw, asset_id_type(0)));
+                     d.deposit_cashback(d.get(ref_02.get_id()), ref_02_fee_cut_reward, require_vesting);
+                  }
+                  reward_log( "pay_out_fees ref_02 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_02.name)("cbk",ref_02_fee_cut_reward));
                   network_cut = network_cut - ref_02_fee_cut;
+                  accounts_set.insert(ref_02.id);
                }
                else {
                   reward_log( "pay_out_fees ref_02 =${acc}= MISS reward!", ("acc",ref_02.name));
@@ -411,7 +463,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                const account_object &ref_03 = d.get(next_rewardable(ref_02, d));
                reward_log( "pay_out_fees ref_03 =${acc}=", ("acc",ref_03.name));
 
-               if (ref_02.id != ref_03.id)
+               if ( (ref_02.id != ref_03.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_03.id)) )
                {
                   if (params.ref_03_percent_of_fee > 0 && network_cut > 0 && ref_03.referral_levels >= 3)
                   {
@@ -430,9 +482,20 @@ void account_statistics_object::process_fees(const account_object &a, database &
                            total_denominator_volume = 0;
                         }
                      }
-                     d.deposit_cashback(ref_03, ref_03_fee_cut, require_vesting);
-                     reward_log( "pay_out_fees ref_03 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_03.name)("cbk",ref_03_fee_cut));
+                     if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
+                     {
+                        d.deposit_cashback(ref_03, ref_03_fee_cut, require_vesting);
+                     } 
+                     else
+                     {
+                        ref_03_fee_cut_withdraw = cut_fee(ref_03_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                        ref_03_fee_cut_reward = cut_fee(ref_03_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                        d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_03_fee_cut_withdraw, asset_id_type(0)));
+                        d.deposit_cashback(d.get(ref_03.get_id()), ref_03_fee_cut_reward, require_vesting);
+                     }
+                     reward_log( "pay_out_fees ref_03 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_03.name)("cbk",ref_03_fee_cut_reward));
                      network_cut = network_cut - ref_03_fee_cut;
+                     accounts_set.insert(ref_03.id);
                   }
                   else {
                      reward_log( "pay_out_fees ref_03 =${acc}= MISS reward!", ("acc",ref_03.name));
@@ -440,7 +503,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                   const account_object &ref_04 = d.get(next_rewardable(ref_03, d));
                   reward_log( "pay_out_fees ref_04 =${acc}=", ("acc",ref_04.name));
 
-                  if (ref_03.id != ref_04.id)
+                  if ( (ref_03.id != ref_04.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_04.id)) )
                   {
                      if (params.ref_04_percent_of_fee > 0 && network_cut > 0 && ref_04.referral_levels >= 4)
                      {
@@ -459,16 +522,28 @@ void account_statistics_object::process_fees(const account_object &a, database &
                               total_denominator_volume = 0;
                            }
                         }
-                        d.deposit_cashback(ref_04, ref_04_fee_cut, require_vesting);
-                        reward_log( "pay_out_fees ref_04 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_04.name)("cbk",ref_04_fee_cut));
+                        if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
+                        {
+                           d.deposit_cashback(ref_04, ref_04_fee_cut, require_vesting);
+                        } 
+                        else
+                        {
+                           ref_04_fee_cut_withdraw = cut_fee(ref_04_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                           ref_04_fee_cut_reward = cut_fee(ref_04_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                           d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_04_fee_cut_withdraw, asset_id_type(0)));
+                           d.deposit_cashback(d.get(ref_04.get_id()), ref_04_fee_cut_reward, require_vesting);
+                        }
+                        reward_log( "pay_out_fees ref_04 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_04.name)("cbk",ref_04_fee_cut_reward));
                         network_cut = network_cut - ref_04_fee_cut;
+                        accounts_set.insert(ref_04.id);
                      }
                      else {
                         reward_log( "pay_out_fees ref_04 =${acc}= MISS reward!", ("acc",ref_04.name));
                      }
                      const account_object &ref_05 = d.get(next_rewardable(ref_04, d));
                      reward_log( "pay_out_fees ref_05 =${acc}=", ("acc",ref_05.name));
-                     if (ref_04.id != ref_05.id)
+
+                     if ( (ref_04.id != ref_05.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_05.id)) )
                      {
                         if (params.ref_05_percent_of_fee > 0 && network_cut > 0 && ref_05.referral_levels >= 5)
                         {
@@ -487,16 +562,28 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                  total_denominator_volume = 0;
                               }
                            }
-                           d.deposit_cashback(ref_05, ref_05_fee_cut, require_vesting);
-                           reward_log( "pay_out_fees ref_05 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_05.name)("cbk",ref_05_fee_cut));
+                           if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
+                           {
+                              d.deposit_cashback(ref_05, ref_05_fee_cut, require_vesting);
+                           } 
+                           else
+                           {
+                              ref_05_fee_cut_withdraw = cut_fee(ref_05_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                              ref_05_fee_cut_reward = cut_fee(ref_05_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                              d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_05_fee_cut_withdraw, asset_id_type(0)));
+                              d.deposit_cashback(d.get(ref_05.get_id()), ref_05_fee_cut_reward, require_vesting);
+                           }
+                           reward_log( "pay_out_fees ref_05 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_05.name)("cbk",ref_05_fee_cut_reward));
                            network_cut = network_cut - ref_05_fee_cut;
+                           accounts_set.insert(ref_05.id);
                         }
                         else {
                            reward_log( "pay_out_fees ref_05 =${acc}= MISS reward!", ("acc",ref_05.name));
                         }
                         const account_object &ref_06 = d.get(next_rewardable(ref_05, d));
                         reward_log( "pay_out_fees ref_06 =${acc}=", ("acc",ref_06.name));
-                        if (ref_05.id != ref_06.id)
+
+                        if ( (ref_05.id != ref_06.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_06.id)) )
                         {
                            if (params.ref_06_percent_of_fee > 0 && network_cut > 0 && ref_06.referral_levels >= 6)
                            {
@@ -515,17 +602,28 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                     total_denominator_volume = 0;
                                  }
                               }
-                              d.deposit_cashback(ref_06, ref_06_fee_cut, require_vesting);
-                              reward_log( "pay_out_fees ref_06 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_06.name)("cbk",ref_06_fee_cut));
-
+                              if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
+                              {
+                                 d.deposit_cashback(ref_06, ref_06_fee_cut, require_vesting);
+                              } 
+                              else
+                              {
+                                 ref_06_fee_cut_withdraw = cut_fee(ref_06_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                 ref_06_fee_cut_reward = cut_fee(ref_06_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                 d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_06_fee_cut_withdraw, asset_id_type(0)));
+                                 d.deposit_cashback(d.get(ref_06.get_id()), ref_06_fee_cut_reward, require_vesting);
+                              }
+                              reward_log( "pay_out_fees ref_06 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_06.name)("cbk",ref_06_fee_cut_reward));
                               network_cut = network_cut - ref_06_fee_cut;
+                              accounts_set.insert(ref_06.id);
                            }
                            else {
                               reward_log( "pay_out_fees ref_06 =${acc}= MISS reward!", ("acc",ref_06.name));
                            }
                            const account_object &ref_07 = d.get(next_rewardable(ref_06, d));
                            reward_log( "pay_out_fees ref_07 =${acc}=", ("acc",ref_07.name));
-                           if (ref_06.id != ref_07.id)
+
+                           if ( (ref_06.id != ref_07.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_07.id)) )
                            {
                               if (params.ref_07_percent_of_fee > 0 && network_cut > 0 && ref_07.referral_levels >= 7)
                               {
@@ -544,16 +642,27 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                        total_denominator_volume = 0;
                                     }
                                  }
-                                 d.deposit_cashback(ref_07, ref_07_fee_cut, require_vesting);
-                                 reward_log( "pay_out_fees ref_07 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_07.name)("cbk",ref_07_fee_cut));
+                                 if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
+                                 {
+                                    d.deposit_cashback(ref_07, ref_07_fee_cut, require_vesting);
+                                 } 
+                                 else
+                                 {
+                                    ref_07_fee_cut_withdraw = cut_fee(ref_07_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                    ref_07_fee_cut_reward = cut_fee(ref_07_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                    d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_07_fee_cut_withdraw, asset_id_type(0)));
+                                    d.deposit_cashback(d.get(ref_07.get_id()), ref_07_fee_cut_reward, require_vesting);
+                                 }
+                                 reward_log( "pay_out_fees ref_07 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_07.name)("cbk",ref_07_fee_cut_reward));
                                  network_cut = network_cut - ref_07_fee_cut;
+                                 accounts_set.insert(ref_07.id);
                               }
                               else {
                                  reward_log( "pay_out_fees ref_07 =${acc}= MISS reward!", ("acc",ref_07.name));
                               }                              
                               const account_object &ref_08 = d.get(next_rewardable(ref_07, d));
                               reward_log( "pay_out_fees ref_08 =${acc}=", ("acc",ref_08.name));
-                              if (ref_07.id != ref_08.id)
+                              if ( (ref_07.id != ref_08.id) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_08.id)) )
                               {
                                  if (params.ref_08_percent_of_fee > 0 && network_cut > 0 && ref_08.referral_levels >= 8)
                                  {
@@ -572,9 +681,20 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                           total_denominator_volume = 0;
                                        }
                                     }
-                                    d.deposit_cashback(ref_08, ref_08_fee_cut, require_vesting);
-                                    reward_log( "pay_out_fees ref_08 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_08.name)("cbk",ref_08_fee_cut));
+                                    if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
+                                    {
+                                       d.deposit_cashback(ref_08, ref_08_fee_cut, require_vesting);
+                                    } 
+                                    else
+                                    {
+                                       ref_08_fee_cut_withdraw = cut_fee(ref_08_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                       ref_08_fee_cut_reward = cut_fee(ref_08_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                       d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_08_fee_cut_withdraw, asset_id_type(0)));
+                                       d.deposit_cashback(d.get(ref_08.get_id()), ref_08_fee_cut_reward, require_vesting);
+                                    }
+                                    reward_log( "pay_out_fees ref_08 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_08.name)("cbk",ref_08_fee_cut_reward));
                                     network_cut = network_cut - ref_08_fee_cut;
+                                    accounts_set.insert(ref_08.id);
                                  }
                                  else {
                                     reward_log( "pay_out_fees ref_08 =${acc}= MISS reward!", ("acc",ref_08.name));
@@ -591,11 +711,11 @@ void account_statistics_object::process_fees(const account_object &a, database &
             addo.accumulated_fees += network_cut;
          });
       };
-      if (pending_fees>0) {
+      if (pending_fees > 0) {
          reward_log( "Call pay_out_fees pending_fees ${cbk}!", ("cbk",pending_fees));     
          pay_out_fees(a, pending_fees, true);
       }
-      if (pending_vested_fees>0) {
+      if (pending_vested_fees > 0) {
          reward_log( "Call pay_out_fees pending_vested_fees ${cbk}!", ("cbk",pending_vested_fees));     
          pay_out_fees(a, pending_vested_fees, false);
       }
