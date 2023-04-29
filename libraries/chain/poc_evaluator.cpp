@@ -410,49 +410,49 @@ namespace graphene
                     acc_ref8.id,
                 };
 
-				if (acc_ref1.id != account_id_type() && acc_ref1.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref1.id)))
+				if (acc_ref1.id != account_id_type() && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || (accounts_set.count(acc_ref1.id) && acc_ref1.id != account.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref1, op.stak_amount, 1, poc_params.poc_ref_01, d);
                     accounts_set.erase(acc_ref1.id);
                 }
 
-				if (acc_ref2.id != account_id_type() && acc_ref2.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref2.id))) 
+				if (acc_ref2.id != account_id_type() && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || (accounts_set.count(acc_ref2.id) && acc_ref2.id != account.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref2, op.stak_amount, 2, poc_params.poc_ref_02, d);
                     accounts_set.erase(acc_ref2.id);
                 }
 
-				if (acc_ref3.id != account_id_type() && acc_ref3.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref3.id)))
+				if (acc_ref3.id != account_id_type() && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || (accounts_set.count(acc_ref3.id) && acc_ref3.id != account.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref3, op.stak_amount, 3, poc_params.poc_ref_03, d);
                     accounts_set.erase(acc_ref3.id);
                 }
 
-				if (acc_ref4.id != account_id_type() && acc_ref4.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref4.id)))
+				if (acc_ref4.id != account_id_type() && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || (accounts_set.count(acc_ref4.id) && acc_ref4.id != account.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref4, op.stak_amount, 4, poc_params.poc_ref_04, d);
                     accounts_set.erase(acc_ref4.id);
                 }
 
-				if (acc_ref5.id != account_id_type() && acc_ref5.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref5.id)))
+				if (acc_ref5.id != account_id_type() && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || (accounts_set.count(acc_ref5.id) && acc_ref5.id != account.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref5, op.stak_amount, 5, poc_params.poc_ref_05, d);
                     accounts_set.erase(acc_ref5.id);
                 }
 
-				if (acc_ref6.id != account_id_type() && acc_ref6.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref6.id)))
+				if (acc_ref6.id != account_id_type() && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || (accounts_set.count(acc_ref6.id) && acc_ref6.id != account.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref6, op.stak_amount, 6, poc_params.poc_ref_06, d);
                     accounts_set.erase(acc_ref6.id);
                 }
 
-				if (acc_ref7.id != account_id_type() && acc_ref7.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref7.id)))
+				if (acc_ref7.id != account_id_type() && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || (accounts_set.count(acc_ref7.id) && acc_ref7.id != account.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref7, op.stak_amount, 7, poc_params.poc_ref_07, d);
                     accounts_set.erase(acc_ref7.id);
                 }
 
-				if (acc_ref8.id != account_id_type() && acc_ref8.id != account.id && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || accounts_set.count(acc_ref8.id)))
+				if (acc_ref8.id != account_id_type() && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || (accounts_set.count(acc_ref8.id) && acc_ref8.id != account.id)))
                 {
 					current_supply_increase += pay_staking_reward(account, acc_ref8, op.stak_amount, 8, poc_params.poc_ref_08, d);
                     accounts_set.erase(acc_ref8.id);

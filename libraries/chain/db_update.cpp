@@ -291,8 +291,8 @@ void database::auto_reset_status()
 
    while( itr != end )
    {
-      elog( "account status expired  ${a}", ("a", itr->name) );
-      elog( "account status expired  ${a}", ("a", itr->referral_status_expiration_date) );
+      // elog( "account status expired  ${a}", ("a", itr->name) );
+      // elog( "account status expired  ${a}", ("a", itr->referral_status_expiration_date) );
       const account_object& acc_obj = *itr;
       const auto& global_properties = get_global_properties();
       const auto& params = global_properties.parameters;
@@ -613,13 +613,13 @@ void database::proceed_pledge()
    auto itr = po_idx.upper_bound(fc::time_point_sec(1));
    auto end = po_idx.lower_bound( head_time );
    if (itr != end) {
-      elog( "PLEDGE ITR ${a} status ${s} expiration ${e}", ("a", itr->id)("s", itr->status)("e", itr->expiration) );
-      elog( "PLEDGE END cycle ${a} status ${s} expiration ${e}", ("a", end->id)("s", end->status)("e", end->expiration) );
+      // elog( "PLEDGE ITR ${a} status ${s} expiration ${e}", ("a", itr->id)("s", itr->status)("e", itr->expiration) );
+      // elog( "PLEDGE END cycle ${a} status ${s} expiration ${e}", ("a", end->id)("s", end->status)("e", end->expiration) );
    }
    while( itr != end )
    {
       const pledge_offer_object& po_obj = *itr;
-      elog( "PLEDGE in cycle ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
+      // elog( "PLEDGE in cycle ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
       if (po_obj.status == 1 && po_obj.expiration <= head_time) {
          pledge_offer_auto_repay_operation po_repay;
 
@@ -633,7 +633,7 @@ void database::proceed_pledge()
          push_applied_operation( po_repay );    
 
          adjust_balance( po_obj.creditor, po_obj.pledge_amount );
-         elog( "PLEDGE status MARKED FOR REMOVE  ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
+         // elog( "PLEDGE status MARKED FOR REMOVE  ${a} status ${s} expiration ${e}", ("a", po_obj.id)("s", po_obj.status)("e", po_obj.expiration) );
          modify(po_obj, [&](pledge_offer_object& p)
          {
             p.status = 8;
@@ -644,7 +644,7 @@ void database::proceed_pledge()
    }
     auto& po_idx_remove = get_index_type<pledge_offer_index>().indices().get<by_status>();
     while( !po_idx_remove.empty() && po_idx_remove.rbegin()->status == 8 ) {
-      elog( "PLEDGE status REMOVED  ${a} status ${s} expiration ${e}", ("a", po_idx_remove.rbegin()->id)("s", po_idx_remove.rbegin()->status)("e", po_idx_remove.rbegin()->expiration) );
+      // elog( "PLEDGE status REMOVED  ${a} status ${s} expiration ${e}", ("a", po_idx_remove.rbegin()->id)("s", po_idx_remove.rbegin()->status)("e", po_idx_remove.rbegin()->expiration) );
       remove(*po_idx_remove.rbegin());
     }
 } FC_CAPTURE_AND_RETHROW() }
@@ -657,13 +657,13 @@ void database::proceed_approved_transfer()
    auto itr = ato_idx.upper_bound(fc::time_point_sec(1));
    auto end = ato_idx.lower_bound( head_time );
    if (itr != end) {
-      elog( "ATO ITR ${a} status ${s} expiration ${e}", ("a", itr->id)("s", itr->status)("e", itr->expiration) );
-      elog( "ATO END cycle ${a} status ${s} expiration ${e}", ("a", end->id)("s", end->status)("e", end->expiration) );
+      // elog( "ATO ITR ${a} status ${s} expiration ${e}", ("a", itr->id)("s", itr->status)("e", itr->expiration) );
+      // elog( "ATO END cycle ${a} status ${s} expiration ${e}", ("a", end->id)("s", end->status)("e", end->expiration) );
    }
    while( itr != end )
    {
       const approved_transfer_object& ato_obj = *itr;
-      elog( "ATO in cycle ${a} status ${s} expiration ${e}", ("a", ato_obj.id)("s", ato_obj.status)("e", ato_obj.expiration) );
+      // elog( "ATO in cycle ${a} status ${s} expiration ${e}", ("a", ato_obj.id)("s", ato_obj.status)("e", ato_obj.expiration) );
       if (ato_obj.status == 0 && ato_obj.expiration <= head_time) {
          approved_transfer_cancel_operation ato_cancel;
          ato_cancel.from = ato_obj.from;
@@ -676,7 +676,7 @@ void database::proceed_approved_transfer()
 
          adjust_balance( ato_obj.from, ato_obj.amount );
 
-         elog( "ATO status MARKED FOR REMOVE  ${a} status ${s} expiration ${e}", ("a", ato_obj.id)("s", ato_obj.status)("e", ato_obj.expiration) );
+         // elog( "ATO status MARKED FOR REMOVE  ${a} status ${s} expiration ${e}", ("a", ato_obj.id)("s", ato_obj.status)("e", ato_obj.expiration) );
          modify(ato_obj, [&](approved_transfer_object& p)
          {
             p.status = 2;
@@ -687,7 +687,7 @@ void database::proceed_approved_transfer()
    }
     auto& ato_idx_remove = get_index_type<approved_transfer_index>().indices().get<by_status>();
     while( !ato_idx_remove.empty() && ato_idx_remove.rbegin()->status == 2 ) {
-      elog( "ATO status REMOVED  ${a} status ${s} expiration ${e}", ("a", ato_idx_remove.rbegin()->id)("s", ato_idx_remove.rbegin()->status)("e", ato_idx_remove.rbegin()->expiration) );
+      // elog( "ATO status REMOVED  ${a} status ${s} expiration ${e}", ("a", ato_idx_remove.rbegin()->id)("s", ato_idx_remove.rbegin()->status)("e", ato_idx_remove.rbegin()->expiration) );
       remove(*ato_idx_remove.rbegin());
     }
 } FC_CAPTURE_AND_RETHROW() }
@@ -779,7 +779,7 @@ void database::proceed_lottery_goods()
             lg_refund.ticket_price = lg_obj.ticket_price;
             push_applied_operation( lg_refund );          
          }
-         elog( "lottery status MARKED FOR REMOVE ${a} status ${s} expiration ${e}", ("a", lg_obj.id)("s", lg_obj.status)("e", lg_obj.expiration) );
+         // elog( "lottery status MARKED FOR REMOVE ${a} status ${s} expiration ${e}", ("a", lg_obj.id)("s", lg_obj.status)("e", lg_obj.expiration) );
          modify(lg_obj, [&](lottery_goods_object& l)
          {
             l.status = 8;
@@ -791,7 +791,7 @@ void database::proceed_lottery_goods()
 
     auto& lg_idx_remove = get_index_type<lottery_goods_index>().indices().get<by_status>();
     while( !lg_idx_remove.empty() && lg_idx_remove.rbegin()->status == 8 ) {
-      elog( "lottery status REMOVED  ${a} status ${s} expiration ${e}", ("a", lg_idx_remove.rbegin()->id)("s", lg_idx_remove.rbegin()->status)("e", lg_idx_remove.rbegin()->expiration) );
+      // elog( "lottery status REMOVED  ${a} status ${s} expiration ${e}", ("a", lg_idx_remove.rbegin()->id)("s", lg_idx_remove.rbegin()->status)("e", lg_idx_remove.rbegin()->expiration) );
       remove(*lg_idx_remove.rbegin());
     }   
 } FC_CAPTURE_AND_RETHROW() }

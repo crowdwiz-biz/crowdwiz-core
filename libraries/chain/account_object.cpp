@@ -356,6 +356,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
                {
                     d.deposit_cashback(d.get(ref_01.get_id()), ref_01_fee_cut, require_vesting);
+                    ref_01_fee_cut_reward = ref_01_fee_cut;
                } 
                else
                {
@@ -445,6 +446,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                   if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
                   {
                      d.deposit_cashback(ref_02, ref_02_fee_cut, require_vesting);
+                     ref_02_fee_cut_reward = ref_02_fee_cut;
                   } 
                   else
                   {
@@ -485,6 +487,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                      if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
                      {
                         d.deposit_cashback(ref_03, ref_03_fee_cut, require_vesting);
+                        ref_03_fee_cut_reward = ref_03_fee_cut;
                      } 
                      else
                      {
@@ -525,6 +528,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                         if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
                         {
                            d.deposit_cashback(ref_04, ref_04_fee_cut, require_vesting);
+                           ref_04_fee_cut_reward = ref_04_fee_cut;
                         } 
                         else
                         {
@@ -565,6 +569,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                            if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
                            {
                               d.deposit_cashback(ref_05, ref_05_fee_cut, require_vesting);
+                              ref_05_fee_cut_reward = ref_05_fee_cut;
                            } 
                            else
                            {
@@ -605,6 +610,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                               if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
                               {
                                  d.deposit_cashback(ref_06, ref_06_fee_cut, require_vesting);
+                                 ref_06_fee_cut_reward = ref_06_fee_cut;
                               } 
                               else
                               {
@@ -645,6 +651,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                  if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
                                  {
                                     d.deposit_cashback(ref_07, ref_07_fee_cut, require_vesting);
+                                    ref_07_fee_cut_reward = ref_07_fee_cut;
                                  } 
                                  else
                                  {
@@ -684,6 +691,7 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                     if(d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM)
                                     {
                                        d.deposit_cashback(ref_08, ref_08_fee_cut, require_vesting);
+                                       ref_08_fee_cut_reward = ref_08_fee_cut;
                                     } 
                                     else
                                     {
