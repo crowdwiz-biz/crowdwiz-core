@@ -1233,7 +1233,7 @@ public:
       optional<asset_object> asset_to_update = find_asset(symbol);
       if (!asset_to_update)
         FC_THROW("No asset with that symbol exists!");
-      optional<account_id_type> new_issuer_account_id;
+      optional<account_id_type> new_issuer_account_id = 0;
       if (new_issuer)
       {
         FC_ASSERT( _remote_db->get_dynamic_global_properties().time < HARDFORK_CORE_199_TIME,
@@ -4422,6 +4422,117 @@ string wallet_api::gethelp(const string& method)const
       ss << "\nExample value of BITASSET_OPTIONS: \n";
       ss << fc::json::to_pretty_string( graphene::chain::bitasset_options() );
       ss << "\nBITASSET_OPTIONS may be null\n";
+   }
+   else if( method == "get_block" )
+   {
+      ss << "usage: get_block BLOCK_NUMBER\n\n";
+      ss << "example: get_block \"1000\"\n";
+      ss << "\n";
+      ss << "Use this method to get the contents of the block by its number.";
+   }
+   else if( method == "get_account_history" )
+   {
+      ss << "usage: get_account_history ACCOUNT_NAME COUNT_LAST_OPERATIONS\n\n";
+      ss << "example: get_account_history \"master\" \"10\"\n";
+      ss << "\n";
+      ss << "Use this method to get the history of account operations (maximum 100 recent operations).";
+   }
+   else if( method == "get_account_id" )
+   {
+      ss << "usage: get_account_id ACCOUNT_NAME\n\n";
+      ss << "example: get_account_id \"master\"\n";
+      ss << "\n";
+      ss << "Use this method to get the account ID in the blockchain.";
+   }
+   else if( method == "get_full_account" )
+   {
+      ss << "usage: get_full_account ACCOUNT_NAME(ACCOUNT_ID)\n\n";
+      ss << "example: get_full_account \"master\"\n";
+      ss << "example: get_full_account \"1.2.30\"\n";
+      ss << "\n";
+      ss << "Use this method to get all the information about the account object.";
+   }
+   else if( method == "get_object" )
+   {
+      ss << "usage: get_object OBJECT_ID\n\n";
+
+      ss << "example: get_object \"1.2.32\"\n";
+      ss << "example: get_object \"1.3.5\"\n";
+      ss << "example: get_object \"2.3.0\"\n\n";
+
+      ss << "Each object in the blockchain has its own unique ID. Which consists of 3 values of X.Y.Z\n\n";
+
+      ss << "X - attribute of an object can be equal to 1 or 2, 1 are objects that are part of the protocol, 2 are dynamic objects that change over time.\n";
+      ss << "Y - Type of object\n";
+      ss << "Z - Serial number\n\n";
+
+      ss << "Identifiers of objects in the blockchain:\n\n";
+
+      ss << "1.1.x   base object\n";
+      ss << "1.2.x   account object\n";
+      ss << "1.3.x   asset object\n";
+      ss << "1.4.x   force settlement object\n";
+      ss << "1.5.x   committee member object\n";
+      ss << "1.6.x   witness object\n";
+      ss << "1.7.x   limit order object\n";
+      ss << "1.8.x   call order object\n";
+      ss << "1.9.x   custom object\n";
+      ss << "1.10.x  proposal object\n";
+      ss << "1.11.x  operation history object\n";
+      ss << "1.12.x  withdraw permission object\n";
+      ss << "1.13.x  vesting balance object\n";
+      ss << "1.14.x  worker object\n";
+      ss << "1.15.x  balance object\n";
+      ss << "1.16.x  flipcoin_object\n";
+      ss << "1.17.x  lottery_goods_object\n";
+      ss << "1.18.x  matrix_object\n";
+      ss << "1.19.x  matrix_rooms_object\n";
+      ss << "1.20.x  p2p_adv_object\n";
+      ss << "1.21.x  p2p_order_object\n";
+      ss << "1.22.x  credit_offer_object\n";
+      ss << "1.23.x  pledge_offer_object\n";
+      ss << "2.0.x   global_property_object\n";
+      ss << "2.1.x   dynamic_global_property_object\n";
+      ss << "2.3.x   asset_dynamic_data\n";
+      ss << "2.4.x   asset_bitasset_data\n";
+      ss << "2.5.x   account_balance_object\n";
+      ss << "2.6.x   account_statistics_object\n";
+      ss << "2.7.x   transaction_history_object\n";
+      ss << "2.8.x   block_summary_object\n";
+      ss << "2.9.x   account_transaction_history_object\n";
+      ss << "2.10.x  blinded_balance_object\n";
+      ss << "2.11.x  chain_property_object\n";
+      ss << "2.12.x  witness_schedule_object\n";
+      ss << "2.13.x  budget_record_object\n";
+      ss << "2.14.x  special_authority_object\n";
+      ss << "2.15.x  buyback_object\n";
+      ss << "2.16.x  fba_accumulator_object\n";
+      ss << "2.17.x  collateral_bid_object\n\n";
+
+      ss << "Use this method to get all the information about the object in the blockchain.";
+   }
+   else if( method == "upgrade_account" )
+   {
+      ss << "usage: upgrade_account ACCOUNT_NAME BROADCAST\n\n";
+      ss << "example: upgrade_account \"master\" true\n";
+      ss << "\n";
+      ss << "Use this method to upgrade your account to the status of a lifetime member.";
+   }
+   else if( method == "upgrade_status" )
+   {
+      ss << "usage: upgrade_status ACCOUNT_NAME STATUS BROADCAST\n\n";
+
+      ss << "example: upgrade_status \"master\" \"4\" true\n\n";
+
+      ss << "Possible account statuses:\n\n";
+
+      ss << "Client   - 0\n";
+      ss << "Start    - 1\n";
+      ss << "Expert   - 2\n";
+      ss << "Citizen  - 3\n";
+      ss << "Infinity - 4\n\n";
+
+      ss << "Use this method to upgrade status your account.";
    }
    else
    {

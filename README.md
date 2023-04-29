@@ -1,11 +1,11 @@
 <div id="header" align="left">
-  <img src="https://github.com/tprvx/crowdwiz-core/blob/master/%5Blatest%5Dcoingecko_logo_with_dark_text.png" width="100px"/>
+  <img src="images/coingecko_logo.png" width="100px"/>
 </div>
 
 CrowdWiz Core
 ==============
 
-Detailed description will be available soon
+CrowdWiz is an open source blockchain project based on Graphene/Bitshare high-speed DPOS technology, the basic functionality: cryptography, consensus and voting algorithms, API implementation and even basic operations remained the same as in the original Bitshares.
 
 Getting Started
 ---------------

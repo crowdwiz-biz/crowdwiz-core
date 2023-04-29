@@ -2,4 +2,3 @@
 #ifndef HARDFORK_CWD7_TIME
 #define HARDFORK_CWD7_TIME (fc::time_point_sec(1623088800))
 #endif
-

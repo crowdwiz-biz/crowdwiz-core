@@ -164,12 +164,12 @@ void application_impl::reset_p2p_node(const fc::path& data_dir)
    else
    {
       vector<string> seeds = {
-         "build2.onbc.xyz:1776",
          "cwd.global:1776",
          "ru.cwd.global:1776",
          "asia.cwd.global:1776",
          "eu.cwd.global:1776",
-         "68.183.242.188:1776"
+         "crowd-ex.io:1776",
+         "cwd-dao.su:1776",
       };
       for( const string& endpoint_string : seeds )
       {

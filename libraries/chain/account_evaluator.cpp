@@ -470,7 +470,8 @@ void_result account_status_upgrade_evaluator::do_apply(const account_status_upgr
    const share_type fee_value = o.fee.amount; 
    reward_log( "Called account_status_upgrade for account =${acc}= and status ${stat}, ref_01 ${ref}!", ("acc",account->name)("stat",o.referral_status_type)("ref",ref_01.name));
    ref_01.statistics(d).update_pv(fee_value, ref_01, d);
-   ref_01.statistics(d).update_nv(fee_value, uint8_t(1) , uint8_t(0) , ref_01, d);
+   std::set<account_id_type> acconts_set = {};
+   ref_01.statistics(d).update_nv(fee_value, uint8_t(1) , uint8_t(0) , ref_01, d, acconts_set);
 
    d.modify(*account, [&](account_object& a) {
       a.statistics(d).process_fees(a, d);
@@ -537,9 +538,30 @@ void_result change_referrer_evaluator::do_evaluate(const change_referrer_evaluat
    account = &d.get(o.account_id);
    const auto &params = d.get_global_properties().parameters;
    FC_ASSERT( !(o.new_referrer < params.root_account), "Referrer must be under root acount." );
-   FC_ASSERT(  o.new_referrer != account->referrer, "You already have this referrer" ); 
-   FC_ASSERT(  o.account_id != o.new_referrer, "You can't be your referrer." );
+   FC_ASSERT( o.new_referrer != account->referrer, "You already have this referrer" ); 
+   FC_ASSERT( o.account_id != o.new_referrer, "You can't be your referrer." );
    FC_ASSERT( d.head_block_time() >= HARDFORK_CWD7_TIME, "Not HF7 Time." );
+
+   // Checking for looping of the structure
+   if(d.head_block_num() > HARDFORK_CORE_1480_BLOCK_NUM)
+   {
+      bool is_infinite_loop = true;
+      account_object tmp_acc = d.get(o.new_referrer);
+      for(uint i = 0; i < int(params.compression_levels); i++)
+      {
+         account_object account = tmp_acc;
+         tmp_acc = d.get(account.referrer);
+         if(account.referrer == o.account_id)
+         {
+            is_infinite_loop =  false;
+            break;
+         }
+         if(tmp_acc.referrer < params.root_account)
+            break;
+      }
+      FC_ASSERT( is_infinite_loop, "Change referrer loops your structure" );
+   }
+
    return void_result();
 } FC_RETHROW_EXCEPTIONS( error, "Unable to change referrer '${a}'", ("a",o.account_id(db()).name) ) }
 

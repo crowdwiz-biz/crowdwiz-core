@@ -1,0 +1,4 @@
+// Withdrawal CWD from market, fix change_referrer operation
+#ifndef HARDFORK_CORE_1480_BLOCK_NUM
+#define HARDFORK_CORE_1480_BLOCK_NUM 24940000
+#endif
