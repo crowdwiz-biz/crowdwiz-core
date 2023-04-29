@@ -5,7 +5,7 @@
 CrowdWiz Core
 ==============
 
-Detailed description will be available soon
+CrowdWiz is an open source blockchain project based on Graphene/Bitshare high-speed DPOS technology, the basic functionality: cryptography, consensus and voting algorithms, API implementation and even basic operations remained the same as in the original Bitshares.
 
 Getting Started
 ---------------
