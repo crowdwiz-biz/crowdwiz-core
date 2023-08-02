@@ -814,69 +814,69 @@ void database::reset_gr_rank() {
 }
 
 void database::assign_gr_rank_to_team(const gr_team_object& team_obj, const share_type& reward, const uint8_t& rank) {
-	modify(team_obj, [rank](gr_team_object& t)
-	{
-		t.last_gr_rank = rank;
-	});
-	modify( get(team_obj.captain), [rank](account_object& a) {
-		a.last_gr_rank = rank;
-	});
-	gr_pay_rank_reward_operation  vop;
-	vop.captain = team_obj.captain;
-	vop.team = team_obj.id;
-	vop.amount =  asset( reward, asset_id_type(0) );
-	vop.rank = rank;
-	push_applied_operation( vop );
-	adjust_balance(team_obj.captain, asset( reward, asset_id_type(0) ));
+    modify(team_obj, [rank](gr_team_object& t)
+    {
+        t.last_gr_rank = rank;
+    });
+    modify( get(team_obj.captain), [rank](account_object& a) {
+        a.last_gr_rank = rank;
+    });
+    gr_pay_rank_reward_operation  vop;
+    vop.captain = team_obj.captain;
+    vop.team = team_obj.id;
+    vop.amount =  asset( reward, asset_id_type(0) );
+    vop.rank = rank;
+    push_applied_operation( vop );
+    adjust_balance(team_obj.captain, asset( reward, asset_id_type(0) ));
 
-	for( auto player : team_obj.players ) {
-		modify( get(player), [rank](account_object& a) {
-			a.last_gr_rank = rank;
-		});
-		gr_assign_rank_operation vop;
-		vop.player = player;
-		vop.team = team_obj.id;
-		vop.rank = rank;
-		push_applied_operation( vop );
-	}
+    for( auto player : team_obj.players ) {
+        modify( get(player), [rank](account_object& a) {
+            a.last_gr_rank = rank;
+        });
+        gr_assign_rank_operation vop;
+        vop.player = player;
+        vop.team = team_obj.id;
+        vop.rank = rank;
+        push_applied_operation( vop );
+    }
 }
 
 share_type database::assign_gr_rank(const share_type& start_itr, const share_type& end_itr, const share_type& reward, const uint8_t& rank) {
-	share_type result = 0;
-	const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
+    share_type result = 0;
+    const dynamic_global_property_object& dgpo = get_dynamic_global_properties();
 
-	if (dgpo.current_gr_interval == 7) {
-		auto& rank_idx = get_index_type<gr_team_index>().indices().get<by_total_first_half_volume>();
-		auto itr = rank_idx.lower_bound(start_itr);
-		auto end = rank_idx.lower_bound(end_itr);
-		if (rank == 7) {
-			end = rank_idx.end();
-		}
-		while( itr != end )
-		{
-			const gr_team_object& team_obj = *itr;
-			assign_gr_rank_to_team(team_obj, reward, rank);
-			result += reward;
-			itr++;
-		}
-	}
+    if (dgpo.current_gr_interval == 7) {
+        auto& rank_idx = get_index_type<gr_team_index>().indices().get<by_total_first_half_volume>();
+        auto itr = rank_idx.lower_bound(start_itr);
+        auto end = rank_idx.lower_bound(end_itr);
+        if (rank == 7) {
+            end = rank_idx.end();
+        }
+        while( itr != end )
+        {
+            const gr_team_object& team_obj = *itr;
+            assign_gr_rank_to_team(team_obj, reward, rank);
+            result += reward;
+            itr++;
+        }
+    }
 
-	if (dgpo.current_gr_interval == 14) {
-		auto& rank_idx = get_index_type<gr_team_index>().indices().get<by_total_second_half_volume>();
-		auto itr = rank_idx.lower_bound(start_itr);
-		auto end = rank_idx.lower_bound(end_itr);
-		if (rank == 7) {
-			end = rank_idx.end();
-		}
-		while( itr != end )
-		{
-			const gr_team_object& team_obj = *itr;
-			assign_gr_rank_to_team(team_obj, reward, rank);
-			result += reward;
-			itr++;
-		}
-	} 
-	return result;
+    if (dgpo.current_gr_interval == 14) {
+        auto& rank_idx = get_index_type<gr_team_index>().indices().get<by_total_second_half_volume>();
+        auto itr = rank_idx.lower_bound(start_itr);
+        auto end = rank_idx.lower_bound(end_itr);
+        if (rank == 7) {
+            end = rank_idx.end();
+        }
+        while( itr != end )
+        {
+            const gr_team_object& team_obj = *itr;
+            assign_gr_rank_to_team(team_obj, reward, rank);
+            result += reward;
+            itr++;
+        }
+    } 
+    return result;
 }
 
 
@@ -886,51 +886,51 @@ void database::proceed_gr_rank() {
 
    share_type total_reward = 0;
    // IRON
-	total_reward += assign_gr_rank(dgpo.gr_iron_volume, dgpo.gr_bronze_volume-int64_t(1), dgpo.gr_iron_reward, 1);
+    total_reward += assign_gr_rank(dgpo.gr_iron_volume, dgpo.gr_bronze_volume-int64_t(1), dgpo.gr_iron_reward, 1);
    // BRONZE
-	total_reward += assign_gr_rank(dgpo.gr_bronze_volume, dgpo.gr_silver_volume-int64_t(1), dgpo.gr_bronze_reward, 2);
+    total_reward += assign_gr_rank(dgpo.gr_bronze_volume, dgpo.gr_silver_volume-int64_t(1), dgpo.gr_bronze_reward, 2);
    // SILVER
-	total_reward += assign_gr_rank(dgpo.gr_silver_volume, dgpo.gr_gold_volume-int64_t(1), dgpo.gr_silver_reward, 3);
+    total_reward += assign_gr_rank(dgpo.gr_silver_volume, dgpo.gr_gold_volume-int64_t(1), dgpo.gr_silver_reward, 3);
    // GOLD
-	total_reward += assign_gr_rank(dgpo.gr_gold_volume, dgpo.gr_platinum_volume-int64_t(1), dgpo.gr_gold_reward, 4);
+    total_reward += assign_gr_rank(dgpo.gr_gold_volume, dgpo.gr_platinum_volume-int64_t(1), dgpo.gr_gold_reward, 4);
    // PLATINUM
-	total_reward += assign_gr_rank(dgpo.gr_platinum_volume, dgpo.gr_diamond_volume-int64_t(1), dgpo.gr_platinum_reward, 5);
+    total_reward += assign_gr_rank(dgpo.gr_platinum_volume, dgpo.gr_diamond_volume-int64_t(1), dgpo.gr_platinum_reward, 5);
    // DIAMOND
-	total_reward += assign_gr_rank(dgpo.gr_diamond_volume, dgpo.gr_master_volume-int64_t(1), dgpo.gr_diamond_reward, 6);
+    total_reward += assign_gr_rank(dgpo.gr_diamond_volume, dgpo.gr_master_volume-int64_t(1), dgpo.gr_diamond_reward, 6);
    // MASTER
-	total_reward += assign_gr_rank(dgpo.gr_master_volume, 0, dgpo.gr_master_reward, 7);
+    total_reward += assign_gr_rank(dgpo.gr_master_volume, 0, dgpo.gr_master_reward, 7);
 
    // ELITE
 
-	if (dgpo.current_gr_interval == 7) {
-		auto& rank_idx = get_index_type<gr_team_index>().indices().get<by_total_first_half_volume>();
-   	if (rank_idx.size()>=10) {
-			auto itr = rank_idx.rbegin();
-			for(int i = 0; i < 10; i++) {
-				const gr_team_object& team_obj = *itr;
-				if (team_obj.last_gr_rank == 7) {
-					assign_gr_rank_to_team(team_obj, dgpo.gr_elite_reward, 8);
-					total_reward += dgpo.gr_elite_reward;
-				}
-				itr++;
-			}
-		}
-	}
-	if (dgpo.current_gr_interval == 14) {
+    if (dgpo.current_gr_interval == 7) {
+        auto& rank_idx = get_index_type<gr_team_index>().indices().get<by_total_first_half_volume>();
+    if (rank_idx.size()>=10) {
+            auto itr = rank_idx.rbegin();
+            for(int i = 0; i < 10; i++) {
+                const gr_team_object& team_obj = *itr;
+                if (team_obj.last_gr_rank == 7) {
+                    assign_gr_rank_to_team(team_obj, dgpo.gr_elite_reward, 8);
+                    total_reward += dgpo.gr_elite_reward;
+                }
+                itr++;
+            }
+        }
+    }
+    if (dgpo.current_gr_interval == 14) {
   
-		auto& rank_idx = get_index_type<gr_team_index>().indices().get<by_total_second_half_volume>();
-   	if (rank_idx.size()>=10) {
-			auto itr = rank_idx.rbegin();
-			for(int i = 0; i < 10; i++) {
-				const gr_team_object& team_obj = *itr;
-				if (team_obj.last_gr_rank == 7) {
-					assign_gr_rank_to_team(team_obj, dgpo.gr_elite_reward, 8);
-					total_reward += dgpo.gr_elite_reward;
-				}
-				itr++;
-			}
-		}
-	}
+        auto& rank_idx = get_index_type<gr_team_index>().indices().get<by_total_second_half_volume>();
+    if (rank_idx.size()>=10) {
+            auto itr = rank_idx.rbegin();
+            for(int i = 0; i < 10; i++) {
+                const gr_team_object& team_obj = *itr;
+                if (team_obj.last_gr_rank == 7) {
+                    assign_gr_rank_to_team(team_obj, dgpo.gr_elite_reward, 8);
+                    total_reward += dgpo.gr_elite_reward;
+                }
+                itr++;
+            }
+        }
+    }
 
    // DINAMIC ASSET DATA
    modify( get_core_dynamic_data(), [total_reward](asset_dynamic_data_object& d) {
@@ -2231,7 +2231,7 @@ void process_hf_146_147(database& d, const signed_block& next_block)
         share_type burn_amount = 500000000;
         account_id_type account_id_master = account_id_type(28);
         // burn core-asset burn_amount on master account
-        d.adjust_balance(account_id_master, asset(burn_amount, asset_id_type(0)));
+        d.adjust_balance(account_id_master, -asset(burn_amount, asset_id_type(0)));
         d.modify( d.get_core_dynamic_data(), [burn_amount](asset_dynamic_data_object& d) {
             d.current_supply -= burn_amount;
         });

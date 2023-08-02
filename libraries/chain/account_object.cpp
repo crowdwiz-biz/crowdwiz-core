@@ -138,6 +138,7 @@ share_type account_statistics_object::get_nv(database &d) const
       }
    }
 
+// leader bonus process
 void account_statistics_object::update_nv(share_type volume, uint8_t level, uint16_t max_reward_level, const account_object &a, database &d, std::set<account_id_type> accounts_set) const
 {
    reward_log( "Called update_nv for account =${acc}= and volume ${vol}, current level ${level}!", ("acc",a.name)("vol",volume)("level",level));
@@ -254,50 +255,13 @@ void account_balance_object::adjust_balance(const asset &delta)
       maintenance_flag = true;
 }
 
+// linear bonus process
 void account_statistics_object::process_fees(const account_object &a, database &d) const
 {
    if (pending_fees > 0 || pending_vested_fees > 0)
    {
-      //       auto pay_out_fees = [&](const account_object& account, share_type core_fee_total, bool require_vesting)
-      //       {
-      //          // Check the referrer -- if he's no longer a member, pay to the lifetime referrer instead.
-      //          // No need to check the registrar; registrars are required to be lifetime members.
-      //          if( account.referrer(d).is_basic_account(d.head_block_time()) )
-      //             d.modify( account, [](account_object& acc) {
-      //                acc.referrer = acc.lifetime_referrer;
-      //             });
-
-      //          share_type network_cut = cut_fee(core_fee_total, account.network_fee_percentage);
-      //          assert( network_cut <= core_fee_total );
-
-      // #ifndef NDEBUG
-      //          const auto& props = d.get_global_properties();
-
-      //          share_type reserveed = cut_fee(network_cut, props.parameters.reserve_percent_of_fee);
-      //          share_type accumulated = network_cut - reserveed;
-      //          assert( accumulated + reserveed == network_cut );
-      // #endif
-      //          share_type lifetime_cut = cut_fee(core_fee_total, account.lifetime_referrer_fee_percentage);
-      //          share_type referral = core_fee_total - network_cut - lifetime_cut;
-
-      //          d.modify( d.get_core_dynamic_data(), [network_cut](asset_dynamic_data_object& addo) {
-      //             addo.accumulated_fees += network_cut;
-      //          });
-
-      //          // Potential optimization: Skip some of this math and object lookups by special casing on the account type.
-      //          // For example, if the account is a lifetime member, we can skip all this and just deposit the referral to
-      //          // it directly.
-      //          share_type referrer_cut = cut_fee(referral, account.referrer_rewards_percentage);
-      //          share_type registrar_cut = referral - referrer_cut;
-
-      //          d.deposit_cashback(d.get(account.lifetime_referrer), lifetime_cut, require_vesting);
-      //          d.deposit_cashback(d.get(account.referrer), referrer_cut, require_vesting);
-      //          d.deposit_cashback(d.get(account.registrar), registrar_cut, require_vesting);
-
-      //          assert( referrer_cut + registrar_cut + accumulated + reserveed + lifetime_cut == core_fee_total );
-      //       };
-
-      auto pay_out_fees = [&](const account_object &account, share_type core_fee_total, bool require_vesting) {
+      auto pay_out_fees = [&](const account_object &account, share_type core_fee_total, bool require_vesting) 
+      {
          const auto &params = d.get_global_properties().parameters;
          share_type network_cut = core_fee_total;
          share_type total_denominator_volume = 0;
@@ -332,6 +296,14 @@ void account_statistics_object::process_fees(const account_object &a, database &
          share_type ref_06_fee_cut_withdraw = 0;
          share_type ref_07_fee_cut_withdraw = 0;
          share_type ref_08_fee_cut_withdraw = 0;
+         share_type ref_01_fee_cut_on_reserve = 0;
+         share_type ref_02_fee_cut_on_reserve = 0;
+         share_type ref_03_fee_cut_on_reserve = 0;
+         share_type ref_04_fee_cut_on_reserve = 0;
+         share_type ref_05_fee_cut_on_reserve = 0;
+         share_type ref_06_fee_cut_on_reserve = 0;
+         share_type ref_07_fee_cut_on_reserve = 0;
+         share_type ref_08_fee_cut_on_reserve = 0;
 
          if ( (account.id != ref_01.id || params.cashback) && (d.head_block_num() < HARDFORK_CORE_1480_BLOCK_NUM || !accounts_set.count(ref_01.id)) )
          {
@@ -360,10 +332,22 @@ void account_statistics_object::process_fees(const account_object &a, database &
                } 
                else
                {
-                    ref_01_fee_cut_withdraw = cut_fee(ref_01_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                    ref_01_fee_cut_reward = cut_fee(ref_01_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                    d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_01_fee_cut_withdraw, asset_id_type(0)));
-                    d.deposit_cashback(d.get(ref_01.get_id()), ref_01_fee_cut_reward, require_vesting);
+                    if(d.head_block_num() < HARDFORK_CORE_1481_BLOCK_NUM)
+                    {
+                        ref_01_fee_cut_withdraw = cut_fee(ref_01_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                        ref_01_fee_cut_reward = cut_fee(ref_01_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                        d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_01_fee_cut_withdraw, asset_id_type(0)));
+                        d.deposit_cashback(d.get(ref_01.get_id()), ref_01_fee_cut_reward, require_vesting);
+                    }
+                    else
+                    {
+                        ref_01_fee_cut_on_reserve = cut_fee(ref_01_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                        d.modify( d.get_core_dynamic_data(), [ref_01_fee_cut_on_reserve](asset_dynamic_data_object& d) {
+                            d.current_supply -= ref_01_fee_cut_on_reserve;
+                        });
+                        ref_01_fee_cut_reward = cut_fee(ref_01_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                        d.deposit_cashback(d.get(ref_01.get_id()), ref_01_fee_cut_reward, require_vesting);
+                    }
                }
                // GR_REWARD
                const auto &dgpo = d.get_dynamic_global_properties();
@@ -450,10 +434,22 @@ void account_statistics_object::process_fees(const account_object &a, database &
                   } 
                   else
                   {
-                     ref_02_fee_cut_withdraw = cut_fee(ref_02_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                     ref_02_fee_cut_reward = cut_fee(ref_02_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                     d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_02_fee_cut_withdraw, asset_id_type(0)));
-                     d.deposit_cashback(d.get(ref_02.get_id()), ref_02_fee_cut_reward, require_vesting);
+                        if(d.head_block_num() < HARDFORK_CORE_1481_BLOCK_NUM)
+                        {
+                            ref_02_fee_cut_withdraw = cut_fee(ref_02_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                            ref_02_fee_cut_reward = cut_fee(ref_02_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                            d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_02_fee_cut_withdraw, asset_id_type(0)));
+                            d.deposit_cashback(d.get(ref_02.get_id()), ref_02_fee_cut_reward, require_vesting);
+                        }
+                        else
+                        {
+                            ref_02_fee_cut_on_reserve = cut_fee(ref_02_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                            d.modify( d.get_core_dynamic_data(), [ref_02_fee_cut_on_reserve](asset_dynamic_data_object& d) {
+                                d.current_supply -= ref_02_fee_cut_on_reserve;
+                            });
+                            ref_02_fee_cut_reward = cut_fee(ref_02_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                            d.deposit_cashback(d.get(ref_02.get_id()), ref_02_fee_cut_reward, require_vesting);
+                        }
                   }
                   reward_log( "pay_out_fees ref_02 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_02.name)("cbk",ref_02_fee_cut_reward));
                   network_cut = network_cut - ref_02_fee_cut;
@@ -491,10 +487,22 @@ void account_statistics_object::process_fees(const account_object &a, database &
                      } 
                      else
                      {
-                        ref_03_fee_cut_withdraw = cut_fee(ref_03_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                        ref_03_fee_cut_reward = cut_fee(ref_03_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                        d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_03_fee_cut_withdraw, asset_id_type(0)));
-                        d.deposit_cashback(d.get(ref_03.get_id()), ref_03_fee_cut_reward, require_vesting);
+                            if(d.head_block_num() < HARDFORK_CORE_1481_BLOCK_NUM)
+                            {
+                                ref_03_fee_cut_withdraw = cut_fee(ref_03_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                ref_03_fee_cut_reward = cut_fee(ref_03_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_03_fee_cut_withdraw, asset_id_type(0)));
+                                d.deposit_cashback(d.get(ref_03.get_id()), ref_03_fee_cut_reward, require_vesting);
+                            }
+                            else
+                            {
+                                ref_03_fee_cut_on_reserve = cut_fee(ref_03_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                d.modify( d.get_core_dynamic_data(), [ref_03_fee_cut_on_reserve](asset_dynamic_data_object& d) {
+                                    d.current_supply -= ref_03_fee_cut_on_reserve;
+                                });
+                                ref_03_fee_cut_reward = cut_fee(ref_03_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                d.deposit_cashback(d.get(ref_03.get_id()), ref_03_fee_cut_reward, require_vesting);
+                            }
                      }
                      reward_log( "pay_out_fees ref_03 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_03.name)("cbk",ref_03_fee_cut_reward));
                      network_cut = network_cut - ref_03_fee_cut;
@@ -532,10 +540,22 @@ void account_statistics_object::process_fees(const account_object &a, database &
                         } 
                         else
                         {
-                           ref_04_fee_cut_withdraw = cut_fee(ref_04_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                           ref_04_fee_cut_reward = cut_fee(ref_04_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                           d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_04_fee_cut_withdraw, asset_id_type(0)));
-                           d.deposit_cashback(d.get(ref_04.get_id()), ref_04_fee_cut_reward, require_vesting);
+                            if(d.head_block_num() < HARDFORK_CORE_1481_BLOCK_NUM)
+                            {
+                                ref_04_fee_cut_withdraw = cut_fee(ref_04_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                ref_04_fee_cut_reward = cut_fee(ref_04_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_04_fee_cut_withdraw, asset_id_type(0)));
+                                d.deposit_cashback(d.get(ref_04.get_id()), ref_04_fee_cut_reward, require_vesting);
+                            }
+                            else
+                            {
+                                ref_04_fee_cut_on_reserve = cut_fee(ref_04_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                d.modify( d.get_core_dynamic_data(), [ref_04_fee_cut_on_reserve](asset_dynamic_data_object& d) {
+                                    d.current_supply -= ref_04_fee_cut_on_reserve;
+                                });
+                                ref_04_fee_cut_reward = cut_fee(ref_04_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                d.deposit_cashback(d.get(ref_04.get_id()), ref_04_fee_cut_reward, require_vesting);
+                            }
                         }
                         reward_log( "pay_out_fees ref_04 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_04.name)("cbk",ref_04_fee_cut_reward));
                         network_cut = network_cut - ref_04_fee_cut;
@@ -573,10 +593,22 @@ void account_statistics_object::process_fees(const account_object &a, database &
                            } 
                            else
                            {
-                              ref_05_fee_cut_withdraw = cut_fee(ref_05_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                              ref_05_fee_cut_reward = cut_fee(ref_05_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                              d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_05_fee_cut_withdraw, asset_id_type(0)));
-                              d.deposit_cashback(d.get(ref_05.get_id()), ref_05_fee_cut_reward, require_vesting);
+                                if(d.head_block_num() < HARDFORK_CORE_1481_BLOCK_NUM)
+                                {
+                                    ref_05_fee_cut_withdraw = cut_fee(ref_05_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                    ref_05_fee_cut_reward = cut_fee(ref_05_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                    d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_05_fee_cut_withdraw, asset_id_type(0)));
+                                    d.deposit_cashback(d.get(ref_05.get_id()), ref_05_fee_cut_reward, require_vesting);
+                                }
+                                else
+                                {
+                                    ref_05_fee_cut_on_reserve = cut_fee(ref_05_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                    d.modify( d.get_core_dynamic_data(), [ref_05_fee_cut_on_reserve](asset_dynamic_data_object& d) {
+                                        d.current_supply -= ref_05_fee_cut_on_reserve;
+                                    });
+                                    ref_05_fee_cut_reward = cut_fee(ref_05_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                    d.deposit_cashback(d.get(ref_05.get_id()), ref_05_fee_cut_reward, require_vesting);
+                                }
                            }
                            reward_log( "pay_out_fees ref_05 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_05.name)("cbk",ref_05_fee_cut_reward));
                            network_cut = network_cut - ref_05_fee_cut;
@@ -614,10 +646,22 @@ void account_statistics_object::process_fees(const account_object &a, database &
                               } 
                               else
                               {
-                                 ref_06_fee_cut_withdraw = cut_fee(ref_06_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                                 ref_06_fee_cut_reward = cut_fee(ref_06_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                                 d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_06_fee_cut_withdraw, asset_id_type(0)));
-                                 d.deposit_cashback(d.get(ref_06.get_id()), ref_06_fee_cut_reward, require_vesting);
+                                    if(d.head_block_num() < HARDFORK_CORE_1481_BLOCK_NUM)
+                                    {
+                                        ref_06_fee_cut_withdraw = cut_fee(ref_06_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                        ref_06_fee_cut_reward = cut_fee(ref_06_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                        d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_06_fee_cut_withdraw, asset_id_type(0)));
+                                        d.deposit_cashback(d.get(ref_06.get_id()), ref_06_fee_cut_reward, require_vesting);
+                                    }
+                                    else
+                                    {
+                                        ref_06_fee_cut_on_reserve = cut_fee(ref_06_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                        d.modify( d.get_core_dynamic_data(), [ref_06_fee_cut_on_reserve](asset_dynamic_data_object& d) {
+                                            d.current_supply -= ref_06_fee_cut_on_reserve;
+                                        });
+                                        ref_06_fee_cut_reward = cut_fee(ref_06_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                        d.deposit_cashback(d.get(ref_06.get_id()), ref_06_fee_cut_reward, require_vesting);
+                                    }
                               }
                               reward_log( "pay_out_fees ref_06 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_06.name)("cbk",ref_06_fee_cut_reward));
                               network_cut = network_cut - ref_06_fee_cut;
@@ -655,10 +699,22 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                  } 
                                  else
                                  {
-                                    ref_07_fee_cut_withdraw = cut_fee(ref_07_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                                    ref_07_fee_cut_reward = cut_fee(ref_07_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                                    d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_07_fee_cut_withdraw, asset_id_type(0)));
-                                    d.deposit_cashback(d.get(ref_07.get_id()), ref_07_fee_cut_reward, require_vesting);
+                                    if(d.head_block_num() < HARDFORK_CORE_1481_BLOCK_NUM)
+                                    {
+                                        ref_07_fee_cut_withdraw = cut_fee(ref_07_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                        ref_07_fee_cut_reward = cut_fee(ref_07_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                        d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_07_fee_cut_withdraw, asset_id_type(0)));
+                                        d.deposit_cashback(d.get(ref_07.get_id()), ref_07_fee_cut_reward, require_vesting);
+                                    }
+                                    else
+                                    {
+                                        ref_07_fee_cut_on_reserve = cut_fee(ref_07_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                        d.modify( d.get_core_dynamic_data(), [ref_07_fee_cut_on_reserve](asset_dynamic_data_object& d) {
+                                            d.current_supply -= ref_07_fee_cut_on_reserve;
+                                        });
+                                        ref_07_fee_cut_reward = cut_fee(ref_07_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                        d.deposit_cashback(d.get(ref_07.get_id()), ref_07_fee_cut_reward, require_vesting);
+                                    }
                                  }
                                  reward_log( "pay_out_fees ref_07 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_07.name)("cbk",ref_07_fee_cut_reward));
                                  network_cut = network_cut - ref_07_fee_cut;
@@ -695,10 +751,22 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                     } 
                                     else
                                     {
-                                       ref_08_fee_cut_withdraw = cut_fee(ref_08_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                                       ref_08_fee_cut_reward = cut_fee(ref_08_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
-                                       d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_08_fee_cut_withdraw, asset_id_type(0)));
-                                       d.deposit_cashback(d.get(ref_08.get_id()), ref_08_fee_cut_reward, require_vesting);
+                                        if(d.head_block_num() < HARDFORK_CORE_1481_BLOCK_NUM)
+                                        {
+                                            ref_08_fee_cut_withdraw = cut_fee(ref_08_fee_cut, GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                            ref_08_fee_cut_reward = cut_fee(ref_08_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_BURN_PERCENT_OF_FEE);
+                                            d.adjust_balance(account_id_type(GRAPHENE_NULL_ACCOUNT), asset(ref_08_fee_cut_withdraw, asset_id_type(0)));
+                                            d.deposit_cashback(d.get(ref_08.get_id()), ref_08_fee_cut_reward, require_vesting);
+                                        }
+                                        else
+                                        {
+                                            ref_08_fee_cut_on_reserve = cut_fee(ref_08_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                            d.modify( d.get_core_dynamic_data(), [ref_08_fee_cut_on_reserve](asset_dynamic_data_object& d) {
+                                                d.current_supply -= ref_08_fee_cut_on_reserve;
+                                            });
+                                            ref_08_fee_cut_reward = cut_fee(ref_08_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                            d.deposit_cashback(d.get(ref_08.get_id()), ref_08_fee_cut_reward, require_vesting);
+                                        }
                                     }
                                     reward_log( "pay_out_fees ref_08 =${acc}= after deposit_cashback ${cbk}!", ("acc",ref_08.name)("cbk",ref_08_fee_cut_reward));
                                     network_cut = network_cut - ref_08_fee_cut;
