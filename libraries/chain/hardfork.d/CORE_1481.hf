@@ -1,0 +1,4 @@
+// Enabling the filling of the reserve pool
+#ifndef HARDFORK_CORE_1481_BLOCK_NUM
+#define HARDFORK_CORE_1481_BLOCK_NUM 26571000
+#endif
