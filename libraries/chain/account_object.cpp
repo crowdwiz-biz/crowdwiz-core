@@ -341,11 +341,11 @@ void account_statistics_object::process_fees(const account_object &a, database &
                     }
                     else
                     {
-                        ref_01_fee_cut_on_reserve = cut_fee(ref_01_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                        ref_01_fee_cut_on_reserve = cut_fee(ref_01_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                         d.modify( d.get_core_dynamic_data(), [ref_01_fee_cut_on_reserve](asset_dynamic_data_object& d) {
                             d.current_supply -= ref_01_fee_cut_on_reserve;
                         });
-                        ref_01_fee_cut_reward = cut_fee(ref_01_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                        ref_01_fee_cut_reward = cut_fee(ref_01_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                         d.deposit_cashback(d.get(ref_01.get_id()), ref_01_fee_cut_reward, require_vesting);
                     }
                }
@@ -443,11 +443,11 @@ void account_statistics_object::process_fees(const account_object &a, database &
                         }
                         else
                         {
-                            ref_02_fee_cut_on_reserve = cut_fee(ref_02_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                            ref_02_fee_cut_on_reserve = cut_fee(ref_02_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                             d.modify( d.get_core_dynamic_data(), [ref_02_fee_cut_on_reserve](asset_dynamic_data_object& d) {
                                 d.current_supply -= ref_02_fee_cut_on_reserve;
                             });
-                            ref_02_fee_cut_reward = cut_fee(ref_02_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                            ref_02_fee_cut_reward = cut_fee(ref_02_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                             d.deposit_cashback(d.get(ref_02.get_id()), ref_02_fee_cut_reward, require_vesting);
                         }
                   }
@@ -496,11 +496,11 @@ void account_statistics_object::process_fees(const account_object &a, database &
                             }
                             else
                             {
-                                ref_03_fee_cut_on_reserve = cut_fee(ref_03_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                ref_03_fee_cut_on_reserve = cut_fee(ref_03_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                 d.modify( d.get_core_dynamic_data(), [ref_03_fee_cut_on_reserve](asset_dynamic_data_object& d) {
                                     d.current_supply -= ref_03_fee_cut_on_reserve;
                                 });
-                                ref_03_fee_cut_reward = cut_fee(ref_03_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                ref_03_fee_cut_reward = cut_fee(ref_03_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                 d.deposit_cashback(d.get(ref_03.get_id()), ref_03_fee_cut_reward, require_vesting);
                             }
                      }
@@ -549,11 +549,11 @@ void account_statistics_object::process_fees(const account_object &a, database &
                             }
                             else
                             {
-                                ref_04_fee_cut_on_reserve = cut_fee(ref_04_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                ref_04_fee_cut_on_reserve = cut_fee(ref_04_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                 d.modify( d.get_core_dynamic_data(), [ref_04_fee_cut_on_reserve](asset_dynamic_data_object& d) {
                                     d.current_supply -= ref_04_fee_cut_on_reserve;
                                 });
-                                ref_04_fee_cut_reward = cut_fee(ref_04_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                ref_04_fee_cut_reward = cut_fee(ref_04_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                 d.deposit_cashback(d.get(ref_04.get_id()), ref_04_fee_cut_reward, require_vesting);
                             }
                         }
@@ -602,11 +602,11 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                 }
                                 else
                                 {
-                                    ref_05_fee_cut_on_reserve = cut_fee(ref_05_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                    ref_05_fee_cut_on_reserve = cut_fee(ref_05_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                     d.modify( d.get_core_dynamic_data(), [ref_05_fee_cut_on_reserve](asset_dynamic_data_object& d) {
                                         d.current_supply -= ref_05_fee_cut_on_reserve;
                                     });
-                                    ref_05_fee_cut_reward = cut_fee(ref_05_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                    ref_05_fee_cut_reward = cut_fee(ref_05_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                     d.deposit_cashback(d.get(ref_05.get_id()), ref_05_fee_cut_reward, require_vesting);
                                 }
                            }
@@ -655,11 +655,11 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                     }
                                     else
                                     {
-                                        ref_06_fee_cut_on_reserve = cut_fee(ref_06_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                        ref_06_fee_cut_on_reserve = cut_fee(ref_06_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                         d.modify( d.get_core_dynamic_data(), [ref_06_fee_cut_on_reserve](asset_dynamic_data_object& d) {
                                             d.current_supply -= ref_06_fee_cut_on_reserve;
                                         });
-                                        ref_06_fee_cut_reward = cut_fee(ref_06_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                        ref_06_fee_cut_reward = cut_fee(ref_06_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                         d.deposit_cashback(d.get(ref_06.get_id()), ref_06_fee_cut_reward, require_vesting);
                                     }
                               }
@@ -708,11 +708,11 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                     }
                                     else
                                     {
-                                        ref_07_fee_cut_on_reserve = cut_fee(ref_07_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                        ref_07_fee_cut_on_reserve = cut_fee(ref_07_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                         d.modify( d.get_core_dynamic_data(), [ref_07_fee_cut_on_reserve](asset_dynamic_data_object& d) {
                                             d.current_supply -= ref_07_fee_cut_on_reserve;
                                         });
-                                        ref_07_fee_cut_reward = cut_fee(ref_07_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                        ref_07_fee_cut_reward = cut_fee(ref_07_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                         d.deposit_cashback(d.get(ref_07.get_id()), ref_07_fee_cut_reward, require_vesting);
                                     }
                                  }
@@ -760,11 +760,11 @@ void account_statistics_object::process_fees(const account_object &a, database &
                                         }
                                         else
                                         {
-                                            ref_08_fee_cut_on_reserve = cut_fee(ref_08_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                            ref_08_fee_cut_on_reserve = cut_fee(ref_08_fee_cut, GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                             d.modify( d.get_core_dynamic_data(), [ref_08_fee_cut_on_reserve](asset_dynamic_data_object& d) {
                                                 d.current_supply -= ref_08_fee_cut_on_reserve;
                                             });
-                                            ref_08_fee_cut_reward = cut_fee(ref_08_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BUNUS);
+                                            ref_08_fee_cut_reward = cut_fee(ref_08_fee_cut, GRAPHENE_100_PERCENT - GRAPHENE_DEFAULT_CUT_LINEAR_BONUS);
                                             d.deposit_cashback(d.get(ref_08.get_id()), ref_08_fee_cut_reward, require_vesting);
                                         }
                                     }
