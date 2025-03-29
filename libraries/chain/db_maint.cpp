@@ -2384,12 +2384,20 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    auto gr_vote_is_active = dgpo.gr_vote_is_active;
    auto gr_bet_interval_time = dgpo.gr_bet_interval_time;
 
-   if( next_gr_interval_time <= next_block.timestamp && next_block.timestamp < HARDFORK_CORE_144_TIME )
-   {       
-      if( current_gr_interval == 0) {
-         init_gr_race();
-      }
-      if( current_gr_interval == 0 || current_gr_interval == 14 ) {
+   const asset_object& core_asset = get_core_asset();
+   const asset_dynamic_data_object& core_dyn_data = get_core_dynamic_data();
+
+   if( next_gr_interval_time <= next_block.timestamp &&
+      (next_block.timestamp < HARDFORK_CORE_144_TIME ||
+      next_block.block_num() > HARDFORK_CORE_1482_BLOCK_NUM)
+   )
+   {
+      bool hardcup_flag = ((core_dyn_data.current_supply + core_asset.options.max_supply * GRAPHENE_1_PERCENT) > core_asset.options.max_supply);
+      if (next_block.block_num() > HARDFORK_CORE_1482_BLOCK_NUM && hardcup_flag)
+         wlog( "May be hardcup - Great Race process skipped!" );
+      else if( current_gr_interval == 0 || current_gr_interval == 14 ) {
+         if( current_gr_interval == 0 )
+            init_gr_race();
          current_gr_interval = 1;
          gr_vote_is_active = true;
          next_gr_interval_time = next_gr_interval_time+fc::days(gpo.greatrace_parameters.interval_1);

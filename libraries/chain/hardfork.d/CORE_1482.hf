@@ -1,0 +1,4 @@
+// Upgrade and restart of the great race
+#ifndef HARDFORK_CORE_1482_BLOCK_NUM
+#define HARDFORK_CORE_1482_BLOCK_NUM 36555000
+#endif

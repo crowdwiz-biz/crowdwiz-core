@@ -246,7 +246,11 @@ void_result asset_fund_fee_pool_evaluator::do_apply(const asset_fund_fee_pool_op
 
 static void validate_new_issuer( const database& d, const asset_object& a, account_id_type new_issuer )
 { try {
-   FC_ASSERT(d.find_object(new_issuer));
+   if (d.head_block_num() > HARDFORK_CORE_1482_BLOCK_NUM)
+   {
+      const account_object& new_issuer_obj = d.get(new_issuer);
+      FC_ASSERT( new_issuer_obj.is_lifetime_member(), "New issuer must have status service account" );
+   }
    if( a.is_market_issued() && new_issuer == GRAPHENE_COMMITTEE_ACCOUNT )
    {
       const asset_object& backing = a.bitasset_data(d).options.short_backing_asset(d);

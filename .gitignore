@@ -9,6 +9,7 @@ Makefile
 compile_commands.json
 moc_*
 *.moc
+*.cache/traces.*
 
 !libraries/fc/**
 

@@ -5,6 +5,8 @@
  */
 
 #include <graphene/chain/protocol/poc.hpp>
+#include <graphene/chain/database.hpp>
+#include <graphene/chain/hardfork.hpp>
 
 namespace graphene { namespace chain {
 
