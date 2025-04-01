@@ -2392,7 +2392,7 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       next_block.block_num() > HARDFORK_CORE_1482_BLOCK_NUM)
    )
    {
-      bool hardcup_flag = ((core_dyn_data.current_supply + core_asset.options.max_supply * GRAPHENE_1_PERCENT) > core_asset.options.max_supply);
+      bool hardcup_flag = ((core_dyn_data.current_supply + core_asset.options.max_supply * 0.01) > core_asset.options.max_supply);
       if (next_block.block_num() > HARDFORK_CORE_1482_BLOCK_NUM && hardcup_flag)
          wlog( "May be hardcup - Great Race process skipped!" );
       else if( current_gr_interval == 0 || current_gr_interval == 14 ) {
